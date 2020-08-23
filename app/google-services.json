@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "479928121242",
+    "firebase_url": "https://flipquotes-b20a0.firebaseio.com",
+    "project_id": "flipquotes-b20a0",
+    "storage_bucket": "flipquotes-b20a0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:479928121242:android:0ce34fedd979aa4685ec23",
+        "android_client_info": {
+          "package_name": "com.app.codebuzz.flipquotes"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "479928121242-v475083ajhhgpf0m2b69ddch47ucpb4l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBRFs88Wuzd44BudY031qdKcZtWXEpz_DU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "479928121242-v475083ajhhgpf0m2b69ddch47ucpb4l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

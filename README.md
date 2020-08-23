@@ -1,4 +1,3 @@
-# InShortsClone
-This is the layout clone for a news app, InShorts
+# FlipQuotes App
 
-[Video](https://vimeo.com/265922320).
+This is the FlipQuotes app inspired from the layout of InShorts

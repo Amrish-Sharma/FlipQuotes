@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="subHeading">16sp</dimen>
-    <dimen name="content">14sp</dimen>
+    <dimen name="subHeading">10sp</dimen>
+    <dimen name="content">24sp</dimen>
     <dimen name="moreShort">10sp</dimen>
     <dimen name="readMore">12sp</dimen>
     <dimen name="tapHere">11sp</dimen>

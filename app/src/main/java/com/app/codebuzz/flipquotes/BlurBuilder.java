@@ -1,4 +1,4 @@
-package com.example.deepamgoel.clone;
+package com.app.codebuzz.flipquotes;
 
 import android.content.Context;
 import android.graphics.Bitmap;

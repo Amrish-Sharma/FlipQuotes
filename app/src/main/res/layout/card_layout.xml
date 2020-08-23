@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:background="@android:color/black">
 
-    <android.support.v7.widget.CardView
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:cardBackgroundColor="@color/colorPrimary"
@@ -44,7 +44,7 @@
                     android:id="@+id/content"
                     style="@style/layoutText"
                     android:alpha="0.7"
-                    android:fontFamily="@font/droid_sans"
+                    android:fontFamily="@font/kotta_one"
                     android:lineSpacingMultiplier="1.2"
                     android:textColor="@color/contentColor"
                     android:textSize="@dimen/content"
@@ -155,6 +155,6 @@
 
         </RelativeLayout>
 
-    </android.support.v7.widget.CardView>
+    </androidx.cardview.widget.CardView>
 
 </FrameLayout>

@@ -1,26 +1,49 @@
 <resources>
-    <string name="app_name">Clone</string>
+    <string name="app_name">FlipQuotes</string>
 
     <string-array name="subHeading">
-        <item name="sub_heading1">What is Neuroendocrine Tumour that has affected Irrfan Khan?</item>
-        <item name="sub_heading2">Googling \'Mera Aadhaar Meri Pehchan\' reveals Aadhaar details</item>
-        <item name="sub_heading3">₹1.86 tn wiped off Indian stocks as Sensex falls 510 points </item>
+        <item name="sub_heading1">Failure is just another way to learn how to do something right.</item>
+        <item name="sub_heading2">Every failure brings with it the seed of an equivalent success.</item>
+        <item name="sub_heading3">The best way out is always through</item>
+        <item name="sub_heading4">Imagination is more important than knowledge</item>
+        <item name="sub_heading5">The future belongs to those who believe in the beauty of their dreams</item>
+        <item name="sub_heading6">Do not anticipate trouble or worry about what may never happen. Keep in the sunlight</item>
+        <item name="sub_heading7">A leader is a dealer in hope</item>
+        <item name="sub_heading8">Make it happen now, not tomorrow. Tomorrow is a loser’s excuse</item>
+        <item name="sub_heading9">The best time to plant a tree was 20 years ago. The second best time is now</item>
+
+
     </string-array>
 
     <string-array name="content">
-        <item name="content1">Bollywood actor Irrfan Khan on Friday revealed that he has Neuroendocrine Tumour, which can cause abnormal growth in tissues made of hormone-producing nerve cells. The rare condition mostly affects hormones of organs like intestines, lungs, stomach, liver, and not necessarily the brain. The tumour can be cancerous or non-cancerous, and can be treated using surgery, radiation, and chemotherapy.</item>
-        <item name="content2">A Google search for \'Mera Aadhaar Meri Pehchan filetype:pdf\' reveals Aadhaar details of several people, including their names, photographs and date of birth. The websites that publicly uploaded the Aadhaar details belong to government bodies like Indian National Centre for Ocean Information Services, All India Football Federation and payment gateway service Starcards India.</item>
-        <item name="content3">Around ₹1.86 trillion was wiped out from market capitalisation of all listed companies after benchmark index BSE Sensex closed 509.54 points down at 33,176 on Friday. This came amid concerns that a global trade war could hit exports over US President Donald Trump\'s decision to hike import tariffs on steel and aluminium. Nifty fell 165 points to close at 10,195.</item>
+        <item name="content1" >Failure is just another way to learn how to do something right ~ Marian Wright Edelman</item>
+        <item name="content2">Every failure brings with it the seed of an equivalent success ~ Napoleon Hill</item>
+        <item name="content3">The best way out is always through ~ Robert Frost</item>
+        <item name="content4">Imagination is more important than knowledge ~ Albert Einstein</item>
+        <item name="content5">The future belongs to those who believe in the beauty of their dreams ~ Eleanor Roosevelt</item>
+        <item name="content6">Do not anticipate trouble or worry about what may never happen. Keep in the sunlight ~ Benjamin Franklin</item>
+        <item name="content7">A leader is a dealer in hope ~ Napoleon Bonaparte</item>
+        <item name="content8">Make it happen now, not tomorrow. Tomorrow is a loser’s excuse ~ Andrew Fashion</item>
+        <item name="content9">The best time to plant a tree was 20 years ago. The second best time is now ~ Chinese proverb</item>
+
     </string-array>
 
     <string-array name="readMore">
-        <item name="read_more1">Irrfan Khan to go out of India for treatment</item>
-        <item name="read_more2">Biometric Details of individual not accessible</item>
-        <item name="read_more3">India\'s trade deficit narrows to $12 bn in Feb</item>
+        <item name="read_more1">Ad Section: </item>
+        <item name="read_more2">Ad Section: </item>
+        <item name="read_more3">Ad Section: </item>
+        <item name="read_more4">Ad Section: </item>
+        <item name="read_more5">Ad Section: </item>
+        <item name="read_more6">Ad Section: </item>
+        <item name="read_more7">Ad Section: </item>
+        <item name="read_more8">Ad Section: </item>
+        <item name="read_more9">Ad Section: </item>
+
+
     </string-array>
 
-    <string name="moreAt">more at Reuters/Yesterday</string>
-    <string name="shortBY">short By Deepam Goel</string>
+    <string name="moreAt" >more at FlipQuotes</string>
+    <string name="shortBY">Quotes By CodeBuzz</string>
     <string name="tapHere">Tap here to read more</string>
     <string name="my_feed">My Feed</string>
     <string name="like">Like</string>

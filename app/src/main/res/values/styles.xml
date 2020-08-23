@@ -15,5 +15,9 @@
         <item name="android:layout_marginStart">@dimen/marginStart</item>
         <item name="android:layout_marginEnd">@dimen/marginEnd</item>
     </style>
+    <style name="SplashTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="android:windowBackground">@drawable/splash_screen_background</item>
+    </style>
 
 </resources>
