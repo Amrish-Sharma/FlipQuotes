@@ -92,10 +92,10 @@ public class SlidePageAdapter extends PagerAdapter {
 
         view.setOnClickListener(v -> shareButton.setVisibility(View.VISIBLE));
 
-//        refreshButton.setOnClickListener(v -> {
-//            refreshButton.setVisibility(View.GONE);
-//            ((VerticalViewPager) container).setCurrentItem(0, true);
-//        });
+        refreshButton.setOnClickListener(v -> {
+            refreshButton.setVisibility(View.GONE);
+            ((VerticalViewPager) container).setCurrentItem(0, true);
+        });
 
         shareButton.setOnClickListener(v -> {
             Bitmap bitmap = getBitmapFromView(view);
