@@ -4,10 +4,17 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
+
+import android.content.Intent;
 import android.content.res.AssetManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import android.util.Log;
 
@@ -74,17 +81,47 @@ public class SlidePageAdapter extends PagerAdapter {
         final TextView heading = view.findViewById(R.id.moreAt);
         final TextView content = view.findViewById(R.id.content);
         final TextView readMore = view.findViewById(R.id.read_more);
+        final Button refreshButton= view.findViewById(R.id.r_button);
+        final Button shareButton = view.findViewById(R.id.share_button);
 
         Quote quote = quotes.get(position);
         content.setText(quote.getQuote());
-        heading.setText("~ " + quote.getAuthor());
+        heading.setText(String.format("~ %s", quote.getAuthor()));
         //heading.setText("Read More");
+//        view.setOnClickListener(v -> refreshButton.setVisibility(View.VISIBLE));
+
+        view.setOnClickListener(v -> shareButton.setVisibility(View.VISIBLE));
+
+//        refreshButton.setOnClickListener(v -> {
+//            refreshButton.setVisibility(View.GONE);
+//            ((VerticalViewPager) container).setCurrentItem(0, true);
+//        });
+
+        shareButton.setOnClickListener(v -> {
+            Bitmap bitmap = getBitmapFromView(view);
+            shareImage(bitmap);
+        });
 
         container.addView(view);
         return view;
     }
 
+    private Bitmap getBitmapFromView(View view) {
+        Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        view.draw(canvas);
+        return bitmap;
+    }
 
+    private void shareImage(Bitmap bitmap) {
+        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, "Quote", null);
+        Uri uri = Uri.parse(path);
+
+        Intent intent = new Intent(Intent.ACTION_SEND);
+        intent.setType("image/*");
+        intent.putExtra(Intent.EXTRA_STREAM, uri);
+        context.startActivity(Intent.createChooser(intent, "Share Quote"));
+    }
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         container.removeView((View) object);
