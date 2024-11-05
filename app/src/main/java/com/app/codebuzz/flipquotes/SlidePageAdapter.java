@@ -71,14 +71,14 @@ public class SlidePageAdapter extends PagerAdapter {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = Objects.requireNonNull(layoutInflater).inflate(R.layout.card_layout, container, false);
 
-        final TextView heading = view.findViewById(R.id.subheading);
+        final TextView heading = view.findViewById(R.id.moreAt);
         final TextView content = view.findViewById(R.id.content);
         final TextView readMore = view.findViewById(R.id.read_more);
 
         Quote quote = quotes.get(position);
-        heading.setText(quote.getAuthor());
         content.setText(quote.getQuote());
-        readMore.setText("Read More");
+        heading.setText("~ " + quote.getAuthor());
+        //heading.setText("Read More");
 
         container.addView(view);
         return view;

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#2D2D2D</color>
+    <color name="colorPrimary">#101010</color>
     <color name="colorPrimaryDark">#000</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="subHeadingColor">#b8b9c2</color>
-    <color name="contentColor">#9c9da4</color>
-    <color name="moreShortTextColor">#5C5D62</color>
+    <color name="subHeadingColor">#FFFFFF</color>
+    <color name="contentColor">#FFFFFF</color>
+    <color name="moreShortTextColor">#FFFFFF</color>
     <color name="tap">#D9D9D9</color>
     <color name="bookmarkText">#369af8</color>
 

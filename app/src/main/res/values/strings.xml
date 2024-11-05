@@ -1,47 +1,6 @@
 <resources>
     <string name="app_name">FlipQuotes</string>
 
-    <string-array name="subHeading">
-        <item name="sub_heading1">Failure is just another way to learn how to do something right.</item>
-        <item name="sub_heading2">Every failure brings with it the seed of an equivalent success.</item>
-        <item name="sub_heading3">The best way out is always through</item>
-        <item name="sub_heading4">Imagination is more important than knowledge</item>
-        <item name="sub_heading5">The future belongs to those who believe in the beauty of their dreams</item>
-        <item name="sub_heading6">Do not anticipate trouble or worry about what may never happen. Keep in the sunlight</item>
-        <item name="sub_heading7">A leader is a dealer in hope</item>
-        <item name="sub_heading8">Make it happen now, not tomorrow. Tomorrow is a loser’s excuse</item>
-        <item name="sub_heading9">The best time to plant a tree was 20 years ago. The second best time is now</item>
-
-
-    </string-array>
-
-    <string-array name="content">
-        <item name="content1" >Failure is just another way to learn how to do something right ~ Marian Wright Edelman</item>
-        <item name="content2">Every failure brings with it the seed of an equivalent success ~ Napoleon Hill</item>
-        <item name="content3">The best way out is always through ~ Robert Frost</item>
-        <item name="content4">Imagination is more important than knowledge ~ Albert Einstein</item>
-        <item name="content5">The future belongs to those who believe in the beauty of their dreams ~ Eleanor Roosevelt</item>
-        <item name="content6">Do not anticipate trouble or worry about what may never happen. Keep in the sunlight ~ Benjamin Franklin</item>
-        <item name="content7">A leader is a dealer in hope ~ Napoleon Bonaparte</item>
-        <item name="content8">Make it happen now, not tomorrow. Tomorrow is a loser’s excuse ~ Andrew Fashion</item>
-        <item name="content9">The best time to plant a tree was 20 years ago. The second best time is now ~ Chinese proverb</item>
-
-    </string-array>
-
-    <string-array name="readMore">
-        <item name="read_more1">Ad Section: </item>
-        <item name="read_more2">Ad Section: </item>
-        <item name="read_more3">Ad Section: </item>
-        <item name="read_more4">Ad Section: </item>
-        <item name="read_more5">Ad Section: </item>
-        <item name="read_more6">Ad Section: </item>
-        <item name="read_more7">Ad Section: </item>
-        <item name="read_more8">Ad Section: </item>
-        <item name="read_more9">Ad Section: </item>
-
-
-    </string-array>
-
     <string name="moreAt" >more at FlipQuotes</string>
     <string name="shortBY">Quotes By CodeBuzz</string>
     <string name="tapHere">Tap here to read more</string>
