@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
 
+
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
@@ -107,9 +108,19 @@ public class SlidePageAdapter extends PagerAdapter {
     }
 
     private Bitmap getBitmapFromView(View view) {
+        Button refreshButton = view.findViewById(R.id.r_button);
+        Button shareButton = view.findViewById(R.id.share_button);
+        int originalVisibility = refreshButton.getVisibility();
+        int originalVisibilityShare = shareButton.getVisibility();
+        refreshButton.setVisibility(View.GONE);
+        shareButton.setVisibility(View.GONE);
+
         Bitmap bitmap = Bitmap.createBitmap(view.getWidth(), view.getHeight(), Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(bitmap);
         view.draw(canvas);
+
+        refreshButton.setVisibility(originalVisibility);
+        shareButton.setVisibility(originalVisibilityShare);
         return bitmap;
     }
 
