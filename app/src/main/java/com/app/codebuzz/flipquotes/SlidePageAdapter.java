@@ -1,65 +1,75 @@
 package com.app.codebuzz.flipquotes;
 
 import android.content.Context;
-
-import androidx.annotation.NonNull;
-import androidx.viewpager.widget.PagerAdapter;
-
-
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.viewpager.widget.PagerAdapter;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.reflect.Type;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class SlidePageAdapter extends PagerAdapter {
 
     private Context context;
-
     private List<Quote> quotes;
+    private static final String QUOTES_URL = "https://raw.githubusercontent.com/Amrish-Sharma/fq_quotes/refs/heads/main/Quotes.json"; // Replace with your URL
 
     SlidePageAdapter(Context context) {
         this.context = context;
-        this.quotes = loadQuotesFromAssets();
+        fetchQuotesFromUrl();
     }
 
-    private List<Quote> loadQuotesFromAssets() {
-        AssetManager assetManager = context.getAssets();
-        try (InputStream is = assetManager.open("quotes.json")) {
-            int size = is.available();
-            byte[] buffer = new byte[size];
-            is.read(buffer);
-            String json = new String(buffer, "UTF-8");
-            Gson gson = new Gson();
-            Type listType = new TypeToken<List<Quote>>() {}.getType();
-            List<Quote> quotes = gson.fromJson(json, listType);
+    private void fetchQuotesFromUrl() {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().url(QUOTES_URL).build();
 
-            // Shuffle the quotes list
-            Collections.shuffle(quotes);
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Log.e("SlidePageAdapter", "Error fetching quotes", e);
+            }
 
-            return quotes;
-        } catch (IOException e) {
-            Log.e("SlidePageAdapter", "Error reading quotes.json", e);
-            return null;
-        }
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                if (response.isSuccessful() && response.body() != null) {
+                    String json = response.body().string();
+                    Gson gson = new Gson();
+                    Type listType = new TypeToken<List<Quote>>() {}.getType();
+                    quotes = gson.fromJson(json, listType);
+
+                    // Shuffle the quotes list
+                    Collections.shuffle(quotes);
+
+                    // Notify the adapter on the main thread
+                    new Handler(Looper.getMainLooper()).post(() -> notifyDataSetChanged());
+                }
+            }
+        });
     }
 
     @Override
@@ -72,7 +82,6 @@ public class SlidePageAdapter extends PagerAdapter {
         return view == object;
     }
 
-
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, final int position) {
@@ -81,15 +90,14 @@ public class SlidePageAdapter extends PagerAdapter {
 
         final TextView heading = view.findViewById(R.id.moreAt);
         final TextView content = view.findViewById(R.id.content);
-        final TextView readMore = view.findViewById(R.id.read_more);
-        final Button refreshButton= view.findViewById(R.id.r_button);
+        final Button refreshButton = view.findViewById(R.id.r_button);
         final Button shareButton = view.findViewById(R.id.share_button);
 
-        Quote quote = quotes.get(position);
-        content.setText(quote.getQuote());
-        heading.setText(String.format("~ %s", quote.getAuthor()));
-        //heading.setText("Read More");
-//        view.setOnClickListener(v -> refreshButton.setVisibility(View.VISIBLE));
+        if (quotes != null && !quotes.isEmpty()) {
+            Quote quote = quotes.get(position);
+            content.setText(quote.getQuote());
+            heading.setText(String.format("~ %s", quote.getAuthor()));
+        }
 
         view.setOnClickListener(v -> shareButton.setVisibility(View.VISIBLE));
 
@@ -133,10 +141,9 @@ public class SlidePageAdapter extends PagerAdapter {
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         context.startActivity(Intent.createChooser(intent, "Share Quote"));
     }
+
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         container.removeView((View) object);
     }
-
-
 }

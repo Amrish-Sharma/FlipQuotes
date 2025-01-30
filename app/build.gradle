@@ -55,6 +55,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-firestore:25.1.1'
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'androidx.viewpager:viewpager:1.0.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
 
 
 }
