@@ -8,6 +8,7 @@
     <color name="moreShortTextColor">#FFFFFF</color>
     <color name="tap">#D9D9D9</color>
     <color name="bookmarkText">#369af8</color>
+    <color name="default_card_color">#D3D3D3</color>
 
 
 </resources>

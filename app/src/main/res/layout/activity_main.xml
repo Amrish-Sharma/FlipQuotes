@@ -1,13 +1,33 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!-- res/layout/activity_main.xml -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/black">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <com.app.codebuzz.flipquotes.VerticalViewPager
-        android:id="@+id/card_view"
+        android:id="@+id/view_pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        app:cardBackgroundColor="@color/default_card_color"
+        app:cardCornerRadius="8dp"/>
+
+        <!-- Your card content here -->
+
+    <Button
+        android:id="@+id/color_picker_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Pick Color"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="16dp" />
 
 </RelativeLayout>

@@ -2,6 +2,7 @@ package com.app.codebuzz.flipquotes;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.net.Uri;
@@ -16,6 +17,8 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager.widget.PagerAdapter;
 
 import com.google.gson.Gson;
@@ -38,6 +41,9 @@ public class SlidePageAdapter extends PagerAdapter {
     private Context context;
     private List<Quote> quotes;
     private static final String QUOTES_URL = "https://raw.githubusercontent.com/Amrish-Sharma/fq_quotes/refs/heads/main/Quotes.json"; // Replace with your URL
+
+    private static final String PREFS_NAME = "prefs";
+    private static final String KEY_CARD_COLOR = "card_color";
 
     SlidePageAdapter(Context context) {
         this.context = context;
@@ -87,6 +93,11 @@ public class SlidePageAdapter extends PagerAdapter {
     public Object instantiateItem(@NonNull ViewGroup container, final int position) {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View view = Objects.requireNonNull(layoutInflater).inflate(R.layout.card_layout, container, false);
+
+        CardView cardView = view.findViewById(R.id.card_view);
+        SharedPreferences preferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        int savedColor = preferences.getInt(KEY_CARD_COLOR, ContextCompat.getColor(context, R.color.default_card_color));
+        cardView.setCardBackgroundColor(savedColor);
 
         final TextView heading = view.findViewById(R.id.moreAt);
         final TextView content = view.findViewById(R.id.content);
