@@ -5,4 +5,7 @@
 /.idea/workspace.xml
 /.idea/libraries
 /app/build/
+/app/release/**
+/.idea/caches/**
+build/**
 
