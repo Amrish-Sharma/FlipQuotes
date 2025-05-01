@@ -9,6 +9,9 @@ import android.view.View;
 
 public class VerticalViewPager extends ViewPager {
 
+    private static final float SENSITIVITY_FACTOR = 0.5f; // Adjust this value to control sensitivity
+
+
     public VerticalViewPager(Context context) {
         super(context);
         init();
@@ -34,7 +37,7 @@ public class VerticalViewPager extends ViewPager {
         float height = getHeight();
 
         float newX = (ev.getY() / height) * width;
-        float newY = (ev.getX() / width) * height;
+        float newY = (ev.getX() / width) * height * SENSITIVITY_FACTOR;
 
         ev.setLocation(newX, newY);
 
