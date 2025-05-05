@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
     namespace "com.app.codebuzz.flipquotes"
@@ -9,11 +10,11 @@ android {
         targetCompatibility JavaVersion.VERSION_11
     }
 
-    compileSdk 34
+    compileSdk 35
     defaultConfig {
         applicationId "com.app.codebuzz.flipquotes"
         minSdk 24
-        targetSdk 34
+        targetSdk 35
         versionCode 1
         versionName "1.0"
         renderscriptTargetApi 18
@@ -34,6 +35,9 @@ android {
             storePassword 'axway123'
         }
     }
+    kotlinOptions {
+        jvmTarget = '11'
+    }
     buildTypes {
         release {
             signingConfig signingConfigs.release
@@ -47,6 +51,7 @@ dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.0'
+    implementation 'androidx.core:core-ktx:1.16.0'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
