@@ -76,12 +76,12 @@
                         </LinearLayout>
 
                         <!-- Placeholder for Ads -->
-                        <FrameLayout
-                            android:id="@+id/ad_space"
-                            android:layout_width="match_parent"
-                            android:layout_height="50dp"
-                            android:layout_marginTop="8dp"
-                            android:background="@color/colorPrimary" />
+<!--                        <FrameLayout-->
+<!--                            android:id="@+id/ad_space"-->
+<!--                            android:layout_width="match_parent"-->
+<!--                            android:layout_height="50dp"-->
+<!--                            android:layout_marginTop="8dp"-->
+<!--                            android:background="@color/colorPrimary" />-->
 
                         <FrameLayout
                             android:layout_width="match_parent"

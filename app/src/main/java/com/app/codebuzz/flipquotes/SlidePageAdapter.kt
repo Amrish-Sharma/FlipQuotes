@@ -26,6 +26,7 @@ import java.io.IOException
 import java.util.Collections
 import java.util.Objects
 import androidx.core.graphics.createBitmap
+import androidx.core.net.toUri
 
 class SlidePageAdapter internal constructor(private val context: Context) : PagerAdapter() {
     private var quotes: List<Quote?>? = null
@@ -126,12 +127,12 @@ class SlidePageAdapter internal constructor(private val context: Context) : Page
     private fun shareImage(bitmap: Bitmap) {
         val path =
             MediaStore.Images.Media.insertImage(context.contentResolver, bitmap, "Quote", null)
-        val uri = Uri.parse(path)
+        val uri = path.toUri()
 
         val intent = Intent(Intent.ACTION_SEND)
         intent.setType("image/*")
         intent.putExtra(Intent.EXTRA_STREAM, uri)
-        context.startActivity(Intent.createChooser(intent, "Share Quote"))
+        context.startActivity(Intent.createChooser(intent, "Share Quote from FlipQuotes"))
     }
 
     override fun destroyItem(container: ViewGroup, position: Int, `object`: Any) {
