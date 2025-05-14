@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -90,8 +91,8 @@ public class SlidePageAdapter extends PagerAdapter {
 
         final TextView heading = view.findViewById(R.id.moreAt);
         final TextView content = view.findViewById(R.id.content);
-        final Button refreshButton = view.findViewById(R.id.r_button);
-        final Button shareButton = view.findViewById(R.id.share_button);
+        final ImageButton refreshButton = view.findViewById(R.id.r_button);
+        final ImageButton shareButton = view.findViewById(R.id.share_button); // ✅ Correct
 
         if (quotes != null && !quotes.isEmpty()) {
             Quote quote = quotes.get(position);
