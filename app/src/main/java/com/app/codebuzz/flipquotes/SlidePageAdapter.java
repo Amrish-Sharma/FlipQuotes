@@ -22,6 +22,8 @@ import androidx.viewpager.widget.PagerAdapter;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Collections;
@@ -134,15 +136,32 @@ public class SlidePageAdapter extends PagerAdapter {
     }
 
     private void shareImage(Bitmap bitmap) {
-        String path = MediaStore.Images.Media.insertImage(context.getContentResolver(), bitmap, "Quote", null);
-        Uri uri = Uri.parse(path);
+        try {
+            // Save the bitmap to a file
+            File cachePath = new File(context.getCacheDir(), "images");
+            cachePath.mkdirs(); // Create the directory if it doesn't exist
+            File file = new File(cachePath, "shared_image.png");
+            FileOutputStream stream = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            stream.close();
 
-        Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("image/*");
-        intent.putExtra(Intent.EXTRA_STREAM, uri);
-        intent.putExtra(Intent.EXTRA_TEXT,"Check out more amazing quotes at FlipQuotes https://play.google.com/store/apps/details?id=com.app.codebuzz.flipquotes");
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        context.startActivity(Intent.createChooser(intent, "Share Quote"));
+            // Get the URI using FileProvider
+            Uri uri = androidx.core.content.FileProvider.getUriForFile(
+                    context,
+                    context.getPackageName() + ".fileprovider",
+                    file
+            );
+
+            // Create the share intent
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("image/*");
+            intent.putExtra(Intent.EXTRA_STREAM, uri);
+            intent.putExtra(Intent.EXTRA_TEXT, "Check out more amazing quotes at FlipQuotes https://play.google.com/store/apps/details?id=com.app.codebuzz.flipquotes");
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            context.startActivity(Intent.createChooser(intent, "Share Quote"));
+        } catch (IOException e) {
+            Log.e("SlidePageAdapter", "Error sharing image", e);
+        }
     }
 
     @Override
