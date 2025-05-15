@@ -138,9 +138,10 @@ public class SlidePageAdapter extends PagerAdapter {
         Uri uri = Uri.parse(path);
 
         Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("*/*");
+        intent.setType("image/*");
         intent.putExtra(Intent.EXTRA_STREAM, uri);
         intent.putExtra(Intent.EXTRA_TEXT,"Check out more amazing quotes at FlipQuotes https://play.google.com/store/apps/details?id=com.app.codebuzz.flipquotes");
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         context.startActivity(Intent.createChooser(intent, "Share Quote"));
     }
 
