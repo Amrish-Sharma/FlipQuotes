@@ -92,7 +92,7 @@ public class SlidePageAdapter extends PagerAdapter {
         final TextView heading = view.findViewById(R.id.moreAt);
         final TextView content = view.findViewById(R.id.content);
         final ImageButton refreshButton = view.findViewById(R.id.r_button);
-        final ImageButton shareButton = view.findViewById(R.id.share_button); // ✅ Correct
+        final ImageButton shareButton = view.findViewById(R.id.share_button);
 
         if (quotes != null && !quotes.isEmpty()) {
             Quote quote = quotes.get(position);
@@ -117,8 +117,8 @@ public class SlidePageAdapter extends PagerAdapter {
     }
 
     private Bitmap getBitmapFromView(View view) {
-        Button refreshButton = view.findViewById(R.id.r_button);
-        Button shareButton = view.findViewById(R.id.share_button);
+        ImageButton refreshButton = view.findViewById(R.id.r_button);
+        ImageButton shareButton = view.findViewById(R.id.share_button);
         int originalVisibility = refreshButton.getVisibility();
         int originalVisibilityShare = shareButton.getVisibility();
         refreshButton.setVisibility(View.GONE);
@@ -138,8 +138,9 @@ public class SlidePageAdapter extends PagerAdapter {
         Uri uri = Uri.parse(path);
 
         Intent intent = new Intent(Intent.ACTION_SEND);
-        intent.setType("image/*");
+        intent.setType("*/*");
         intent.putExtra(Intent.EXTRA_STREAM, uri);
+        intent.putExtra(Intent.EXTRA_TEXT,"Check out more amazing quotes at FlipQuotes https://play.google.com/store/apps/details?id=com.app.codebuzz.flipquotes");
         context.startActivity(Intent.createChooser(intent, "Share Quote"));
     }
 
