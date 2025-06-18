@@ -63,13 +63,12 @@ fun Header(
                 modifier = Modifier.padding(padding)
             )
         }
-
+        // Add refresh button on the top right
         IconButton(onClick = onRefreshClick) {
             Image(
                 painter = painterResource(id = R.drawable.refresh),
                 contentDescription = stringResource(id = R.string.refresh),
-                modifier = Modifier
-                    .padding(padding)
+                modifier = Modifier.padding(padding)
             )
         }
     }

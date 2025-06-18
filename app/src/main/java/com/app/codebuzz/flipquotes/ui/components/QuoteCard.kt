@@ -2,6 +2,7 @@ package com.app.codebuzz.flipquotes.ui.components
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -12,17 +13,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.app.codebuzz.flipquotes.data.Quote
 import kotlinx.coroutines.launch
 
 @Composable
 fun QuoteCard(
     quote: Quote,
-    onShareClick: () -> Unit,
-    onRefreshClick: () -> Unit,
     onFlip: () -> Unit = {},
     header: @Composable () -> Unit = {},
     footer: @Composable () -> Unit = {}
@@ -73,24 +72,32 @@ fun QuoteCard(
             },
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween
-        ) {
-            // Header
-            Box(modifier = Modifier.fillMaxWidth()) {
-                header()
-            }
-            // Main content
-            Box(
-                modifier = Modifier.weight(1f).fillMaxWidth(),
-                contentAlignment = Alignment.Center
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                QuoteContent(quote = quote)
-            }
-            // Footer
-            Box(modifier = Modifier.fillMaxWidth()) {
-                footer()
+                // Header
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    header()
+                }
+                // Main content
+                Box(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    // Texture background only for quote area
+                    Image(
+                        painter = painterResource(id = com.app.codebuzz.flipquotes.R.drawable.texture),
+                        contentDescription = null,
+                        modifier = Modifier.matchParentSize()
+                    )
+                    QuoteContent(quote = quote)
+                }
+                // Footer
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    footer()
+                }
             }
         }
     }
@@ -104,7 +111,7 @@ fun QuoteContent(quote: Quote, modifier: Modifier = Modifier) {
         modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp)
     ) {
         Text(
-            text = quote.quote,
+            text = "\"${quote.quote}\"",
             style = MaterialTheme.typography.bodyLarge,
             color = Color.Black,
             textAlign = TextAlign.Center,

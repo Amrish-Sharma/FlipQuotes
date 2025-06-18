@@ -9,6 +9,9 @@ repositories {
     mavenCentral()
 }
 android {
+    buildFeatures {
+        compose true
+    }
     namespace "com.app.codebuzz.flipquotes"
     compileSdk 35
 
