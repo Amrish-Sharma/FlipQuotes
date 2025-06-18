@@ -1,1 +1,32 @@
-build/**
+# Ignore IDE and build system files
+.idea/
+*.iml
+.gradle/
+local.properties
+
+# Ignore build outputs
+build/
+*/build/
+
+# Ignore signing keys and sensitive files
+app-release-key.jks
+*.keystore
+*.jks
+
+# Ignore Google Services config
+google-services.json
+
+# Ignore generated files
+*.apk
+*.aab
+
+# Ignore test outputs
+src/androidTest/
+src/test/
+
+# Ignore miscellaneous
+.DS_Store
+Thumbs.db
+
+# Ignore release folder
+release/
