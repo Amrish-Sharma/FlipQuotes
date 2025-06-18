@@ -1,19 +1,25 @@
 package com.app.codebuzz.flipquotes
 
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import com.app.codebuzz.flipquotes.ui.screens.QuotePagerScreen
+import com.app.codebuzz.flipquotes.ui.screens.QuoteViewModel
+import com.app.codebuzz.flipquotes.ui.theme.FlipQuotesTheme
 
-class MainActivity : AppCompatActivity() {
-    private var viewPager: VerticalViewPager? = null
-        private set
-
-
+class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        viewPager = findViewById(R.id.card_view)
-        viewPager?.setAdapter(SlidePageAdapter(this))
+        val quoteViewModel: QuoteViewModel by viewModels()
+        setContent {
+            FlipQuotesTheme {
+                Surface(color = MaterialTheme.colorScheme.background) {
+                    QuotePagerScreen(quoteViewModel)
+                }
+            }
+        }
     }
 }
-
