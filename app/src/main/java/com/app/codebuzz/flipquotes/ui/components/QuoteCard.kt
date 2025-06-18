@@ -22,7 +22,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun QuoteCard(
     quote: Quote,
-    onFlip: () -> Unit = {},
+    swipeDirection: Int = 0, // 1 for next, -1 for previous
+    onNext: () -> Unit = {},
+    onPrevious: () -> Unit = {},
     header: @Composable () -> Unit = {},
     footer: @Composable () -> Unit = {}
 ) {
@@ -30,6 +32,23 @@ fun QuoteCard(
     val offsetY = remember { Animatable(0f) }
     val alpha = remember { Animatable(1f) }
     var isAnimating by remember { mutableStateOf(false) }
+
+    // Animate card entry based on swipeDirection
+    LaunchedEffect(swipeDirection, quote) {
+        if (swipeDirection == 1) {
+            // Coming from bottom
+            offsetY.snapTo(1000f)
+            alpha.snapTo(0f)
+            offsetY.animateTo(0f, animationSpec = tween(300))
+            alpha.animateTo(1f, animationSpec = tween(200))
+        } else if (swipeDirection == -1) {
+            // Coming from top
+            offsetY.snapTo(-1000f)
+            alpha.snapTo(0f)
+            offsetY.animateTo(0f, animationSpec = tween(300))
+            alpha.animateTo(1f, animationSpec = tween(200))
+        }
+    }
 
     Card(
         shape = RoundedCornerShape(20.dp),
@@ -43,25 +62,41 @@ fun QuoteCard(
             .pointerInput(isAnimating) {
                 detectVerticalDragGestures(
                     onDragEnd = {
-                        if (offsetY.value < -100f && !isAnimating) {
-                            isAnimating = true
-                            scope.launch {
-                                offsetY.animateTo(-1000f, animationSpec = tween(300))
-                                alpha.animateTo(0f, animationSpec = tween(200))
-                                offsetY.snapTo(1000f)
-                                alpha.snapTo(0f)
-                                onFlip()
-                                offsetY.animateTo(0f, animationSpec = tween(300))
-                                alpha.animateTo(1f, animationSpec = tween(200))
-                                isAnimating = false
+                        when {
+                            offsetY.value < -100f && !isAnimating -> {
+                                isAnimating = true
+                                scope.launch {
+                                    offsetY.animateTo(-1000f, animationSpec = tween(300))
+                                    alpha.animateTo(0f, animationSpec = tween(200))
+                                    offsetY.snapTo(1000f)
+                                    alpha.snapTo(0f)
+                                    onNext()
+                                    offsetY.animateTo(0f, animationSpec = tween(300))
+                                    alpha.animateTo(1f, animationSpec = tween(200))
+                                    isAnimating = false
+                                }
                             }
-                        } else {
-                            scope.launch {
-                                offsetY.animateTo(0f, animationSpec = tween(300))
+                            offsetY.value > 100f && !isAnimating -> {
+                                isAnimating = true
+                                scope.launch {
+                                    offsetY.animateTo(1000f, animationSpec = tween(300))
+                                    alpha.animateTo(0f, animationSpec = tween(200))
+                                    offsetY.snapTo(-1000f)
+                                    alpha.snapTo(0f)
+                                    onPrevious()
+                                    offsetY.animateTo(0f, animationSpec = tween(300))
+                                    alpha.animateTo(1f, animationSpec = tween(200))
+                                    isAnimating = false
+                                }
+                            }
+                            else -> {
+                                scope.launch {
+                                    offsetY.animateTo(0f, animationSpec = tween(300))
+                                }
                             }
                         }
                     },
-                    onVerticalDrag = { change, dragAmount ->
+                    onVerticalDrag = { _, dragAmount ->
                         if (!isAnimating) {
                             scope.launch {
                                 offsetY.snapTo(offsetY.value + dragAmount)

@@ -6,16 +6,13 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.provider.MediaStore.Images.Media
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.codebuzz.flipquotes.data.Quote
@@ -28,8 +25,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import androidx.compose.ui.graphics.asImageBitmap
 import kotlinx.coroutines.DelicateCoroutinesApi
+import androidx.core.graphics.createBitmap
 
 @OptIn(DelicateCoroutinesApi::class)
 @SuppressLint("MutableCollectionMutableState")
@@ -38,56 +35,28 @@ fun QuotePagerScreen(viewModel: QuoteViewModel) {
     val quotes = viewModel.quotes
     var currentIndex by remember { mutableIntStateOf(0) }
     val context = LocalContext.current
-    // State for like/bookmark per quote
-    val likeStates = remember { mutableStateOf(mutableMapOf<Int, Boolean>()) }
-    val bookmarkStates = remember { mutableStateOf(mutableMapOf<Int, Boolean>()) }
-    val likeCounts = remember { mutableStateOf(mutableMapOf<Int, Int>()) }
-    val isLiked = likeStates.value[currentIndex] == true
-    val isBookmarked = bookmarkStates.value[currentIndex] == true
-    val likeCount = likeCounts.value[currentIndex] ?: 0
-
-    // Blur overlay state
-    var blurBitmapState by remember { mutableStateOf<Bitmap?>(null) }
-    var showBlur by remember { mutableStateOf(false) }
+    val likeStates = remember { mutableStateMapOf<Int, Boolean>() }
+    val bookmarkStates = remember { mutableStateMapOf<Int, Boolean>() }
+    val likeCounts = remember { mutableStateMapOf<Int, Int>() }
+    val isLiked = likeStates[currentIndex] == true
+    val isBookmarked = bookmarkStates[currentIndex] == true
+    val likeCount = likeCounts[currentIndex] ?: 0
+    var swipeDirection by remember { mutableStateOf(0) } // 1 for next, -1 for previous
+    // Blur overlay state (disabled until modern solution is available)
+    rememberCoroutineScope()
 
     if (quotes.isEmpty()) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
+        ) { CircularProgressIndicator() }
     } else {
-        val view = LocalView.current
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .pointerInput(currentIndex, quotes.size) {
-                    detectVerticalDragGestures { change, dragAmount ->
-                        if (!showBlur) {
-                            // Capture and blur before transition
-                            view.isDrawingCacheEnabled = true
-                            val bitmap = Bitmap.createBitmap(view.drawingCache)
-                            view.isDrawingCacheEnabled = false
-                            blurBitmapState = com.app.codebuzz.flipquotes.blurBitmap(bitmap, 16)
-                            showBlur = true
-                            // Delay to show blur, then change index
-                            kotlinx.coroutines.GlobalScope.launch {
-                                kotlinx.coroutines.delay(200)
-                                if (dragAmount < -50) { // swipe up
-                                    if (currentIndex < quotes.size - 1) currentIndex++
-                                    else currentIndex = 0
-                                } else if (dragAmount > 50) { // swipe down
-                                    if (currentIndex > 0) currentIndex--
-                                    else currentIndex = quotes.size - 1
-                                }
-                                showBlur = false
-                            }
-                        }
-                    }
-                },
+            modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
+            // Blur overlay is disabled for now
+            /*
             if (showBlur && blurBitmapState != null) {
                 androidx.compose.foundation.Image(
                     bitmap = blurBitmapState!!.asImageBitmap(),
@@ -95,26 +64,20 @@ fun QuotePagerScreen(viewModel: QuoteViewModel) {
                     modifier = Modifier.fillMaxSize()
                 )
             }
+            */
             QuoteCard(
                 quote = quotes[currentIndex],
-                onFlip = {
-                    if (!showBlur) {
-                        view.isDrawingCacheEnabled = true
-                        val bitmap = Bitmap.createBitmap(view.drawingCache)
-                        view.isDrawingCacheEnabled = false
-                        blurBitmapState = com.app.codebuzz.flipquotes.blurBitmap(bitmap, 16)
-                        showBlur = true
-                        kotlinx.coroutines.GlobalScope.launch {
-                            kotlinx.coroutines.delay(200)
-                            if (currentIndex < quotes.size - 1) currentIndex++
-                            else currentIndex = 0
-                            showBlur = false
-                        }
-                    }
+                swipeDirection = swipeDirection,
+                onNext = {
+                    swipeDirection = 1
+                    currentIndex = (currentIndex + 1) % quotes.size
+                },
+                onPrevious = {
+                    swipeDirection = -1
+                    currentIndex = (currentIndex - 1 + quotes.size) % quotes.size
                 },
                 header = {
                     Header(
-                        onSearchClick = {},
                         onRefreshClick = {
                             currentIndex = (currentIndex + 1) % quotes.size
                         }
@@ -126,20 +89,14 @@ fun QuotePagerScreen(viewModel: QuoteViewModel) {
                         isLiked = isLiked,
                         isBookmarked = isBookmarked,
                         onLikeClick = {
-                            likeStates.value = likeStates.value.toMutableMap().apply {
-                                set(currentIndex, !isLiked)
-                            }
-                            likeCounts.value = likeCounts.value.toMutableMap().apply {
-                                set(currentIndex, if (!isLiked) likeCount + 1 else (likeCount - 1).coerceAtLeast(0))
-                            }
+                            likeStates[currentIndex] = !isLiked
+                            likeCounts[currentIndex] = if (!isLiked) likeCount + 1 else (likeCount - 1).coerceAtLeast(0)
                         },
                         onShareClick = {
                             shareQuoteImage(context, quotes[currentIndex])
                         },
                         onBookmarkClick = {
-                            bookmarkStates.value = bookmarkStates.value.toMutableMap().apply {
-                                set(currentIndex, !isBookmarked)
-                            }
+                            bookmarkStates[currentIndex] = !isBookmarked
                         }
                     )
                 }
@@ -152,9 +109,9 @@ fun shareQuoteImage(context: Context, quote: Quote) {
     val activity = context as? Activity ?: return
     val composeView = ComposeView(context)
     composeView.setContent {
-        com.app.codebuzz.flipquotes.ui.components.QuoteCard(
+        QuoteCard(
             quote = quote,
-            onFlip = {},
+            onNext = {},
             header = {},
             footer = {}
         )
@@ -174,7 +131,7 @@ fun shareQuoteImage(context: Context, quote: Quote) {
         val heightSpec = android.view.View.MeasureSpec.makeMeasureSpec(height, android.view.View.MeasureSpec.EXACTLY)
         composeView.measure(widthSpec, heightSpec)
         composeView.layout(0, 0, width, height)
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(width, height)
         val canvas = android.graphics.Canvas(bitmap)
         composeView.draw(canvas)
 
