@@ -3,6 +3,7 @@ package com.app.codebuzz.flipquotes.ui.components
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
@@ -136,7 +138,7 @@ fun QuoteCard(
         Box(modifier = Modifier.fillMaxSize()) {
             // Texture background covers the entire card
             Image(
-                painter = painterResource(id = com.app.codebuzz.flipquotes.R.drawable.texture),
+                painter = painterResource(id = R.drawable.texture),
                 contentDescription = null,
                 contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                 modifier = Modifier.fillMaxSize()
@@ -145,19 +147,24 @@ fun QuoteCard(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                // Header
-                Box(modifier = Modifier.fillMaxWidth()) {
+                // Header with status bar padding
+                Box(modifier = Modifier.fillMaxWidth().statusBarsPadding()) {
                     header()
                 }
-                // Main content
+                // Main content (no system bar padding)
                 Box(
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
                     QuoteContent(quote = quote)
                 }
-                // Footer
-                Box(modifier = Modifier.fillMaxWidth()) {
+                // Footer with navigation bar padding and matching background
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surface) // Match footer bg
+                        .navigationBarsPadding()
+                ) {
                     footer()
                     Footer(
                         likeCount = likeCount,
@@ -197,5 +204,63 @@ fun QuoteContent(quote: Quote, modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
+    }
+}
+
+@Composable
+fun ShareableQuoteCard(quote: Quote) {
+    // Draw the texture background with rectangular corners, no black or solid color
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black) // Set black background for padding/edges
+    ) {
+        Card(
+            shape = RectangleShape, // Rectangular corners
+            modifier = Modifier.fillMaxSize(),
+            colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.texture),
+                    contentDescription = null,
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                    modifier = Modifier.matchParentSize()
+                )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(24.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Text(
+                            text = quote.quote,
+                            style = MaterialTheme.typography.headlineLarge
+                            .copy(fontFamily = FontFamily(Font(resId = R.font.kotta_one))),
+                            color = Color.Black,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "- ${quote.author}",
+                            style = MaterialTheme.typography.bodyLarge
+                            .copy(fontFamily = FontFamily(Font(resId = R.font.kotta_one))),
+                            color = Color.DarkGray,
+                            textAlign = TextAlign.End,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+        }
     }
 }

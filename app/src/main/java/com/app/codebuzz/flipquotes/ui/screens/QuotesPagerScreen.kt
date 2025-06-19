@@ -27,10 +27,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import kotlinx.coroutines.DelicateCoroutinesApi
 import androidx.core.graphics.createBitmap
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
-import androidx.compose.ui.graphics.graphicsLayer
-import kotlin.math.roundToInt
 
 @OptIn(DelicateCoroutinesApi::class)
 @SuppressLint("MutableCollectionMutableState")
@@ -49,7 +45,7 @@ fun QuotePagerScreen(viewModel: QuoteViewModel) {
         ) { CircularProgressIndicator() }
     } else {
         // Dual card animation state
-        var animDirection by remember { mutableStateOf(0) } // 1 for next, -1 for previous
+        var animDirection by remember { mutableIntStateOf(0) } // 1 for next, -1 for previous
 
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -71,14 +67,14 @@ fun QuotePagerScreen(viewModel: QuoteViewModel) {
                 isLiked = likeStates[currentIndex] == true,
                 isBookmarked = bookmarkStates[currentIndex] == true,
                 onLikeClick = {
-                    likeStates[currentIndex] = !(likeStates[currentIndex] ?: false)
+                    likeStates[currentIndex] = likeStates[currentIndex] != true
                     likeCounts[currentIndex] = (likeCounts[currentIndex] ?: 0) + if (likeStates[currentIndex] == true) 1 else -1
                 },
                 onShareClick = {
                     shareQuoteImage(context, quotes[currentIndex])
                 },
                 onBookmarkClick = {
-                    bookmarkStates[currentIndex] = !(bookmarkStates[currentIndex] ?: false)
+                    bookmarkStates[currentIndex] = bookmarkStates[currentIndex] != true
                 },
                 header = {
                     Header(
@@ -94,14 +90,14 @@ fun QuotePagerScreen(viewModel: QuoteViewModel) {
                         isLiked = likeStates[currentIndex] == true,
                         isBookmarked = bookmarkStates[currentIndex] == true,
                         onLikeClick = {
-                            likeStates[currentIndex] = !(likeStates[currentIndex] ?: false)
+                            likeStates[currentIndex] = likeStates[currentIndex] != true
                             likeCounts[currentIndex] = (likeCounts[currentIndex] ?: 0) + if (likeStates[currentIndex] == true) 1 else -1
                         },
                         onShareClick = {
                             shareQuoteImage(context, quotes[currentIndex])
                         },
                         onBookmarkClick = {
-                            bookmarkStates[currentIndex] = !(bookmarkStates[currentIndex] ?: false)
+                            bookmarkStates[currentIndex] = bookmarkStates[currentIndex] != true
                         }
                     )
                 }
@@ -114,12 +110,7 @@ fun shareQuoteImage(context: Context, quote: Quote) {
     val activity = context as? Activity ?: return
     val composeView = ComposeView(context)
     composeView.setContent {
-        QuoteCard(
-            quote = quote,
-            onNext = {},
-            header = {},
-            footer = {}
-        )
+        com.app.codebuzz.flipquotes.ui.components.ShareableQuoteCard(quote = quote)
     }
 
     // Get device width and a proportional height for the card
