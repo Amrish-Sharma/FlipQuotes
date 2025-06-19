@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="subHeading">10sp</dimen>
+    <dimen name="subHeading">20sp</dimen>
     <dimen name="content">36sp</dimen>
     <dimen name="moreShort">18sp</dimen>
     <dimen name="readMore">12sp</dimen>
@@ -9,7 +9,7 @@
 
     <dimen name="corner">10dip</dimen>
 
-    <dimen name="marginTop">8dp</dimen>
+    <dimen name="marginTop">6dp</dimen>
     <dimen name="marginStart">16dp</dimen>
     <dimen name="marginEnd">21dp</dimen>
 

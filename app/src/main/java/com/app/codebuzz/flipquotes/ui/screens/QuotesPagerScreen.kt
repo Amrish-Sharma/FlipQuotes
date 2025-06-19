@@ -27,6 +27,10 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import kotlinx.coroutines.DelicateCoroutinesApi
 import androidx.core.graphics.createBitmap
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.graphicsLayer
+import kotlin.math.roundToInt
 
 @OptIn(DelicateCoroutinesApi::class)
 @SuppressLint("MutableCollectionMutableState")
@@ -34,16 +38,9 @@ import androidx.core.graphics.createBitmap
 fun QuotePagerScreen(viewModel: QuoteViewModel) {
     val quotes = viewModel.quotes
     var currentIndex by remember { mutableIntStateOf(0) }
-    val context = LocalContext.current
     val likeStates = remember { mutableStateMapOf<Int, Boolean>() }
     val bookmarkStates = remember { mutableStateMapOf<Int, Boolean>() }
     val likeCounts = remember { mutableStateMapOf<Int, Int>() }
-    val isLiked = likeStates[currentIndex] == true
-    val isBookmarked = bookmarkStates[currentIndex] == true
-    val likeCount = likeCounts[currentIndex] ?: 0
-    var swipeDirection by remember { mutableStateOf(0) } // 1 for next, -1 for previous
-    // Blur overlay state (disabled until modern solution is available)
-    rememberCoroutineScope()
 
     if (quotes.isEmpty()) {
         Box(
@@ -51,52 +48,60 @@ fun QuotePagerScreen(viewModel: QuoteViewModel) {
             contentAlignment = Alignment.Center
         ) { CircularProgressIndicator() }
     } else {
+        // Dual card animation state
+        var animDirection by remember { mutableStateOf(0) } // 1 for next, -1 for previous
+
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            // Blur overlay is disabled for now
-            /*
-            if (showBlur && blurBitmapState != null) {
-                androidx.compose.foundation.Image(
-                    bitmap = blurBitmapState!!.asImageBitmap(),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-            */
+            val context = LocalContext.current
             QuoteCard(
                 quote = quotes[currentIndex],
-                swipeDirection = swipeDirection,
+                swipeDirection = animDirection,
                 onNext = {
-                    swipeDirection = 1
+                    animDirection = 1
                     currentIndex = (currentIndex + 1) % quotes.size
                 },
                 onPrevious = {
-                    swipeDirection = -1
+                    animDirection = -1
                     currentIndex = (currentIndex - 1 + quotes.size) % quotes.size
+                },
+                likeCount = (likeCounts[currentIndex] ?: 0).toString(),
+                isLiked = likeStates[currentIndex] == true,
+                isBookmarked = bookmarkStates[currentIndex] == true,
+                onLikeClick = {
+                    likeStates[currentIndex] = !(likeStates[currentIndex] ?: false)
+                    likeCounts[currentIndex] = (likeCounts[currentIndex] ?: 0) + if (likeStates[currentIndex] == true) 1 else -1
+                },
+                onShareClick = {
+                    shareQuoteImage(context, quotes[currentIndex])
+                },
+                onBookmarkClick = {
+                    bookmarkStates[currentIndex] = !(bookmarkStates[currentIndex] ?: false)
                 },
                 header = {
                     Header(
                         onRefreshClick = {
-                            currentIndex = (currentIndex + 1) % quotes.size
+                            viewModel::class.java.getDeclaredMethod("fetchQuotes").apply { isAccessible = true }.invoke(viewModel)
+                            currentIndex = 0
                         }
                     )
                 },
                 footer = {
                     Footer(
-                        likeCount = likeCount.toString(),
-                        isLiked = isLiked,
-                        isBookmarked = isBookmarked,
+                        likeCount = (likeCounts[currentIndex] ?: 0).toString(),
+                        isLiked = likeStates[currentIndex] == true,
+                        isBookmarked = bookmarkStates[currentIndex] == true,
                         onLikeClick = {
-                            likeStates[currentIndex] = !isLiked
-                            likeCounts[currentIndex] = if (!isLiked) likeCount + 1 else (likeCount - 1).coerceAtLeast(0)
+                            likeStates[currentIndex] = !(likeStates[currentIndex] ?: false)
+                            likeCounts[currentIndex] = (likeCounts[currentIndex] ?: 0) + if (likeStates[currentIndex] == true) 1 else -1
                         },
                         onShareClick = {
                             shareQuoteImage(context, quotes[currentIndex])
                         },
                         onBookmarkClick = {
-                            bookmarkStates[currentIndex] = !isBookmarked
+                            bookmarkStates[currentIndex] = !(bookmarkStates[currentIndex] ?: false)
                         }
                     )
                 }

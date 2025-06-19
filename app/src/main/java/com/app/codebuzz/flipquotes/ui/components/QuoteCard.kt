@@ -14,10 +14,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.app.codebuzz.flipquotes.data.Quote
 import kotlinx.coroutines.launch
+import com.app.codebuzz.flipquotes.R
 
 @Composable
 fun QuoteCard(
@@ -25,6 +28,12 @@ fun QuoteCard(
     swipeDirection: Int = 0, // 1 for next, -1 for previous
     onNext: () -> Unit = {},
     onPrevious: () -> Unit = {},
+    likeCount: String = "0",
+    isLiked: Boolean = false,
+    isBookmarked: Boolean = false,
+    onLikeClick: () -> Unit = {},
+    onShareClick: () -> Unit = {},
+    onBookmarkClick: () -> Unit = {},
     header: @Composable () -> Unit = {},
     footer: @Composable () -> Unit = {}
 ) {
@@ -54,7 +63,7 @@ fun QuoteCard(
         shape = RoundedCornerShape(20.dp),
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            //.padding(16.dp)
             .graphicsLayer {
                 translationY = offsetY.value
                 this.alpha = alpha.value
@@ -66,27 +75,43 @@ fun QuoteCard(
                             offsetY.value < -100f && !isAnimating -> {
                                 isAnimating = true
                                 scope.launch {
-                                    offsetY.animateTo(-1000f, animationSpec = tween(300))
-                                    alpha.animateTo(0f, animationSpec = tween(200))
-                                    offsetY.snapTo(1000f)
-                                    alpha.snapTo(0f)
-                                    onNext()
-                                    offsetY.animateTo(0f, animationSpec = tween(300))
-                                    alpha.animateTo(1f, animationSpec = tween(200))
-                                    isAnimating = false
+                                    try {
+                                        // Animate out (up)
+                                        offsetY.animateTo(-1000f, animationSpec = tween(300))
+                                        alpha.animateTo(0f, animationSpec = tween(200))
+                                        // Trigger next quote
+                                        onNext()
+                                        // Wait for recomposition with new quote
+                                        // Snap to bottom, invisible
+                                        offsetY.snapTo(1000f)
+                                        alpha.snapTo(0f)
+                                        // Animate in (from bottom)
+                                        offsetY.animateTo(0f, animationSpec = tween(300))
+                                        alpha.animateTo(1f, animationSpec = tween(200))
+                                    } finally {
+                                        isAnimating = false
+                                    }
                                 }
                             }
                             offsetY.value > 100f && !isAnimating -> {
                                 isAnimating = true
                                 scope.launch {
-                                    offsetY.animateTo(1000f, animationSpec = tween(300))
-                                    alpha.animateTo(0f, animationSpec = tween(200))
-                                    offsetY.snapTo(-1000f)
-                                    alpha.snapTo(0f)
-                                    onPrevious()
-                                    offsetY.animateTo(0f, animationSpec = tween(300))
-                                    alpha.animateTo(1f, animationSpec = tween(200))
-                                    isAnimating = false
+                                    try {
+                                        // Animate out (down)
+                                        offsetY.animateTo(1000f, animationSpec = tween(300))
+                                        alpha.animateTo(0f, animationSpec = tween(200))
+                                        // Trigger previous quote
+                                        onPrevious()
+                                        // Wait for recomposition with new quote
+                                        // Snap to top, invisible
+                                        offsetY.snapTo(-1000f)
+                                        alpha.snapTo(0f)
+                                        // Animate in (from top)
+                                        offsetY.animateTo(0f, animationSpec = tween(300))
+                                        alpha.animateTo(1f, animationSpec = tween(200))
+                                    } finally {
+                                        isAnimating = false
+                                    }
                                 }
                             }
                             else -> {
@@ -99,7 +124,8 @@ fun QuoteCard(
                     onVerticalDrag = { _, dragAmount ->
                         if (!isAnimating) {
                             scope.launch {
-                                offsetY.snapTo(offsetY.value + dragAmount)
+                                val newOffset = (offsetY.value + dragAmount).coerceIn(-1200f, 1200f)
+                                offsetY.snapTo(newOffset)
                             }
                         }
                     }
@@ -108,6 +134,13 @@ fun QuoteCard(
         elevation = CardDefaults.cardElevation(8.dp)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
+            // Texture background covers the entire card
+            Image(
+                painter = painterResource(id = com.app.codebuzz.flipquotes.R.drawable.texture),
+                contentDescription = null,
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.SpaceBetween
@@ -121,17 +154,19 @@ fun QuoteCard(
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    // Texture background only for quote area
-                    Image(
-                        painter = painterResource(id = com.app.codebuzz.flipquotes.R.drawable.texture),
-                        contentDescription = null,
-                        modifier = Modifier.matchParentSize()
-                    )
                     QuoteContent(quote = quote)
                 }
                 // Footer
                 Box(modifier = Modifier.fillMaxWidth()) {
                     footer()
+                    Footer(
+                        likeCount = likeCount,
+                        isLiked = isLiked,
+                        isBookmarked = isBookmarked,
+                        onLikeClick = onLikeClick,
+                        onShareClick = onShareClick,
+                        onBookmarkClick = onBookmarkClick
+                    )
                 }
             }
         }
@@ -147,7 +182,9 @@ fun QuoteContent(quote: Quote, modifier: Modifier = Modifier) {
     ) {
         Text(
             text = "\"${quote.quote}\"",
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.headlineLarge.copy(
+                fontFamily = FontFamily(Font(resId = R.font.kotta_one))
+            ),
             color = Color.Black,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
@@ -155,7 +192,7 @@ fun QuoteContent(quote: Quote, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "~ ${quote.author}",
-            style = MaterialTheme.typography.bodyMedium,
+            style = MaterialTheme.typography.bodyLarge,
             color = Color.DarkGray,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
