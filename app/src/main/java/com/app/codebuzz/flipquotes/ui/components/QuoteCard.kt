@@ -1,11 +1,14 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package com.app.codebuzz.flipquotes.ui.components
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.pager.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -14,20 +17,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.app.codebuzz.flipquotes.data.Quote
-import kotlinx.coroutines.launch
+import androidx.compose.ui.util.lerp
 import com.app.codebuzz.flipquotes.R
+import com.app.codebuzz.flipquotes.data.Quote
+import kotlin.math.absoluteValue
 
+@OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun QuoteCard(
     quote: Quote,
-    swipeDirection: Int = 0, // 1 for next, -1 for previous
+    isRefreshing: Boolean = false,
     onNext: () -> Unit = {},
     onPrevious: () -> Unit = {},
     likeCount: String = "0",
@@ -39,141 +44,120 @@ fun QuoteCard(
     header: @Composable () -> Unit = {},
     footer: @Composable () -> Unit = {}
 ) {
-    val scope = rememberCoroutineScope()
-    val offsetY = remember { Animatable(0f) }
-    val alpha = remember { Animatable(1f) }
-    var isAnimating by remember { mutableStateOf(false) }
+    val pagerState = rememberPagerState(
+        initialPage = Int.MAX_VALUE / 2,
+        pageCount = { Int.MAX_VALUE }
+    )
 
-    // Animate card entry based on swipeDirection
-    LaunchedEffect(swipeDirection, quote) {
-        if (swipeDirection == 1) {
-            // Coming from bottom
-            offsetY.snapTo(1000f)
-            alpha.snapTo(0f)
-            offsetY.animateTo(0f, animationSpec = tween(300))
-            alpha.animateTo(1f, animationSpec = tween(200))
-        } else if (swipeDirection == -1) {
-            // Coming from top
-            offsetY.snapTo(-1000f)
-            alpha.snapTo(0f)
-            offsetY.animateTo(0f, animationSpec = tween(300))
-            alpha.animateTo(1f, animationSpec = tween(200))
+    var lastPage by remember { mutableIntStateOf(pagerState.currentPage) }
+
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.currentPage }.collect { currentPage ->
+            if (currentPage > lastPage) {
+                onNext()
+            } else if (currentPage < lastPage) {
+                onPrevious()
+            }
+            lastPage = currentPage
         }
     }
 
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        modifier = Modifier
-            .fillMaxSize()
-            //.padding(16.dp)
-            .graphicsLayer {
-                translationY = offsetY.value
-                this.alpha = alpha.value
-            }
-            .pointerInput(isAnimating) {
-                detectVerticalDragGestures(
-                    onDragEnd = {
-                        when {
-                            offsetY.value < -100f && !isAnimating -> {
-                                isAnimating = true
-                                scope.launch {
-                                    try {
-                                        // Animate out (up)
-                                        offsetY.animateTo(-1000f, animationSpec = tween(300))
-                                        alpha.animateTo(0f, animationSpec = tween(200))
-                                        // Trigger next quote
-                                        onNext()
-                                        // Wait for recomposition with new quote
-                                        // Snap to bottom, invisible
-                                        offsetY.snapTo(1000f)
-                                        alpha.snapTo(0f)
-                                        // Animate in (from bottom)
-                                        offsetY.animateTo(0f, animationSpec = tween(300))
-                                        alpha.animateTo(1f, animationSpec = tween(200))
-                                    } finally {
-                                        isAnimating = false
-                                    }
+    VerticalPager(
+        state = pagerState,
+        modifier = Modifier.fillMaxSize(),
+        pageSpacing = 8.dp
+    ) { page ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    val pageOffset = ((pagerState.currentPage - page) + pagerState
+                        .currentPageOffsetFraction).absoluteValue
+
+                    alpha = lerp(
+                        start = 0.5f,
+                        stop = 1f,
+                        fraction = 1f - pageOffset.coerceIn(0f, 1f)
+                    )
+
+                    translationY = lerp(
+                        start = 0f,
+                        stop = -200f,
+                        fraction = pageOffset.coerceIn(0f, 1f)
+                    )
+                }
+        ) {
+            Card(
+                shape = RoundedCornerShape(20.dp),
+                modifier = Modifier.fillMaxSize(),
+                elevation = CardDefaults.cardElevation(8.dp)
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    // Texture background
+                    Image(
+                        painter = painterResource(id = R.drawable.texture),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        // Header
+                        Box(modifier = Modifier
+                            .fillMaxWidth()
+                            .statusBarsPadding()
+                        ) {
+                            header()
+                        }
+
+                        // Main content
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            if (isRefreshing) {
+                                // Use AnimatedContent only during refresh
+                                AnimatedContent(
+                                    targetState = quote,
+                                    transitionSpec = {
+                                        ContentTransform(
+                                            targetContentEnter = slideInVertically { height -> height } +
+                                                fadeIn(animationSpec = tween(300)),
+                                            initialContentExit = slideOutVertically { height -> -height } +
+                                                fadeOut(animationSpec = tween(300)),
+                                            sizeTransform = null
+                                        )
+                                    },
+                                    label = "quote transition"
+                                ) { currentQuote ->
+                                    QuoteContent(quote = currentQuote)
                                 }
-                            }
-                            offsetY.value > 100f && !isAnimating -> {
-                                isAnimating = true
-                                scope.launch {
-                                    try {
-                                        // Animate out (down)
-                                        offsetY.animateTo(1000f, animationSpec = tween(300))
-                                        alpha.animateTo(0f, animationSpec = tween(200))
-                                        // Trigger previous quote
-                                        onPrevious()
-                                        // Wait for recomposition with new quote
-                                        // Snap to top, invisible
-                                        offsetY.snapTo(-1000f)
-                                        alpha.snapTo(0f)
-                                        // Animate in (from top)
-                                        offsetY.animateTo(0f, animationSpec = tween(300))
-                                        alpha.animateTo(1f, animationSpec = tween(200))
-                                    } finally {
-                                        isAnimating = false
-                                    }
-                                }
-                            }
-                            else -> {
-                                scope.launch {
-                                    offsetY.animateTo(0f, animationSpec = tween(300))
-                                }
+                            } else {
+                                // Direct content update during scrolling
+                                QuoteContent(quote = quote)
                             }
                         }
-                    },
-                    onVerticalDrag = { _, dragAmount ->
-                        if (!isAnimating) {
-                            scope.launch {
-                                val newOffset = (offsetY.value + dragAmount).coerceIn(-1200f, 1200f)
-                                offsetY.snapTo(newOffset)
-                            }
+                        // Footer
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(MaterialTheme.colorScheme.surface)
+                                .navigationBarsPadding()
+                        ) {
+                            Footer(
+                                likeCount = likeCount,
+                                isLiked = isLiked,
+                                isBookmarked = isBookmarked,
+                                onLikeClick = onLikeClick,
+                                onShareClick = onShareClick,
+                                onBookmarkClick = onBookmarkClick
+                            )
                         }
                     }
-                )
-            },
-        elevation = CardDefaults.cardElevation(8.dp)
-    ) {
-        Box(modifier = Modifier.fillMaxSize()) {
-            // Texture background covers the entire card
-            Image(
-                painter = painterResource(id = R.drawable.texture),
-                contentDescription = null,
-                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceBetween
-            ) {
-                // Header with status bar padding
-                Box(modifier = Modifier.fillMaxWidth().statusBarsPadding()) {
-                    header()
-                }
-                // Main content (no system bar padding)
-                Box(
-                    modifier = Modifier.weight(1f).fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    QuoteContent(quote = quote)
-                }
-                // Footer with navigation bar padding and matching background
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface) // Match footer bg
-                        .navigationBarsPadding()
-                ) {
-                    footer()
-                    Footer(
-                        likeCount = likeCount,
-                        isLiked = isLiked,
-                        isBookmarked = isBookmarked,
-                        onLikeClick = onLikeClick,
-                        onShareClick = onShareClick,
-                        onBookmarkClick = onBookmarkClick
-                    )
                 }
             }
         }
@@ -227,7 +211,7 @@ fun ShareableQuoteCard(quote: Quote) {
                 Image(
                     painter = painterResource(id = R.drawable.texture),
                     contentDescription = null,
-                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier.matchParentSize()
                 )
                 Box(
