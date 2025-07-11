@@ -44,6 +44,7 @@ fun QuotePagerScreen(viewModel: QuoteViewModel) {
             contentAlignment = Alignment.Center
         ) { CircularProgressIndicator() }
     } else {
+        val nextIndex = (currentIndex + 1) % quotes.size
         // Dual card animation state
         var animDirection by remember { mutableIntStateOf(0) } // 1 for next, -1 for previous
 
@@ -54,27 +55,14 @@ fun QuotePagerScreen(viewModel: QuoteViewModel) {
             val context = LocalContext.current
             QuoteCard(
                 quote = quotes[currentIndex],
-                swipeDirection = animDirection,
+                nextQuote = quotes[nextIndex],
                 onNext = {
                     animDirection = 1
-                    currentIndex = (currentIndex + 1) % quotes.size
+                    currentIndex = nextIndex
                 },
                 onPrevious = {
                     animDirection = -1
                     currentIndex = (currentIndex - 1 + quotes.size) % quotes.size
-                },
-                likeCount = (likeCounts[currentIndex] ?: 0).toString(),
-                isLiked = likeStates[currentIndex] == true,
-                isBookmarked = bookmarkStates[currentIndex] == true,
-                onLikeClick = {
-                    likeStates[currentIndex] = likeStates[currentIndex] != true
-                    likeCounts[currentIndex] = (likeCounts[currentIndex] ?: 0) + if (likeStates[currentIndex] == true) 1 else -1
-                },
-                onShareClick = {
-                    shareQuoteImage(context, quotes[currentIndex])
-                },
-                onBookmarkClick = {
-                    bookmarkStates[currentIndex] = bookmarkStates[currentIndex] != true
                 },
                 header = {
                     Header(
