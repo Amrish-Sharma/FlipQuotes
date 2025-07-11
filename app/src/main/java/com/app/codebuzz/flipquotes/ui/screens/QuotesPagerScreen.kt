@@ -34,6 +34,7 @@ import androidx.core.graphics.createBitmap
 fun QuotePagerScreen(viewModel: QuoteViewModel) {
     val quotes = viewModel.quotes
     var currentIndex by remember { mutableIntStateOf(0) }
+    var isRefreshing by remember { mutableStateOf(false) }
     val likeStates = remember { mutableStateMapOf<Int, Boolean>() }
     val bookmarkStates = remember { mutableStateMapOf<Int, Boolean>() }
     val likeCounts = remember { mutableStateMapOf<Int, Int>() }
@@ -44,9 +45,6 @@ fun QuotePagerScreen(viewModel: QuoteViewModel) {
             contentAlignment = Alignment.Center
         ) { CircularProgressIndicator() }
     } else {
-        // Dual card animation state
-        var animDirection by remember { mutableIntStateOf(0) } // 1 for next, -1 for previous
-
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -54,13 +52,11 @@ fun QuotePagerScreen(viewModel: QuoteViewModel) {
             val context = LocalContext.current
             QuoteCard(
                 quote = quotes[currentIndex],
-                swipeDirection = animDirection,
+                isRefreshing = isRefreshing,
                 onNext = {
-                    animDirection = 1
                     currentIndex = (currentIndex + 1) % quotes.size
                 },
                 onPrevious = {
-                    animDirection = -1
                     currentIndex = (currentIndex - 1 + quotes.size) % quotes.size
                 },
                 likeCount = (likeCounts[currentIndex] ?: 0).toString(),
@@ -79,8 +75,11 @@ fun QuotePagerScreen(viewModel: QuoteViewModel) {
                 header = {
                     Header(
                         onRefreshClick = {
-                            viewModel::class.java.getDeclaredMethod("fetchQuotes").apply { isAccessible = true }.invoke(viewModel)
-                            currentIndex = 0
+                            isRefreshing = true
+                            viewModel.fetchQuotes {
+                                isRefreshing = false
+                                currentIndex = 0
+                            }
                         }
                     )
                 },
@@ -173,7 +172,7 @@ class QuoteViewModel : ViewModel() {
         fetchQuotes()
     }
 
-    private fun fetchQuotes() {
+    fun fetchQuotes(onComplete: () -> Unit = {}) {
         viewModelScope.launch(Dispatchers.IO) {
             val url = "https://raw.githubusercontent.com/Amrish-Sharma/fq_quotes/refs/heads/main/Quotes.json"
             val request = Request.Builder().url(url).build()
@@ -184,6 +183,9 @@ class QuoteViewModel : ViewModel() {
                     val loadedQuotes: List<Quote> = Gson().fromJson(json, listType)
                     _quotes.clear()
                     _quotes.addAll(loadedQuotes.shuffled())
+                    viewModelScope.launch(Dispatchers.Main) {
+                        onComplete()
+                    }
                 }
             }
         }
