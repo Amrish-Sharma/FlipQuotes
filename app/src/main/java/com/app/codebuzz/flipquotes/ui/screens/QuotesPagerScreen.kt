@@ -174,7 +174,7 @@ class QuoteViewModel : ViewModel() {
 
     fun fetchQuotes(onComplete: () -> Unit = {}) {
         viewModelScope.launch(Dispatchers.IO) {
-            val url = "https://raw.githubusercontent.com/Amrish-Sharma/fq_quotes/refs/heads/main/Quotes.json"
+            val url = "https://raw.githubusercontent.com/Amrish-Sharma/fq_quotes/refs/heads/quote-with-theme/quote_with_theme.json"
             val request = Request.Builder().url(url).build()
             val response = OkHttpClient().newCall(request).execute()
             if (response.isSuccessful) {

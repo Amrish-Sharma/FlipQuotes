@@ -24,7 +24,7 @@ class QuotesViewModel : ViewModel() {
             try {
                 val client = OkHttpClient()
                 val request = Request.Builder()
-                    .url("https://raw.githubusercontent.com/Amrish-Sharma/fq_quotes/refs/heads/main/Quotes.json")
+                    .url("https://raw.githubusercontent.com/Amrish-Sharma/fq_quotes/refs/heads/quote-with-theme/quote_with_theme.json")
                     .build()
 
                 val response = client.newCall(request).execute()
