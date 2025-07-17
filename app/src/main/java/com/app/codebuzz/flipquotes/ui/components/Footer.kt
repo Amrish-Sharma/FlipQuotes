@@ -27,52 +27,75 @@ fun QuoteFooter(
     onLikeClick: () -> Unit = {},
     onShareClick: () -> Unit = {}
 ) {
-    Box(
+    Surface(
         modifier = modifier
-            .fillMaxWidth()
-            .background(Color.Black)
-            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .fillMaxWidth(),
+        color = Color.Black,
+        shadowElevation = 8.dp
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.Bottom // Align all items to bottom
         ) {
-            // Bookmark button
-            FooterIconButton(
-                icon = if (isBookmarked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                contentDescription = if (isBookmarked) "Remove bookmark" else "Add bookmark",
-                onClick = onBookmarkClick,
-                isActive = isBookmarked
-            )
-
-            // Like button with count - Keep button inline, count as overlay
-            Box(
-                contentAlignment = Alignment.Center
+            // Bookmark button - wrap in Column for consistent height
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.height(64.dp) // Fixed height for all columns
             ) {
+                Spacer(modifier = Modifier.height(22.dp)) // Placeholder for consistent spacing
+                FooterIconButton(
+                    icon = if (isBookmarked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    contentDescription = if (isBookmarked) "Remove bookmark" else "Add bookmark",
+                    onClick = onBookmarkClick,
+                    isActive = isBookmarked
+                )
+            }
+
+            // Like button with count - Stack vertically for better visibility
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.height(64.dp) // Fixed height for all columns
+            ) {
+                // Count positioned above the button
+                if (isLiked || (likeCount.toIntOrNull() != null && likeCount.toInt() > 0)) {
+                    Text(
+                        text = likeCount,
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                } else {
+                    // Placeholder to maintain consistent spacing
+                    Spacer(modifier = Modifier.height(22.dp))
+                }
+
                 FooterIconButton(
                     icon = if (isLiked) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
                     contentDescription = if (isLiked) "Unlike" else "Like",
                     onClick = onLikeClick,
                     isActive = isLiked
                 )
-                // Count positioned above the button as overlay
-                if (likeCount.toIntOrNull() != null && likeCount.toInt() > 0) {
-                    Text(
-                        text = likeCount,
-                        color = Color.White,
-                        fontSize = 12.sp,
-                        modifier = Modifier.offset(y = (-20).dp) // Position above the button
-                    )
-                }
             }
 
-            // Share button
-            FooterIconButton(
-                icon = Icons.Filled.Share,
-                contentDescription = "Share quote",
-                onClick = onShareClick
-            )
+            // Share button - wrap in Column for consistent height
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.height(64.dp) // Fixed height for all columns
+            ) {
+                Spacer(modifier = Modifier.height(22.dp)) // Placeholder for consistent spacing
+                FooterIconButton(
+                    icon = Icons.Filled.Share,
+                    contentDescription = "Share quote",
+                    onClick = onShareClick
+                )
+            }
         }
     }
 }
