@@ -29,6 +29,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.codebuzz.flipquotes.data.Quote
 import com.app.codebuzz.flipquotes.ui.components.QuoteCard
 import com.app.codebuzz.flipquotes.ui.components.Header
+import com.app.codebuzz.flipquotes.ui.components.QuoteFooter
 import com.app.codebuzz.flipquotes.ui.viewmodel.QuotesViewModel
 import kotlinx.coroutines.launch
 
@@ -51,6 +52,7 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
         pageCount = { themesList.size }
     )
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     // Smooth entrance animation state
     var isAppVisible by remember { mutableStateOf(false) }
@@ -138,6 +140,29 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                         }
                     }
                 }
+            },
+            bottomBar = {
+                if (quotes.isNotEmpty()) {
+                    QuoteFooter(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .windowInsetsPadding(WindowInsets.navigationBars),
+                        likeCount = (likeCounts[safeQuoteIndex] ?: 0).toString(),
+                        isLiked = likeStates[safeQuoteIndex] == true,
+                        isBookmarked = bookmarkStates[safeQuoteIndex] == true,
+                        onLikeClick = {
+                            likeStates[safeQuoteIndex] = likeStates[safeQuoteIndex] != true
+                            likeCounts[safeQuoteIndex] = (likeCounts[safeQuoteIndex] ?: 0) +
+                                    if (likeStates[safeQuoteIndex] == true) 1 else -1
+                        },
+                        onShareClick = {
+                            shareQuoteImage(context, quotes[safeQuoteIndex])
+                        },
+                        onBookmarkClick = {
+                            bookmarkStates[safeQuoteIndex] = bookmarkStates[safeQuoteIndex] != true
+                        }
+                    )
+                }
             }
         ) { paddingValues ->
             Box(
@@ -159,7 +184,6 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            val context = LocalContext.current
                             QuoteCard(
                                 quote = quotes[safeQuoteIndex],
                                 isRefreshing = isRefreshing,
@@ -172,20 +196,6 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                                     if (quotes.isNotEmpty()) {
                                         currentQuoteIndex = (currentQuoteIndex - 1 + quotes.size) % quotes.size
                                     }
-                                },
-                                likeCount = (likeCounts[safeQuoteIndex] ?: 0).toString(),
-                                isLiked = likeStates[safeQuoteIndex] == true,
-                                isBookmarked = bookmarkStates[safeQuoteIndex] == true,
-                                onLikeClick = {
-                                    likeStates[safeQuoteIndex] = likeStates[safeQuoteIndex] != true
-                                    likeCounts[safeQuoteIndex] = (likeCounts[safeQuoteIndex] ?: 0) +
-                                            if (likeStates[safeQuoteIndex] == true) 1 else -1
-                                },
-                                onShareClick = {
-                                    shareQuoteImage(context, quotes[safeQuoteIndex])
-                                },
-                                onBookmarkClick = {
-                                    bookmarkStates[safeQuoteIndex] = bookmarkStates[safeQuoteIndex] != true
                                 }
                             )
                         }

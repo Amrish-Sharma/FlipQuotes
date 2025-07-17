@@ -35,12 +35,6 @@ fun QuoteCard(
     isRefreshing: Boolean = false,
     onNext: () -> Unit = {},
     onPrevious: () -> Unit = {},
-    likeCount: String = "0",
-    isLiked: Boolean = false,
-    isBookmarked: Boolean = false,
-    onLikeClick: () -> Unit = {},
-    onShareClick: () -> Unit = {},
-    onBookmarkClick: () -> Unit = {},
     header: @Composable () -> Unit = {}
 ) {
     val pagerState = rememberPagerState(
@@ -99,62 +93,32 @@ fun QuoteCard(
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
                     )
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        // Header
-                        Box(modifier = Modifier
-                            .fillMaxWidth()
-                            .statusBarsPadding()
-                        ) {
-                            header()
-                        }
 
-                        // Main content
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            if (isRefreshing) {
-                                // Use AnimatedContent only during refresh
-                                AnimatedContent(
-                                    targetState = quote,
-                                    transitionSpec = {
-                                        ContentTransform(
-                                            targetContentEnter = slideInVertically { height -> height } +
-                                                fadeIn(animationSpec = tween(300)),
-                                            initialContentExit = slideOutVertically { height -> -height } +
-                                                fadeOut(animationSpec = tween(300)),
-                                            sizeTransform = null
-                                        )
-                                    },
-                                    label = "quote transition"
-                                ) { currentQuote ->
-                                    QuoteContent(quote = currentQuote)
-                                }
-                            } else {
-                                // Direct content update during scrolling
-                                QuoteContent(quote = quote)
+                    // Main content - center the quote content
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (isRefreshing) {
+                            // Use AnimatedContent only during refresh
+                            AnimatedContent(
+                                targetState = quote,
+                                transitionSpec = {
+                                    ContentTransform(
+                                        targetContentEnter = slideInVertically { height -> height } +
+                                            fadeIn(animationSpec = tween(300)),
+                                        initialContentExit = slideOutVertically { height -> -height } +
+                                            fadeOut(animationSpec = tween(300)),
+                                        sizeTransform = null
+                                    )
+                                },
+                                label = "quote transition"
+                            ) { currentQuote ->
+                                QuoteContent(quote = currentQuote)
                             }
-                        }
-                        // Footer
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(MaterialTheme.colorScheme.surface)
-                                .navigationBarsPadding()
-                        ) {
-                            QuoteFooter(
-                                likeCount = likeCount,
-                                isLiked = isLiked,
-                                isBookmarked = isBookmarked,
-                                onLikeClick = onLikeClick,
-                                onShareClick = onShareClick,
-                                onBookmarkClick = onBookmarkClick
-                            )
+                        } else {
+                            // Direct content update during scrolling
+                            QuoteContent(quote = quote)
                         }
                     }
                 }
@@ -182,14 +146,6 @@ fun QuoteContent(quote: Quote, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "~ ${quote.author}",
-            style = MaterialTheme.typography.bodyLarge,
-            color = Color.DarkGray,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "#${quote.theme}",
             style = MaterialTheme.typography.bodyLarge,
             color = Color.DarkGray,
             textAlign = TextAlign.Center,
