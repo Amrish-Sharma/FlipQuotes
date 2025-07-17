@@ -187,6 +187,14 @@ fun QuoteContent(quote: Quote, modifier: Modifier = Modifier) {
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "#${quote.theme}",
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color.DarkGray,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
