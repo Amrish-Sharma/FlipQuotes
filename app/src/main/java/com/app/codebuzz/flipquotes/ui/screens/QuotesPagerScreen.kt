@@ -5,102 +5,193 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.provider.MediaStore.Images.Media
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.*
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.compose.ui.unit.dp
+import androidx.core.graphics.createBitmap
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.codebuzz.flipquotes.data.Quote
 import com.app.codebuzz.flipquotes.ui.components.QuoteCard
 import com.app.codebuzz.flipquotes.ui.components.Header
-import com.app.codebuzz.flipquotes.ui.components.Footer
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import kotlinx.coroutines.Dispatchers
+import com.app.codebuzz.flipquotes.ui.viewmodel.QuotesViewModel
 import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import kotlinx.coroutines.DelicateCoroutinesApi
-import androidx.core.graphics.createBitmap
 
-@OptIn(DelicateCoroutinesApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @SuppressLint("MutableCollectionMutableState")
 @Composable
-fun QuotePagerScreen(viewModel: QuoteViewModel) {
-    val quotes = viewModel.quotes
-    var currentIndex by remember { mutableIntStateOf(0) }
+fun QuotePagerScreen(viewModel: QuotesViewModel) {
+    val quotes by viewModel.filteredQuotes.collectAsStateWithLifecycle(initialValue = emptyList())
+    val themesList by viewModel.themesList.collectAsStateWithLifecycle(initialValue = emptyList())
+    val selectedTheme by viewModel.selectedTheme.collectAsStateWithLifecycle(initialValue = null)
+
+    var currentQuoteIndex by remember { mutableIntStateOf(0) }
     var isRefreshing by remember { mutableStateOf(false) }
     val likeStates = remember { mutableStateMapOf<Int, Boolean>() }
     val bookmarkStates = remember { mutableStateMapOf<Int, Boolean>() }
     val likeCounts = remember { mutableStateMapOf<Int, Int>() }
 
-    if (quotes.isEmpty()) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) { CircularProgressIndicator() }
-    } else {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            val context = LocalContext.current
-            QuoteCard(
-                quote = quotes[currentIndex],
-                isRefreshing = isRefreshing,
-                onNext = {
-                    currentIndex = (currentIndex + 1) % quotes.size
-                },
-                onPrevious = {
-                    currentIndex = (currentIndex - 1 + quotes.size) % quotes.size
-                },
-                likeCount = (likeCounts[currentIndex] ?: 0).toString(),
-                isLiked = likeStates[currentIndex] == true,
-                isBookmarked = bookmarkStates[currentIndex] == true,
-                onLikeClick = {
-                    likeStates[currentIndex] = likeStates[currentIndex] != true
-                    likeCounts[currentIndex] = (likeCounts[currentIndex] ?: 0) + if (likeStates[currentIndex] == true) 1 else -1
-                },
-                onShareClick = {
-                    shareQuoteImage(context, quotes[currentIndex])
-                },
-                onBookmarkClick = {
-                    bookmarkStates[currentIndex] = bookmarkStates[currentIndex] != true
-                },
-                header = {
+    val pagerState = rememberPagerState(
+        initialPage = 0,
+        pageCount = { themesList.size }
+    )
+    val coroutineScope = rememberCoroutineScope()
+
+    // Smooth entrance animation state
+    var isAppVisible by remember { mutableStateOf(false) }
+
+    // Trigger smooth fade-in after a short delay to ensure everything is positioned
+    LaunchedEffect(quotes, themesList) {
+        if (quotes.isNotEmpty() && themesList.isNotEmpty() && !isAppVisible) {
+            kotlinx.coroutines.delay(100) // Small delay for smooth positioning
+            isAppVisible = true
+        }
+    }
+
+    // Optimize tab switching with immediate state updates
+    LaunchedEffect(pagerState.currentPage) {
+        val newTheme = themesList.getOrNull(pagerState.currentPage)
+        if (newTheme != selectedTheme) {
+            viewModel.setSelectedTheme(newTheme)
+        }
+    }
+
+    // Reset quote index when theme changes and ensure it's always within bounds
+    LaunchedEffect(selectedTheme, quotes.size) {
+        currentQuoteIndex = 0
+    }
+
+    // Ensure currentQuoteIndex is always within bounds
+    val safeQuoteIndex = if (quotes.isNotEmpty()) {
+        currentQuoteIndex.coerceIn(0, quotes.size - 1)
+    } else 0
+
+    // Smooth fade-in animation for the entire app content
+    AnimatedVisibility(
+        visible = isAppVisible,
+        enter = fadeIn(animationSpec = tween(600, easing = FastOutSlowInEasing)) +
+                slideInVertically(
+                    animationSpec = tween(600, easing = FastOutSlowInEasing),
+                    initialOffsetY = { -50 }
+                )
+    ) {
+        Scaffold(
+            topBar = {
+                Column {
                     Header(
                         onRefreshClick = {
                             isRefreshing = true
-                            viewModel.fetchQuotes {
-                                isRefreshing = false
-                                currentIndex = 0
+                            viewModel.forceRefresh()
+                            isRefreshing = false
+                            currentQuoteIndex = 0
+                        }
+                    )
+
+                    if (themesList.isNotEmpty()) {
+                        ScrollableTabRow(
+                            selectedTabIndex = pagerState.currentPage,
+                            edgePadding = 12.dp,
+                            containerColor = MaterialTheme.colorScheme.surface,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            indicator = { tabPositions ->
+                                if (tabPositions.isNotEmpty() && pagerState.currentPage < tabPositions.size) {
+                                    TabRowDefaults.SecondaryIndicator(
+                                        modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                                        color = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                        ) {
+                            themesList.forEachIndexed { index, theme ->
+                                Tab(
+                                    selected = pagerState.currentPage == index,
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            pagerState.scrollToPage(index)
+                                        }
+                                    },
+                                    text = {
+                                        Text(
+                                            text = theme,
+                                            maxLines = 1,
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    },
+                                    modifier = Modifier.padding(horizontal = 4.dp)
+                                )
                             }
                         }
-                    )
-                },
-                footer = {
-                    Footer(
-                        likeCount = (likeCounts[currentIndex] ?: 0).toString(),
-                        isLiked = likeStates[currentIndex] == true,
-                        isBookmarked = bookmarkStates[currentIndex] == true,
-                        onLikeClick = {
-                            likeStates[currentIndex] = likeStates[currentIndex] != true
-                            likeCounts[currentIndex] = (likeCounts[currentIndex] ?: 0) + if (likeStates[currentIndex] == true) 1 else -1
-                        },
-                        onShareClick = {
-                            shareQuoteImage(context, quotes[currentIndex])
-                        },
-                        onBookmarkClick = {
-                            bookmarkStates[currentIndex] = bookmarkStates[currentIndex] != true
-                        }
-                    )
+                    }
                 }
-            )
+            }
+        ) { paddingValues ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                if (quotes.isEmpty()) {
+                    Text(
+                        text = "No quotes available for this theme",
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                } else {
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize()
+                    ) { pageIndex ->
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            val context = LocalContext.current
+                            QuoteCard(
+                                quote = quotes[safeQuoteIndex],
+                                isRefreshing = isRefreshing,
+                                onNext = {
+                                    if (quotes.isNotEmpty()) {
+                                        currentQuoteIndex = (currentQuoteIndex + 1) % quotes.size
+                                    }
+                                },
+                                onPrevious = {
+                                    if (quotes.isNotEmpty()) {
+                                        currentQuoteIndex = (currentQuoteIndex - 1 + quotes.size) % quotes.size
+                                    }
+                                },
+                                likeCount = (likeCounts[safeQuoteIndex] ?: 0).toString(),
+                                isLiked = likeStates[safeQuoteIndex] == true,
+                                isBookmarked = bookmarkStates[safeQuoteIndex] == true,
+                                onLikeClick = {
+                                    likeStates[safeQuoteIndex] = likeStates[safeQuoteIndex] != true
+                                    likeCounts[safeQuoteIndex] = (likeCounts[safeQuoteIndex] ?: 0) +
+                                            if (likeStates[safeQuoteIndex] == true) 1 else -1
+                                },
+                                onShareClick = {
+                                    shareQuoteImage(context, quotes[safeQuoteIndex])
+                                },
+                                onBookmarkClick = {
+                                    bookmarkStates[safeQuoteIndex] = bookmarkStates[safeQuoteIndex] != true
+                                }
+                            )
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -127,7 +218,7 @@ fun shareQuoteImage(context: Context, quote: Quote) {
         composeView.measure(widthSpec, heightSpec)
         composeView.layout(0, 0, width, height)
         val bitmap = createBitmap(width, height)
-        val canvas = android.graphics.Canvas(bitmap)
+        val canvas = Canvas(bitmap)
         composeView.draw(canvas)
 
         val resolver = context.contentResolver
@@ -161,33 +252,5 @@ fun shareQuoteImage(context: Context, quote: Quote) {
             context.startActivity(Intent.createChooser(intent, "Share Quote from FlipQuotes"))
         }
         (container.parent as? android.view.ViewGroup)?.removeView(container)
-    }
-}
-
-class QuoteViewModel : ViewModel() {
-    private val _quotes = mutableStateListOf<Quote>()
-    val quotes: List<Quote> get() = _quotes
-
-    init {
-        fetchQuotes()
-    }
-
-    fun fetchQuotes(onComplete: () -> Unit = {}) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val url = "https://raw.githubusercontent.com/Amrish-Sharma/fq_quotes/refs/heads/main/Quotes.json"
-            val request = Request.Builder().url(url).build()
-            val response = OkHttpClient().newCall(request).execute()
-            if (response.isSuccessful) {
-                response.body?.string()?.let { json ->
-                    val listType = object : TypeToken<List<Quote>>() {}.type
-                    val loadedQuotes: List<Quote> = Gson().fromJson(json, listType)
-                    _quotes.clear()
-                    _quotes.addAll(loadedQuotes.shuffled())
-                    viewModelScope.launch(Dispatchers.Main) {
-                        onComplete()
-                    }
-                }
-            }
-        }
     }
 }

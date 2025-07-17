@@ -41,8 +41,7 @@ fun QuoteCard(
     onLikeClick: () -> Unit = {},
     onShareClick: () -> Unit = {},
     onBookmarkClick: () -> Unit = {},
-    header: @Composable () -> Unit = {},
-    footer: @Composable () -> Unit = {}
+    header: @Composable () -> Unit = {}
 ) {
     val pagerState = rememberPagerState(
         initialPage = Int.MAX_VALUE / 2,
@@ -88,7 +87,7 @@ fun QuoteCard(
                 }
         ) {
             Card(
-                shape = RoundedCornerShape(20.dp),
+                shape = RectangleShape,
                 modifier = Modifier.fillMaxSize(),
                 elevation = CardDefaults.cardElevation(8.dp)
             ) {
@@ -148,7 +147,7 @@ fun QuoteCard(
                                 .background(MaterialTheme.colorScheme.surface)
                                 .navigationBarsPadding()
                         ) {
-                            Footer(
+                            QuoteFooter(
                                 likeCount = likeCount,
                                 isLiked = isLiked,
                                 isBookmarked = isBookmarked,
@@ -183,6 +182,14 @@ fun QuoteContent(quote: Quote, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "~ ${quote.author}",
+            style = MaterialTheme.typography.bodyLarge,
+            color = Color.DarkGray,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "#${quote.theme}",
             style = MaterialTheme.typography.bodyLarge,
             color = Color.DarkGray,
             textAlign = TextAlign.Center,

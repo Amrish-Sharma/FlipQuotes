@@ -1,0 +1,1548 @@
+[
+  {
+    "quote": "Genius is one percent inspiration and ninety-nine percent perspiration",
+    "author": "Thomas Edison",
+    "theme": "Success"
+  },
+  {
+    "quote": "You can observe a lot just by watching",
+    "author": "Yogi Berra",
+    "theme": "Wisdom"
+  },
+  {
+    "quote": "A house divided against itself cannot stand",
+    "author": "Abraham Lincoln",
+    "theme": "Unity"
+  },
+  {
+    "quote": "Difficulties increase the nearer we get to the goal",
+    "author": "Johann Wolfgang von Goethe",
+    "theme": "Perseverance"
+  },
+  {
+    "quote": "Fate is in your hands and no one elses",
+    "author": "Byron Pulsifer",
+    "theme": "Responsibility"
+  },
+  {
+    "quote": "Be the chief but never the lord",
+    "author": "Lao Tzu",
+    "theme": "Leadership"
+  },
+  {
+    "quote": "Nothing happens unless first we dream",
+    "author": "Carl Sandburg",
+    "theme": "Dreams"
+  },
+  {
+    "quote": "Well begun is half done",
+    "author": "Aristotle",
+    "theme": "Beginning"
+  },
+  {
+    "quote": "Life is a learning experience, only if you learn",
+    "author": "Yogi Berra",
+    "theme": "Learning"
+  },
+  {
+    "quote": "Self-complacency is fatal to progress",
+    "author": "Margaret Sangster",
+    "theme": "Progress"
+  },
+  {
+    "quote": "Peace comes from within. Do not seek it without",
+    "author": "Buddha",
+    "theme": "Peace"
+  },
+  {
+    "quote": "What you give is what you get",
+    "author": "Byron Pulsifer",
+    "theme": "Karma"
+  },
+  {
+    "quote": "We can only learn to love by loving",
+    "author": "Iris Murdoch",
+    "theme": "Love"
+  },
+  {
+    "quote": "Life is change. Growth is optional. Choose wisely",
+    "author": "Karen Clark",
+    "theme": "Growth"
+  },
+  {
+    "quote": "You'll see it when you believe it",
+    "author": "Wayne Dyer",
+    "theme": "Belief"
+  },
+  {
+    "quote": "Today is the tomorrow we worried about yesterday",
+    "author": "Anonymous",
+    "theme": "Worry"
+  },
+  {
+    "quote": "It's easier to see the mistakes on someone else's paper",
+    "author": "Anonymous",
+    "theme": "Perspective"
+  },
+  {
+    "quote": "Every man dies. Not every man really lives",
+    "author": "Anonymous",
+    "theme": "Life"
+  },
+  {
+    "quote": "To lead people walk behind them",
+    "author": "Lao Tzu",
+    "theme": "Leadership"
+  },
+  {
+    "quote": "Having nothing, nothing can he lose",
+    "author": "William Shakespeare",
+    "theme": "Wisdom"
+  },
+  {
+    "quote": "Trouble is only opportunity in work clothes",
+    "author": "Henry J. Kaiser",
+    "theme": "Opportunity"
+  },
+  {
+    "quote": "A rolling stone gathers no moss",
+    "author": "Publilius Syrus",
+    "theme": "Action"
+  },
+  {
+    "quote": "Ideas are the beginning points of all fortunes",
+    "author": "Napoleon Hill",
+    "theme": "Ideas"
+  },
+  {
+    "quote": "Everything in life is luck",
+    "author": "Donald Trump",
+    "theme": "Luck"
+  },
+  {
+    "quote": "Doing nothing is better than being busy doing nothing",
+    "author": "Lao Tzu",
+    "theme": "Purpose"
+  },
+  {
+    "quote": "Trust yourself. You know more than you think you do",
+    "author": "Benjamin Spock",
+    "theme": "Confidence"
+  },
+  {
+    "quote": "Study the past, if you would divine the future",
+    "author": "Confucius",
+    "theme": "Learning"
+  },
+  {
+    "quote": "The day is already blessed, find peace within it",
+    "author": "Anonymous",
+    "theme": "Peace"
+  },
+  {
+    "quote": "From error to error one discovers the entire truth",
+    "author": "Sigmund Freud",
+    "theme": "Learning"
+  },
+  {
+    "quote": "Well done is better than well said",
+    "author": "Benjamin Franklin",
+    "theme": "Action"
+  },
+  {
+    "quote": "Bite off more than you can chew, then chew it",
+    "author": "Ella Williams",
+    "theme": "Challenge"
+  },
+  {
+    "quote": "Work out your own salvation. Do not depend on others",
+    "author": "Buddha",
+    "theme": "Independence"
+  },
+  {
+    "quote": "One today is worth two tomorrows",
+    "author": "Benjamin Franklin",
+    "theme": "Present"
+  },
+  {
+    "quote": "Once you choose hope, anythings possible",
+    "author": "Christopher Reeve",
+    "theme": "Hope"
+  },
+  {
+    "quote": "God always takes the simplest way",
+    "author": "Albert Einstein",
+    "theme": "Simplicity"
+  },
+  {
+    "quote": "One fails forward toward success",
+    "author": "Charles Kettering",
+    "theme": "Success"
+  },
+  {
+    "quote": "From small beginnings come great things",
+    "author": "Anonymous",
+    "theme": "Growth"
+  },
+  {
+    "quote": "Learning is a treasure that will follow its owner everywhere",
+    "author": "Chinese proverb",
+    "theme": "Learning"
+  },
+  {
+    "quote": "Be as you wish to seem",
+    "author": "Socrates",
+    "theme": "Authenticity"
+  },
+  {
+    "quote": "The world is always in movement",
+    "author": "V. Naipaul",
+    "theme": "Change"
+  },
+  {
+    "quote": "Never mistake activity for achievement",
+    "author": "John Wooden",
+    "theme": "Achievement"
+  },
+  {
+    "quote": "What worries you masters you",
+    "author": "Haddon Robinson",
+    "theme": "Worry"
+  },
+  {
+    "quote": "One faces the future with ones past",
+    "author": "Pearl Buck",
+    "theme": "Future"
+  },
+  {
+    "quote": "Goals are the fuel in the furnace of achievement",
+    "author": "Brian Tracy",
+    "theme": "Goals"
+  },
+  {
+    "quote": "Who sows virtue reaps honour",
+    "author": "Leonardo da Vinci",
+    "theme": "Virtue"
+  },
+  {
+    "quote": "Be kind whenever possible. It is always possible",
+    "author": "Dalai Lama",
+    "theme": "Kindness"
+  },
+  {
+    "quote": "Talk doesn't cook rice",
+    "author": "Chinese proverb",
+    "theme": "Action"
+  },
+  {
+    "quote": "He is able who thinks he is able",
+    "author": "Buddha",
+    "theme": "Confidence"
+  },
+  {
+    "quote": "A goal without a plan is just a wish",
+    "author": "Larry Elder",
+    "theme": "Planning"
+  },
+  {
+    "quote": "To succeed, we must first believe that we can",
+    "author": "Michael Korda",
+    "theme": "Success"
+  },
+  {
+    "quote": "Learn from yesterday, live for today, hope for tomorrow",
+    "author": "Albert Einstein",
+    "theme": "Balance"
+  },
+  {
+    "quote": "A weed is no more than a flower in disguise",
+    "author": "James Lowell",
+    "theme": "Perspective"
+  },
+  {
+    "quote": "Do, or do not. There is no try",
+    "author": "Yoda",
+    "theme": "Commitment"
+  },
+  {
+    "quote": "All serious daring starts from within",
+    "author": "Harriet Beecher Stowe",
+    "theme": "Courage"
+  },
+  {
+    "quote": "The best teacher is experience learned from failures",
+    "author": "Byron Pulsifer",
+    "theme": "Learning"
+  },
+  {
+    "quote": "Think how hard physics would be if particles could think",
+    "author": "Murray Gell-Mann",
+    "theme": "Simplicity"
+  },
+  {
+    "quote": "Love is the flower you've got to let grow",
+    "author": "John Lennon",
+    "theme": "Love"
+  },
+  {
+    "quote": "Don't wait. The time will never be just right",
+    "author": "Napoleon Hill",
+    "theme": "Action"
+  },
+  {
+    "quote": "Time is the wisest counsellor of all",
+    "author": "Pericles",
+    "theme": "Time"
+  },
+  {
+    "quote": "You give before you get",
+    "author": "Napoleon Hill",
+    "theme": "Giving"
+  },
+  {
+    "quote": "Wisdom begins in wonder",
+    "author": "Socrates",
+    "theme": "Wisdom"
+  },
+  {
+    "quote": "Without courage, wisdom bears no fruit",
+    "author": "Baltasar Gracian",
+    "theme": "Courage"
+  },
+  {
+    "quote": "Change in all things is sweet",
+    "author": "Aristotle",
+    "theme": "Change"
+  },
+  {
+    "quote": "What you fear is that which requires action to overcome",
+    "author": "Byron Pulsifer",
+    "theme": "Fear"
+  },
+  {
+    "quote": "When performance exceeds ambition, the overlap is called success",
+    "author": "Cullen Hightower",
+    "theme": "Success"
+  },
+  {
+    "quote": "When deeds speak, words are nothing",
+    "author": "African proverb",
+    "theme": "Action"
+  },
+  {
+    "quote": "Real magic in relationships means an absence of judgement of others",
+    "author": "Wayne Dyer",
+    "theme": "Relationships"
+  },
+  {
+    "quote": "I never think of the future. It comes soon enough",
+    "author": "Albert Einstein",
+    "theme": "Present"
+  },
+  {
+    "quote": "Skill to do comes of doing",
+    "author": "Ralph Emerson",
+    "theme": "Practice"
+  },
+  {
+    "quote": "Wisdom is the supreme part of happiness",
+    "author": "Sophocles",
+    "theme": "Wisdom"
+  },
+  {
+    "quote": "I believe that every person is born with talent",
+    "author": "Maya Angelou",
+    "theme": "Talent"
+  },
+  {
+    "quote": "Important principles may, and must, be inflexible",
+    "author": "Abraham Lincoln",
+    "theme": "Principles"
+  },
+  {
+    "quote": "The undertaking of a new action brings new strength",
+    "author": "Richard Evans",
+    "theme": "Action"
+  },
+  {
+    "quote": "The years teach much which the days never know",
+    "author": "Ralph Emerson",
+    "theme": "Experience"
+  },
+  {
+    "quote": "Our distrust is very expensive",
+    "author": "Ralph Emerson",
+    "theme": "Trust"
+  },
+  {
+    "quote": "All know the way; few actually walk it",
+    "author": "Bodhidharma",
+    "theme": "Action"
+  },
+  {
+    "quote": "Great talent finds happiness in execution",
+    "author": "Johann Wolfgang von Goethe",
+    "theme": "Talent"
+  },
+  {
+    "quote": "Faith in oneself is the best and safest course",
+    "author": "Michelangelo",
+    "theme": "Faith"
+  },
+  {
+    "quote": "Courage is going from failure to failure without losing enthusiasm",
+    "author": "Winston Churchill",
+    "theme": "Courage"
+  },
+  {
+    "quote": "The two most powerful warriors are patience and time",
+    "author": "Leo Tolstoy",
+    "theme": "Patience"
+  },
+  {
+    "quote": "Anticipate the difficult by managing the easy",
+    "author": "Lao Tzu",
+    "theme": "Preparation"
+  },
+  {
+    "quote": "Those who are free of resentful thoughts surely find peace",
+    "author": "Buddha",
+    "theme": "Peace"
+  },
+  {
+    "quote": "A short saying often contains much wisdom",
+    "author": "Sophocles",
+    "theme": "Wisdom"
+  },
+  {
+    "quote": "It takes both sunshine and rain to make a rainbow",
+    "author": "Anonymous",
+    "theme": "Balance"
+  },
+  {
+    "quote": "A beautiful thing is never perfect",
+    "author": "Anonymous",
+    "theme": "Beauty"
+  },
+  {
+    "quote": "Only do what your heart tells you",
+    "author": "Princess Diana",
+    "theme": "Intuition"
+  },
+  {
+    "quote": "Life is movement-we breathe, we eat, we walk, we move!",
+    "author": "John Pierrakos",
+    "theme": "Life"
+  },
+  {
+    "quote": "No one can make you feel inferior without your consent",
+    "author": "Eleanor Roosevelt",
+    "theme": "Confidence"
+  },
+  {
+    "quote": "Argue for your limitations, and sure enough theyre yours",
+    "author": "Richard Bach",
+    "theme": "Limitations"
+  },
+  {
+    "quote": "Luck is what happens when preparation meets opportunity",
+    "author": "Seneca",
+    "theme": "Luck"
+  },
+  {
+    "quote": "Victory belongs to the most persevering",
+    "author": "Napoleon Bonaparte",
+    "theme": "Perseverance"
+  },
+  {
+    "quote": "Love all, trust a few, do wrong to none",
+    "author": "William Shakespeare",
+    "theme": "Love"
+  },
+  {
+    "quote": "In order to win, you must expect to win",
+    "author": "Richard Bach",
+    "theme": "Success"
+  },
+  {
+    "quote": "A goal is a dream with a deadline",
+    "author": "Napoleon Hill",
+    "theme": "Goals"
+  },
+  {
+    "quote": "You can do it if you believe you can!",
+    "author": "Napoleon Hill",
+    "theme": "Belief"
+  },
+  {
+    "quote": "Set your goals high, and don't stop till you get there",
+    "author": "Bo Jackson",
+    "theme": "Goals"
+  },
+  {
+    "quote": "Every new day is another chance to change your life",
+    "author": "Anonymous",
+    "theme": "Opportunity"
+  },
+  {
+    "quote": "Smile, breathe, and go slowly",
+    "author": "Thich Nhat Hanh",
+    "theme": "Mindfulness"
+  },
+  {
+    "quote": "Nobody will believe in you unless you believe in yourself",
+    "author": "Liberace",
+    "theme": "Confidence"
+  },
+  {
+    "quote": "Do more than dream: work",
+    "author": "William Arthur Ward",
+    "theme": "Work"
+  },
+  {
+    "quote": "No man was ever wise by chance",
+    "author": "Seneca",
+    "theme": "Wisdom"
+  },
+  {
+    "quote": "Some pursue happiness, others create it",
+    "author": "Anonymous",
+    "theme": "Happiness"
+  },
+  {
+    "quote": "He that is giddy thinks the world turns round",
+    "author": "William Shakespeare",
+    "theme": "Perspective"
+  },
+  {
+    "quote": "Don't ruin the present with the ruined past",
+    "author": "Ellen Gilchrist",
+    "theme": "Present"
+  },
+  {
+    "quote": "Do something wonderful, people may imitate it",
+    "author": "Albert Schweitzer",
+    "theme": "Inspiration"
+  },
+  {
+    "quote": "We do what we do because we believe",
+    "author": "Anonymous",
+    "theme": "Belief"
+  },
+  {
+    "quote": "Do one thing every day that scares you",
+    "author": "Eleanor Roosevelt",
+    "theme": "Courage"
+  },
+  {
+    "quote": "If you cannot be silent be brilliant and thoughtful",
+    "author": "Byron Pulsifer",
+    "theme": "Communication"
+  },
+  {
+    "quote": "Who looks outside, dreams; who looks inside, awakes",
+    "author": "Carl Jung",
+    "theme": "Self-awareness"
+  },
+  {
+    "quote": "What we think, we become",
+    "author": "Buddha",
+    "theme": "Mindset"
+  },
+  {
+    "quote": "The shortest answer is doing",
+    "author": "Lord Herbert",
+    "theme": "Action"
+  },
+  {
+    "quote": "All our knowledge has its origins in our perceptions",
+    "author": "Leonardo da Vinci",
+    "theme": "Knowledge"
+  },
+  {
+    "quote": "The harder you fall, the higher you bounce",
+    "author": "Anonymous",
+    "theme": "Resilience"
+  },
+  {
+    "quote": "Trusting our intuition often saves us from disaster",
+    "author": "Anne Wilson Schaef",
+    "theme": "Intuition"
+  },
+  {
+    "quote": "Truth is powerful and it prevails",
+    "author": "Sojourner Truth",
+    "theme": "Truth"
+  },
+  {
+    "quote": "Light tomorrow with today!",
+    "author": "Elizabeth Browning",
+    "theme": "Hope"
+  },
+  {
+    "quote": "Silence is a fence around wisdom",
+    "author": "German proverb",
+    "theme": "Wisdom"
+  },
+  {
+    "quote": "Society develops wit, but its contemplation alone forms genius",
+    "author": "Madame de Stael",
+    "theme": "Genius"
+  },
+  {
+    "quote": "The simplest things are often the truest",
+    "author": "Richard Bach",
+    "theme": "Simplicity"
+  },
+  {
+    "quote": "Everyone smiles in the same language",
+    "author": "Anonymous",
+    "theme": "Unity"
+  },
+  {
+    "quote": "Yesterday I dared to struggle. Today I dare to win",
+    "author": "Bernadette Devlin",
+    "theme": "Victory"
+  },
+  {
+    "quote": "No alibi will save you from accepting the responsibility",
+    "author": "Napoleon Hill",
+    "theme": "Responsibility"
+  },
+  {
+    "quote": "If you can dream it, you can do it",
+    "author": "Walt Disney",
+    "theme": "Dreams"
+  },
+  {
+    "quote": "It is better to travel well than to arrive",
+    "author": "Buddha",
+    "theme": "Journey"
+  },
+  {
+    "quote": "Life shrinks or expands in proportion to one's courage",
+    "author": "Anais Nin",
+    "theme": "Courage"
+  },
+  {
+    "quote": "You have to believe in yourself",
+    "author": "Sun Tzu",
+    "theme": "Confidence"
+  },
+  {
+    "quote": "Our intention creates our reality",
+    "author": "Wayne Dyer",
+    "theme": "Intention"
+  },
+  {
+    "quote": "Silence is a true friend who never betrays",
+    "author": "Confucius",
+    "theme": "Silence"
+  },
+  {
+    "quote": "Character develops itself in the stream of life",
+    "author": "Johann Wolfgang von Goethe",
+    "theme": "Character"
+  },
+  {
+    "quote": "From little acorns mighty oaks do grow",
+    "author": "American proverb",
+    "theme": "Growth"
+  },
+  {
+    "quote": "You can't stop the waves, but you can learn to surf",
+    "author": "Jon Kabat-Zinn",
+    "theme": "Adaptation"
+  },
+  {
+    "quote": "Reality does not conform to the ideal, but confirms it",
+    "author": "Gustave Flaubert",
+    "theme": "Reality"
+  },
+  {
+    "quote": "Speak low, if you speak love",
+    "author": "William Shakespeare",
+    "theme": "Love"
+  },
+  {
+    "quote": "A really great talent finds its happiness in execution",
+    "author": "Johann Wolfgang von Goethe",
+    "theme": "Talent"
+  },
+  {
+    "quote": "Reality leaves a lot to the imagination",
+    "author": "John Lennon",
+    "theme": "Imagination"
+  },
+  {
+    "quote": "The greatest remedy for anger is delay",
+    "author": "Seneca",
+    "theme": "Anger"
+  },
+  {
+    "quote": "Growth itself contains the germ of happiness",
+    "author": "Pearl Buck",
+    "theme": "Growth"
+  },
+  {
+    "quote": "You can do what's reasonable or you can decide what's possible",
+    "author": "Anonymous",
+    "theme": "Possibility"
+  },
+  {
+    "quote": "Nothing strengthens authority so much as silence",
+    "author": "Leonardo da Vinci",
+    "theme": "Authority"
+  },
+  {
+    "quote": "Wherever you go, go with all your heart",
+    "author": "Confucius",
+    "theme": "Passion"
+  },
+  {
+    "quote": "The only real valuable thing is intuition",
+    "author": "Albert Einstein",
+    "theme": "Intuition"
+  },
+  {
+    "quote": "Good luck is another name for tenacity of purpose",
+    "author": "Ralph Emerson",
+    "theme": "Tenacity"
+  },
+  {
+    "quote": "Rainbows apologize for angry skies",
+    "author": "Sylvia Voirol",
+    "theme": "Hope"
+  },
+  {
+    "quote": "Friendship isn't a big thing. It's a million little things",
+    "author": "Anonymous",
+    "theme": "Friendship"
+  },
+  {
+    "quote": "Time is the most valuable thing a man can spend",
+    "author": "Theophrastus",
+    "theme": "Time"
+  },
+  {
+    "quote": "Whatever happens, take responsibility",
+    "author": "Tony Robbins",
+    "theme": "Responsibility"
+  },
+  {
+    "quote": "Experience is simply the name we give our mistakes",
+    "author": "Oscar Wilde",
+    "theme": "Experience"
+  },
+  {
+    "quote": "I think and that is all that I am",
+    "author": "Wayne Dyer",
+    "theme": "Identity"
+  },
+  {
+    "quote": "A good plan today is better than a perfect plan tomorrow",
+    "author": "Anonymous",
+    "theme": "Planning"
+  },
+  {
+    "quote": "If the shoe doesn't fit, must we change the foot?",
+    "author": "Gloria Steinem",
+    "theme": "Adaptation"
+  },
+  {
+    "quote": "Each day provides its own gifts",
+    "author": "Marcus Aurelius",
+    "theme": "Gratitude"
+  },
+  {
+    "quote": "While we stop to think, we often miss our opportunity",
+    "author": "Publilius Syrus",
+    "theme": "Opportunity"
+  },
+  {
+    "quote": "Life isn't about finding yourself. Life is about creating yourself",
+    "author": "Bernard Shaw",
+    "theme": "Identity"
+  },
+  {
+    "quote": "To bring anything into your life, imagine that it's already there",
+    "author": "Richard Bach",
+    "theme": "Manifestation"
+  },
+  {
+    "quote": "Begin to weave and God will give you the thread",
+    "author": "German proverb",
+    "theme": "Faith"
+  },
+  {
+    "quote": "The more you know yourself, the more you forgive yourself",
+    "author": "Confucius",
+    "theme": "Self-awareness"
+  },
+  {
+    "quote": "Someone remembers, someone cares; your name is whispered in someone's prayers",
+    "author": "Anonymous",
+    "theme": "Love"
+  },
+  {
+    "quote": "Without faith, nothing is possible. With it, nothing is impossible",
+    "author": "Mary Bethune",
+    "theme": "Faith"
+  },
+  {
+    "quote": "Once we accept our limits, we go beyond them",
+    "author": "Albert Einstein",
+    "theme": "Limitations"
+  },
+  {
+    "quote": "Don't be pushed by your problems; be led by your dreams",
+    "author": "Anonymous",
+    "theme": "Dreams"
+  },
+  {
+    "quote": "Whatever we expect with confidence becomes our own self-fulfilling prophecy",
+    "author": "Brian Tracy",
+    "theme": "Expectation"
+  },
+  {
+    "quote": "Everything you can imagine is real",
+    "author": "Pablo Picasso",
+    "theme": "Imagination"
+  },
+  {
+    "quote": "Fear is a darkroom where negatives develop",
+    "author": "Usman Asif",
+    "theme": "Fear"
+  },
+  {
+    "quote": "The truest wisdom is a resolute determination",
+    "author": "Napoleon Bonaparte",
+    "theme": "Determination"
+  },
+  {
+    "quote": "Life is the flower for which love is the honey",
+    "author": "Victor Hugo",
+    "theme": "Love"
+  },
+  {
+    "quote": "Freedom is the right to live as we wish",
+    "author": "Epictetus",
+    "theme": "Freedom"
+  },
+  {
+    "quote": "Change your thoughts, change your life!",
+    "author": "Anonymous",
+    "theme": "Change"
+  },
+  {
+    "quote": "Never ignore a gut feeling, but never believe that it's enough",
+    "author": "Robert Heller",
+    "theme": "Intuition"
+  },
+  {
+    "quote": "Loss is nothing else but change,and change is Natures delight",
+    "author": "Marcus Aurelius",
+    "theme": "Change"
+  },
+  {
+    "quote": "Someone is special only if you tell them",
+    "author": "Byron Pulsifer",
+    "theme": "Appreciation"
+  },
+  {
+    "quote": "Today is the tomorrow you worried about yesterday",
+    "author": "Anonymous",
+    "theme": "Worry"
+  },
+  {
+    "quote": "There is no way to happiness, happiness is the way",
+    "author": "Thich Nhat Hanh",
+    "theme": "Happiness"
+  },
+  {
+    "quote": "The day always looks brighter from behind a smile",
+    "author": "Anonymous",
+    "theme": "Happiness"
+  },
+  {
+    "quote": "A stumble may prevent a fall",
+    "author": "Anonymous",
+    "theme": "Learning"
+  },
+  {
+    "quote": "He who talks more is sooner exhausted",
+    "author": "Lao Tzu",
+    "theme": "Communication"
+  },
+  {
+    "quote": "He who is contented is rich",
+    "author": "Lao Tzu",
+    "theme": "Contentment"
+  },
+  {
+    "quote": "What we achieve inwardly will change outer reality",
+    "author": "Plutarch",
+    "theme": "Change"
+  },
+  {
+    "quote": "Our strength grows out of our weaknesses",
+    "author": "Ralph Waldo Emerson",
+    "theme": "Strength"
+  },
+  {
+    "quote": "We must become the change we want to see",
+    "author": "Mahatma Gandhi",
+    "theme": "Change"
+  },
+  {
+    "quote": "Happiness is found in doing, not merely possessing",
+    "author": "Napoleon Hill",
+    "theme": "Happiness"
+  },
+  {
+    "quote": "Put your future in good hands your own",
+    "author": "Anonymous",
+    "theme": "Responsibility"
+  },
+  {
+    "quote": "We choose our destiny in the way we treat others",
+    "author": "Wit",
+    "theme": "Destiny"
+  },
+  {
+    "quote": "No snowflake in an avalanche ever feels responsible",
+    "author": "Voltaire",
+    "theme": "Responsibility"
+  },
+  {
+    "quote": "Fortune favours the brave",
+    "author": "Virgil",
+    "theme": "Courage"
+  },
+  {
+    "quote": "I believe in one thing only, the power of human will",
+    "author": "Joseph Stalin",
+    "theme": "Will"
+  },
+  {
+    "quote": "The best way out is always through",
+    "author": "Robert Frost",
+    "theme": "Perseverance"
+  },
+  {
+    "quote": "The mind unlearns with difficulty what it has long learned",
+    "author": "Seneca",
+    "theme": "Learning"
+  },
+  {
+    "quote": "I destroy my enemies when I make them my friends",
+    "author": "Abraham Lincoln",
+    "theme": "Friendship"
+  },
+  {
+    "quote": "No garden is without its weeds",
+    "author": "Thomas Fuller",
+    "theme": "Acceptance"
+  },
+  {
+    "quote": "There is no failure except in no longer trying",
+    "author": "Elbert Hubbard",
+    "theme": "Perseverance"
+  },
+  {
+    "quote": "Kind words will unlock an iron door",
+    "author": "Turkish proverb",
+    "theme": "Kindness"
+  },
+  {
+    "quote": "Problems are only opportunities with thorns on them",
+    "author": "Hugh Miller",
+    "theme": "Problems"
+  },
+  {
+    "quote": "Life is just a chance to grow a soul",
+    "author": "A. Powell Davies",
+    "theme": "Life"
+  },
+  {
+    "quote": "Mountains cannot be surmounted except by winding paths",
+    "author": "Johann Wolfgang von Goethe",
+    "theme": "Perseverance"
+  },
+  {
+    "quote": "May our hearts garden of awakening bloom with hundreds of flowers",
+    "author": "Thich Nhat Hanh",
+    "theme": "Awakening"
+  },
+  {
+    "quote": "Fortune befriends the bold",
+    "author": "John Dryden",
+    "theme": "Boldness"
+  },
+  {
+    "quote": "Keep true to the dreams of thy youth",
+    "author": "Friedrich von Schiller",
+    "theme": "Dreams"
+  },
+  {
+    "quote": "You're never a loser until you quit trying",
+    "author": "Mike Ditka",
+    "theme": "Perseverance"
+  },
+  {
+    "quote": "Science is organized knowledge. Wisdom is organized life",
+    "author": "Immanuel Kant",
+    "theme": "Wisdom"
+  },
+  {
+    "quote": "Knowing is not enough; we must apply!",
+    "author": "Johann Wolfgang von Goethe",
+    "theme": "Application"
+  },
+  {
+    "quote": "Strong beliefs win strong men, and then make them stronger",
+    "author": "Richard Bach",
+    "theme": "Belief"
+  },
+  {
+    "quote": "Autumn is a second spring when every leaf is a flower",
+    "author": "Albert Camus",
+    "theme": "Beauty"
+  },
+  {
+    "quote": "If you surrender to the wind, you can ride it",
+    "author": "Toni Morrison",
+    "theme": "Adaptation"
+  },
+  {
+    "quote": "Keep yourself to the sunshine and you cannot see the shadow",
+    "author": "Helen Keller",
+    "theme": "Optimism"
+  },
+  {
+    "quote": "Write your plans in pencil and give God the eraser",
+    "author": "Paulo Coelho",
+    "theme": "Planning"
+  },
+  {
+    "quote": "Inspiration exists, but it has to find us working",
+    "author": "Pablo Picasso",
+    "theme": "Inspiration"
+  },
+  {
+    "quote": "Pick battles big enough to matter, small enough to win",
+    "author": "Jonathan Kozol",
+    "theme": "Strategy"
+  },
+  {
+    "quote": "Don't compromise yourself. You are all you've got",
+    "author": "Janis Joplin",
+    "theme": "Authenticity"
+  },
+  {
+    "quote": "A short saying oft contains much wisdom",
+    "author": "Sophocles",
+    "theme": "Wisdom"
+  },
+  {
+    "quote": "Difficulties are things that show a person what they are",
+    "author": "Epictetus",
+    "theme": "Character"
+  },
+  {
+    "quote": "When you doubt your power, you give power to your doubt",
+    "author": "Honore de Balzac",
+    "theme": "Doubt"
+  },
+  {
+    "quote": "The cause is hidden. The effect is visible to all",
+    "author": "Ovid",
+    "theme": "Causation"
+  },
+  {
+    "quote": "A prudent question is one half of wisdom",
+    "author": "Francis Bacon",
+    "theme": "Questions"
+  },
+  {
+    "quote": "The path to success is to take massive, determined action",
+    "author": "Tony Robbins",
+    "theme": "Success"
+  },
+  {
+    "quote": "I allow my intuition to lead my path",
+    "author": "Manuel Puig",
+    "theme": "Intuition"
+  },
+  {
+    "quote": "Nature takes away any faculty that is not used",
+    "author": "William R. Inge",
+    "theme": "Practice"
+  },
+  {
+    "quote": "If you wish to be a writer, write",
+    "author": "Epictetus",
+    "theme": "Action"
+  },
+  {
+    "quote": "There is no way to prosperity, prosperity is the way",
+    "author": "Wayne Dyer",
+    "theme": "Prosperity"
+  },
+  {
+    "quote": "Either you run the day or the day runs you",
+    "author": "Jim Rohn",
+    "theme": "Control"
+  },
+  {
+    "quote": "Better be ignorant of a matter than half know it",
+    "author": "Publilius Syrus",
+    "theme": "Knowledge"
+  },
+  {
+    "quote": "Follow your instincts. That is where true wisdom manifests itself",
+    "author": "Oprah Winfrey",
+    "theme": "Instincts"
+  },
+  {
+    "quote": "There never was a good knife made of bad steel",
+    "author": "Benjamin Franklin",
+    "theme": "Quality"
+  },
+  {
+    "quote": "To accomplish great things, we must dream as well as act",
+    "author": "Anatole France",
+    "theme": "Achievement"
+  },
+  {
+    "quote": "Patience is the companion of wisdom",
+    "author": "Saint Augustine",
+    "theme": "Patience"
+  },
+  {
+    "quote": "The mind is everything. What you think you become",
+    "author": "Buddha",
+    "theme": "Mindset"
+  },
+  {
+    "quote": "To enjoy life, we must touch much of it lightly",
+    "author": "Voltaire",
+    "theme": "Enjoyment"
+  },
+  {
+    "quote": "To fly, we have to have resistance",
+    "author": "Maya Lin",
+    "theme": "Resistance"
+  },
+  {
+    "quote": "What you see depends on what you're looking for",
+    "author": "Anonymous",
+    "theme": "Perspective"
+  },
+  {
+    "quote": "The heart has its reasons which reason knows not of",
+    "author": "Blaise Pascal",
+    "theme": "Heart"
+  },
+  {
+    "quote": "Be great in act, as you have been in thought",
+    "author": "William Shakespeare",
+    "theme": "Action"
+  },
+  {
+    "quote": "Imagination rules the world",
+    "author": "Napoleon Bonaparte",
+    "theme": "Imagination"
+  },
+  {
+    "quote": "Kind words do not cost much. Yet they accomplish much",
+    "author": "Blaise Pascal",
+    "theme": "Kindness"
+  },
+  {
+    "quote": "There is no greater harm than that of time wasted",
+    "author": "Michelangelo",
+    "theme": "Time"
+  },
+  {
+    "quote": "Intuition will tell the thinking mind where to look next",
+    "author": "Jonas Salk",
+    "theme": "Intuition"
+  },
+  {
+    "quote": "Worry gives a small thing a big shadow",
+    "author": "Anonymous",
+    "theme": "Worry"
+  },
+  {
+    "quote": "Fears are nothing more than a state of mind",
+    "author": "Napoleon Hill",
+    "theme": "Fear"
+  },
+  {
+    "quote": "The journey of a thousand miles begins with one step",
+    "author": "Lao Tzu",
+    "theme": "Beginning"
+  },
+  {
+    "quote": "Efficiency is doing things right; effectiveness is doing the right things",
+    "author": "Peter Drucker",
+    "theme": "Efficiency"
+  },
+  {
+    "quote": "Blaze with the fire that is never extinguished",
+    "author": "Luisa Sigea",
+    "theme": "Passion"
+  },
+  {
+    "quote": "Don't cry because it's over. Smile because it happened",
+    "author": "Dr. Seuss",
+    "theme": "Gratitude"
+  },
+  {
+    "quote": "No is easier to do. Yes is easier to say",
+    "author": "Jason Fried",
+    "theme": "Decision"
+  },
+  {
+    "quote": "To be wrong is nothing unless you continue to remember it",
+    "author": "Confucius",
+    "theme": "Mistakes"
+  },
+  {
+    "quote": "Yesterdays home runs don't win today's games",
+    "author": "Babe Ruth",
+    "theme": "Present"
+  },
+  {
+    "quote": "Silence is deep as Eternity, Speech is shallow as Time",
+    "author": "Carlyle",
+    "theme": "Silence"
+  },
+  {
+    "quote": "Don't smother each other. No one can grow in the shade",
+    "author": "Leo F. Buscaglia",
+    "theme": "Growth"
+  },
+  {
+    "quote": "An ant on the move does more than a dozing ox",
+    "author": "Lao Tzu",
+    "theme": "Action"
+  },
+  {
+    "quote": "You can't shake hands with a clenched fist",
+    "author": "Indira Gandhi",
+    "theme": "Peace"
+  },
+  {
+    "quote": "A good decision is based on knowledge and not on numbers",
+    "author": "Plato",
+    "theme": "Decision"
+  },
+  {
+    "quote": "The cautious seldom err",
+    "author": "Confucius",
+    "theme": "Caution"
+  },
+  {
+    "quote": "If there is no struggle, there is no progress",
+    "author": "Frederick Douglass",
+    "theme": "Progress"
+  },
+  {
+    "quote": "Where there is great love, there are always miracles",
+    "author": "Willa Cather",
+    "theme": "Love"
+  },
+  {
+    "quote": "Time you enjoy wasting, was not wasted",
+    "author": "John Lennon",
+    "theme": "Time"
+  },
+  {
+    "quote": "Every problem has a gift for you in its hands",
+    "author": "Richard Bach",
+    "theme": "Problems"
+  },
+  {
+    "quote": "Sadness flies away on the wings of time",
+    "author": "Jean de la Fontaine",
+    "theme": "Sadness"
+  },
+  {
+    "quote": "I have often regretted my speech, never my silence",
+    "author": "Publilius Syrus",
+    "theme": "Speech"
+  },
+  {
+    "quote": "Never put off till tomorrow what you can do today",
+    "author": "Thomas Jefferson",
+    "theme": "Procrastination"
+  },
+  {
+    "quote": "Minds are like parachutes. They only function when open",
+    "author": "Thomas Dewar",
+    "theme": "Open-mindedness"
+  },
+  {
+    "quote": "If a man does his best, what else is there?",
+    "author": "George Patton",
+    "theme": "Excellence"
+  },
+  {
+    "quote": "The secret of success is constancy to purpose",
+    "author": "Benjamin Disraeli",
+    "theme": "Purpose"
+  },
+  {
+    "quote": "Life is a progress, and not a station",
+    "author": "Ralph Emerson",
+    "theme": "Progress"
+  },
+  {
+    "quote": "All seasons are beautiful for the person who carries happiness within",
+    "author": "Horace Friess",
+    "theme": "Happiness"
+  },
+  {
+    "quote": "To avoid criticism, do nothing, say nothing, be nothing",
+    "author": "Elbert Hubbard",
+    "theme": "Criticism"
+  },
+  {
+    "quote": "All things change; nothing perishes",
+    "author": "Ovid",
+    "theme": "Change"
+  },
+  {
+    "quote": "Absence makes the heart grow fonder",
+    "author": "Haynes Bayly",
+    "theme": "Love"
+  },
+  {
+    "quote": "Imagination is the highest kite one can fly",
+    "author": "Lauren Bacall",
+    "theme": "Imagination"
+  },
+  {
+    "quote": "The beginning of knowledge is the discovery of something we do not understand",
+    "author": "Frank Herbert",
+    "theme": "Knowledge"
+  },
+  {
+    "quote": "Love doesn't make the world go round, love is what makes the ride worthwhile",
+    "author": "Elizabeth Browning",
+    "theme": "Love"
+  },
+  {
+    "quote": "Whenever you have eliminated the impossible, whatever remains, however improbable, must be the truth",
+    "author": "Arthur Conan Doyle",
+    "theme": "Truth"
+  },
+  {
+    "quote": "Good timber does not grow with ease; the stronger the wind, the stronger the trees",
+    "author": "J. Willard Marriott",
+    "theme": "Strength"
+  },
+  {
+    "quote": "I believe that we are fundamentally the same and have the same basic potential",
+    "author": "Dalai Lama",
+    "theme": "Equality"
+  },
+  {
+    "quote": "The winds and waves are always on the side of the ablest navigators",
+    "author": "Edward Gibbon",
+    "theme": "Skill"
+  },
+  {
+    "quote": "The future belongs to those who believe in the beauty of their dreams",
+    "author": "Eleanor Roosevelt",
+    "theme": "Dreams"
+  },
+  {
+    "quote": "To get something you never had, you have to do something you never did",
+    "author": "Anonymous",
+    "theme": "Change"
+  },
+  {
+    "quote": "Be thankful when you don't know something for it gives you the opportunity to learn",
+    "author": "Anonymous",
+    "theme": "Learning"
+  },
+  {
+    "quote": "Strength does not come from physical capacity. It comes from an indomitable will",
+    "author": "Mahatma Gandhi",
+    "theme": "Strength"
+  },
+  {
+    "quote": "Each misfortune you encounter will carry in it the seed of tomorrows good luck",
+    "author": "Og Mandino",
+    "theme": "Fortune"
+  },
+  {
+    "quote": "To forgive is to set a prisoner free and realize that prisoner was you",
+    "author": "Lewis B. Smedes",
+    "theme": "Forgiveness"
+  },
+  {
+    "quote": "In separateness lies the world's great misery, in compassion lies the world's true strength",
+    "author": "Buddha",
+    "theme": "Compassion"
+  },
+  {
+    "quote": "By believing passionately in something that does not yet exist, we create it",
+    "author": "Nikos Kazantzakis",
+    "theme": "Creation"
+  },
+  {
+    "quote": "Letting go is not the end of the world; it is the beginning of a new life",
+    "author": "Anonymous",
+    "theme": "Letting-go"
+  },
+  {
+    "quote": "All the great performers I have worked with are fuelled by a personal dream",
+    "author": "John Eliot",
+    "theme": "Dreams"
+  },
+  {
+    "quote": "One of the advantages of being disorderly is that one is constantly making exciting discoveries",
+    "author": "A. A. Milne",
+    "theme": "Discovery"
+  },
+  {
+    "quote": "I never see what has been done; I only see what remains to be done",
+    "author": "Marie Curie",
+    "theme": "Focus"
+  },
+  {
+    "quote": "Begin at once to live and count each separate day as a separate life",
+    "author": "Seneca",
+    "theme": "Living"
+  },
+  {
+    "quote": "If you don't know where you are going, you will probably end up somewhere else",
+    "author": "Lawrence Peter",
+    "theme": "Direction"
+  },
+  {
+    "quote": "It is not so important to know everything as to appreciate what we learn",
+    "author": "Hannah More",
+    "theme": "Appreciation"
+  },
+  {
+    "quote": "The bird of paradise alights only upon the hand that does not grasp",
+    "author": "John Berry",
+    "theme": "Letting-go"
+  },
+  {
+    "quote": "Think as a wise man but communicate in the language of the people",
+    "author": "William Yeats",
+    "theme": "Communication"
+  },
+  {
+    "quote": "Practice yourself, for heavens sake in little things, and then proceed to greater",
+    "author": "Epictetus",
+    "theme": "Practice"
+  },
+  {
+    "quote": "If one does not know to which port is sailing, no wind is favorable",
+    "author": "Seneca",
+    "theme": "Direction"
+  },
+  {
+    "quote": "Our greatest glory is not in never failing but rising everytime we fall",
+    "author": "Anonymous",
+    "theme": "Resilience"
+  },
+  {
+    "quote": "Being right is highly overrated. Even a stopped clock is right twice a day",
+    "author": "Anonymous",
+    "theme": "Humility"
+  },
+  {
+    "quote": "To be upset over what you don't have is to waste what you do have",
+    "author": "Ken S. Keyes",
+    "theme": "Gratitude"
+  },
+  {
+    "quote": "If we did the things we are capable of, we would astound ourselves",
+    "author": "Thomas Edison",
+    "theme": "Potential"
+  },
+  {
+    "quote": "Nothing in life is to be feared. It is only to be understood",
+    "author": "Marie Curie",
+    "theme": "Understanding"
+  },
+  {
+    "quote": "Successful people ask better questions, and as a result, they get better answers",
+    "author": "Tony Robbins",
+    "theme": "Success"
+  },
+  {
+    "quote": "Love is not blind; it simply enables one to see things others fail to see",
+    "author": "Anonymous",
+    "theme": "Love"
+  },
+  {
+    "quote": "Life is a process. We are a process. The universe is a process",
+    "author": "Anne Schaef",
+    "theme": "Process"
+  },
+  {
+    "quote": "I think somehow we learn who we really are and then live with that decision",
+    "author": "Eleanor Roosevelt",
+    "theme": "Identity"
+  },
+  {
+    "quote": "We learn what we have said from those who listen to our speaking",
+    "author": "Kenneth Patton",
+    "theme": "Communication"
+  },
+  {
+    "quote": "A little knowledge that acts is worth infinitely more than much knowledge that is idle",
+    "author": "Kahlil Gibran",
+    "theme": "Action"
+  },
+  {
+    "quote": "If you get up one more time than you fall, you will make it through",
+    "author": "Anonymous",
+    "theme": "Perseverance"
+  },
+  {
+    "quote": "The doors we open and close each day decide the lives we live",
+    "author": "Flora Whittemore",
+    "theme": "Choice"
+  },
+  {
+    "quote": "The worst bankrupt in the world is the person who has lost his enthusiasm",
+    "author": "H. W. Arnold",
+    "theme": "Enthusiasm"
+  },
+  {
+    "quote": "Happiness comes when your work and words are of benefit to yourself and others",
+    "author": "Buddha",
+    "theme": "Happiness"
+  },
+  {
+    "quote": "Don't focus on making the right decision, focus on making the decision the right one",
+    "author": "Anonymous",
+    "theme": "Decision"
+  },
+  {
+    "quote": "Everything is perfect in the universe even your desire to improve it",
+    "author": "Wayne Dyer",
+    "theme": "Perfection"
+  },
+  {
+    "quote": "The universe is full of magical things, patiently waiting for our wits to grow sharper",
+    "author": "Eden Phillpotts",
+    "theme": "Wonder"
+  },
+  {
+    "quote": "Just as a candle cannot burn without fire, men cannot live without a spiritual life",
+    "author": "Buddha",
+    "theme": "Spirituality"
+  }
+]
+
