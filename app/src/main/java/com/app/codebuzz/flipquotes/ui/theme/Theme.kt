@@ -12,19 +12,29 @@ import androidx.compose.ui.unit.sp
 import com.app.codebuzz.flipquotes.R
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Color(0xFFFFA726),
-    onPrimary = Color.Black,
-    background = Color.Black,
-    surface = Color(0xFF121212),
-    onSurface = Color.White
+    primary = Color.Black,
+    secondary = Color.White,
+    tertiary = Color.Gray,
+    background = Color.White,
+    surface = Color.White,
+    onPrimary = Color.White,
+    onSecondary = Color.Black,
+    onTertiary = Color.White,
+    onBackground = Color.Black,
+    onSurface = Color.Black,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFFFFA726),
-    onPrimary = Color.White,
+    primary = Color.Black,
+    secondary = Color.White,
+    tertiary = Color.Gray,
     background = Color.White,
     surface = Color.White,
-    onSurface = Color.Black
+    onPrimary = Color.White,
+    onSecondary = Color.Black,
+    onTertiary = Color.White,
+    onBackground = Color.Black,
+    onSurface = Color.Black,
 )
 
 // Define custom font families
@@ -49,7 +59,10 @@ fun FlipQuotesTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
+    val colorScheme = when {
+        darkTheme -> DarkColorScheme
+        else -> LightColorScheme
+    }
 
     MaterialTheme(
         colorScheme = colorScheme,

@@ -1,116 +1,99 @@
 package com.app.codebuzz.flipquotes.ui.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.outlined.ThumbUp
+import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.app.codebuzz.flipquotes.R
 
 @Composable
-fun Footer(
+fun QuoteFooter(
     modifier: Modifier = Modifier,
-    likeCount: String = "0",
-    isLiked: Boolean = false,
     isBookmarked: Boolean = false,
+    isLiked: Boolean = false,
+    likeCount: String = "0",
+    onBookmarkClick: () -> Unit = {},
     onLikeClick: () -> Unit = {},
-    onShareClick: () -> Unit = {},
-    onBookmarkClick: () -> Unit = {}
+    onShareClick: () -> Unit = {}
 ) {
-    val padding = dimensionResource(id = R.dimen.padding)
-    val marginTop = dimensionResource(id = R.dimen.marginTop)
-    val iconSize = dimensionResource(id = R.dimen.iconDimen)
-    val moreShort = dimensionResource(id = R.dimen.moreShort).value.sp
-    val colorPrimary = colorResource(id = R.color.colorPrimary)
-
-    Column(modifier = modifier.fillMaxWidth()) {
-        HorizontalDivider(
-            modifier = Modifier.fillMaxWidth(),
-            thickness = 1.dp,
-            color = Color(0xFF111111)
-        )
-
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(Color.Black)
+            .padding(horizontal = 24.dp, vertical = 16.dp)
+    ) {
         Row(
-            modifier = Modifier
-                .background(colorPrimary)
-                .fillMaxWidth()
-                .padding(padding),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            // Like Section
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = marginTop),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
+            // Bookmark button
+            FooterIconButton(
+                icon = if (isBookmarked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                contentDescription = if (isBookmarked) "Remove bookmark" else "Add bookmark",
+                onClick = onBookmarkClick,
+                isActive = isBookmarked
+            )
+
+            // Like button with count - Keep button inline, count as overlay
+            Box(
+                contentAlignment = Alignment.Center
             ) {
-                IconButton(onClick = onLikeClick) {
-                    Image(
-                        painter = painterResource(
-                            id = if (isLiked) R.drawable.thumb_up else R.drawable.thumb_up_outline
-                        ),
-                        contentDescription = stringResource(R.string.like),
-                        modifier = Modifier.size(iconSize)
-                    )
-                }
-                Text(
-                    text = likeCount,
-                    color = Color.White,
-                    fontSize = moreShort,
-                    modifier = Modifier.padding(start = marginTop),
-                    style = MaterialTheme.typography.bodySmall
+                FooterIconButton(
+                    icon = if (isLiked) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
+                    contentDescription = if (isLiked) "Unlike" else "Like",
+                    onClick = onLikeClick,
+                    isActive = isLiked
                 )
-            }
-
-            // Share Section
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = marginTop),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                IconButton(onClick = onShareClick) {
-                    Image(
-                        painter = painterResource(id = R.drawable.share_variant),
-                        contentDescription = stringResource(R.string.share),
-                        modifier = Modifier.size(iconSize)
+                // Count positioned above the button as overlay
+                if (likeCount.toIntOrNull() != null && likeCount.toInt() > 0) {
+                    Text(
+                        text = likeCount,
+                        color = Color.White,
+                        fontSize = 12.sp,
+                        modifier = Modifier.offset(y = (-20).dp) // Position above the button
                     )
                 }
             }
 
-            // Bookmark Section
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(vertical = marginTop),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center
-            ) {
-                IconButton(onClick = onBookmarkClick) {
-                    Image(
-                        painter = painterResource(
-                            id = if (isBookmarked) R.drawable.bookmark else R.drawable.bookmark_outline
-                        ),
-                        contentDescription = stringResource(R.string.bookmark),
-                        modifier = Modifier.size(iconSize)
-                    )
-                }
-            }
+            // Share button
+            FooterIconButton(
+                icon = Icons.Filled.Share,
+                contentDescription = "Share quote",
+                onClick = onShareClick
+            )
         }
+    }
+}
+
+@Composable
+private fun FooterIconButton(
+    icon: ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    isActive: Boolean = false
+) {
+    IconButton(
+        onClick = onClick,
+        modifier = modifier
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = contentDescription,
+            tint = if (isActive) Color.Yellow else Color.White,
+            modifier = Modifier.size(24.dp)
+        )
     }
 }
