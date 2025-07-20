@@ -7,6 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -15,6 +17,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.app.codebuzz.flipquotes.data.Quote
@@ -28,6 +32,16 @@ fun SearchScreen(
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var showResults by remember { mutableStateOf(false) }
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    // Define the search action function
+    val performSearch = {
+        if (searchQuery.isNotBlank()) {
+            showResults = true
+            keyboardController?.hide()
+        }
+    }
+
     val filteredQuotes = remember(searchQuery, quotes) {
         if (searchQuery.isBlank()) emptyList() else quotes.filter {
             it.quote.contains(searchQuery, ignoreCase = true) ||
@@ -74,9 +88,15 @@ fun SearchScreen(
                             focusedLabelColor = Color.White,
                             unfocusedLabelColor = Color.White
                         ),
-                        textStyle = MaterialTheme.typography.bodySmall.copy(color = Color.White)
+                        textStyle = MaterialTheme.typography.bodySmall.copy(color = Color.White),
+                        keyboardOptions = KeyboardOptions.Default.copy(
+                            imeAction = ImeAction.Search
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onSearch = { performSearch() }
+                        )
                     )
-                    IconButton(onClick = { if (searchQuery.isNotBlank()) showResults = true }) {
+                    IconButton(onClick = { performSearch() }) {
                         Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.White)
                     }
                     Spacer(modifier = Modifier.width(8.dp))
