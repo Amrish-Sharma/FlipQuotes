@@ -11,6 +11,7 @@ repositories {
 android {
     buildFeatures {
         compose true
+        buildConfig true
     }
     namespace "com.app.codebuzz.flipquotes"
     compileSdk 35
