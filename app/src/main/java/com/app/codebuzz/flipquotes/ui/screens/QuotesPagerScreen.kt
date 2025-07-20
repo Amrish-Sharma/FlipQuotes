@@ -49,7 +49,8 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
 
     var currentQuoteIndex by remember { mutableIntStateOf(0) }
     var isRefreshing by remember { mutableStateOf(false) }
-    val bookmarkStates = remember { mutableStateMapOf<Int, Boolean>() }
+    // Fix: Use quote content as key instead of index to maintain bookmark state across theme changes
+    val bookmarkStates = remember { mutableStateMapOf<String, Boolean>() }
 
     val pagerState = rememberPagerState(
         initialPage = 0,
@@ -180,18 +181,24 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                 },
                 bottomBar = {
                     if (quotes.isNotEmpty()) {
+                        // Get the current quote to check its bookmark status
+                        val currentQuote = quotes[safeQuoteIndex]
+                        val currentQuoteKey = "${currentQuote.quote}_${currentQuote.author}"
+
                         QuoteFooter(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .windowInsetsPadding(WindowInsets.navigationBars),
-                            isBookmarked = bookmarkStates[safeQuoteIndex] == true,
+                            // Fix: Don't show bookmark when search is open, use actual current quote's bookmark status
+                            isBookmarked = if (showSearch) false else bookmarkStates[currentQuoteKey] == true,
                             isHome = showSearch, // Show home button when search is open
                             onHomeClick = { showSearch = false }, // Home returns to main screen
                             onShareClick = {
                                 shareQuoteImage(context, quotes[safeQuoteIndex])
                             },
                             onBookmarkClick = {
-                                bookmarkStates[safeQuoteIndex] = bookmarkStates[safeQuoteIndex] != true
+                                val quoteKey = "${currentQuote.quote}_${currentQuote.author}"
+                                bookmarkStates[quoteKey] = bookmarkStates[quoteKey] != true
                             },
                             onSearchClick = { showSearch = true }
                         )
@@ -244,7 +251,19 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                             onQuoteSelectedFromSearch(quote)
                         },
                         onClose = { showSearch = false },
-                        visible = showSearch
+                        visible = showSearch,
+                        bookmarkedQuotes = allQuotes.filter { quote ->
+                            val quoteKey = "${quote.quote}_${quote.author}"
+                            bookmarkStates[quoteKey] == true
+                        },
+                        onBookmarkToggle = { quote ->
+                            val quoteKey = "${quote.quote}_${quote.author}"
+                            bookmarkStates[quoteKey] = bookmarkStates[quoteKey] != true
+                        },
+                        isQuoteBookmarked = { quote ->
+                            val quoteKey = "${quote.quote}_${quote.author}"
+                            bookmarkStates[quoteKey] == true
+                        }
                     )
                 }
             }
