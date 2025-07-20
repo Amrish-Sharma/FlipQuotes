@@ -58,7 +58,7 @@ fun SearchScreen(
                             searchQuery = it
                             showResults = false
                         },
-                        label = { Text("Search quotes, authors, themes", color = Color.White, fontSize = MaterialTheme.typography.bodySmall.fontSize) },
+                        label = { Text("Search quotes...", color = Color.White, fontSize = MaterialTheme.typography.bodySmall.fontSize) },
                         modifier = Modifier
                             .weight(1f)
                             .height(56.dp), // Increased height for a larger search bar
