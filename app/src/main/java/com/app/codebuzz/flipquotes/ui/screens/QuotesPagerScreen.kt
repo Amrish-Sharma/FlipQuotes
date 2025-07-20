@@ -13,30 +13,51 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
-import androidx.compose.runtime.*
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.toColorInt
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.codebuzz.flipquotes.data.Quote
-import com.app.codebuzz.flipquotes.ui.components.QuoteCard
 import com.app.codebuzz.flipquotes.ui.components.Header
+import com.app.codebuzz.flipquotes.ui.components.QuoteCard
 import com.app.codebuzz.flipquotes.ui.components.QuoteFooter
 import com.app.codebuzz.flipquotes.ui.viewmodel.QuotesViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import androidx.core.net.toUri
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @SuppressLint("MutableCollectionMutableState")
@@ -251,7 +272,7 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                             onQuoteSelectedFromSearch(quote)
                         },
                         onClose = { showSearch = false },
-                        visible = showSearch,
+                        visible = true,
                         bookmarkedQuotes = allQuotes.filter { quote ->
                             val quoteKey = "${quote.quote}_${quote.author}"
                             bookmarkStates[quoteKey] == true
@@ -318,7 +339,7 @@ fun shareQuoteImage(context: Context, quote: Quote) {
             shareAsText(activity, quote)
         }
 
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         // Fallback to text sharing if anything fails
         shareAsText(activity, quote)
     }
@@ -328,7 +349,7 @@ private fun createQuoteBitmapWithCanvas(context: Context, quote: Quote): Bitmap 
     // Use portrait dimensions to match app layout
     val width = 600
     val height = 800
-    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val bitmap = createBitmap(width, height)
     val canvas = Canvas(bitmap)
 
     try {
@@ -338,10 +359,10 @@ private fun createQuoteBitmapWithCanvas(context: Context, quote: Quote): Bitmap 
             drawable.setBounds(0, 0, width, height)
             drawable.draw(canvas)
         }
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         // Fallback background if texture fails to load
         val backgroundPaint = android.graphics.Paint().apply {
-            color = android.graphics.Color.parseColor("#F5F5DC") // Beige color
+            color = "#F5F5DC".toColorInt() // Beige color
             style = android.graphics.Paint.Style.FILL
         }
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), backgroundPaint)
@@ -350,7 +371,7 @@ private fun createQuoteBitmapWithCanvas(context: Context, quote: Quote): Bitmap 
     // Try to load the custom kotta_one font like in QuoteCard
     val customTypeface = try {
         androidx.core.content.res.ResourcesCompat.getFont(context, com.app.codebuzz.flipquotes.R.font.kotta_one)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         android.graphics.Typeface.DEFAULT
     }
 
@@ -389,7 +410,7 @@ private fun createQuoteBitmapWithCanvas(context: Context, quote: Quote): Bitmap 
 
     // App branding at bottom
     val brandPaint = android.graphics.Paint().apply {
-        color = android.graphics.Color.parseColor("#777777")
+        color = "#777777".toColorInt()
         textSize = 18f
         typeface = android.graphics.Typeface.DEFAULT
         isAntiAlias = true
@@ -436,8 +457,8 @@ private fun saveBitmapToDevice(context: Context, bitmap: Bitmap, quote: Quote): 
             filename,
             "Quote: ${quote.quote.take(50)}... - ${quote.author}"
         )
-        imageUri?.let { android.net.Uri.parse(it) }
-    } catch (e: Exception) {
+        imageUri?.toUri()
+    } catch (_: Exception) {
         null
     }
 }
@@ -454,7 +475,7 @@ private fun shareAsText(activity: Activity, quote: Quote) {
         }
 
         activity.startActivity(Intent.createChooser(shareIntent, "Share Quote"))
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         // Silent fallback - prevent any crashes
     }
 }
