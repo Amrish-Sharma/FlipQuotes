@@ -76,7 +76,7 @@ fun SearchScreen(
                         ),
                         textStyle = MaterialTheme.typography.bodySmall.copy(color = Color.White)
                     )
-                    IconButton(onClick = { showResults = true }) {
+                    IconButton(onClick = { if (searchQuery.isNotBlank()) showResults = true }) {
                         Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.White)
                     }
                     Spacer(modifier = Modifier.width(8.dp))
