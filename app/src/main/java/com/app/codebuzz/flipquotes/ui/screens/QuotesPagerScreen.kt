@@ -39,7 +39,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun QuotePagerScreen(viewModel: QuotesViewModel) {
     val quotes by viewModel.filteredQuotes.collectAsStateWithLifecycle(initialValue = emptyList())
-    val allQuotes by viewModel._allQuotes.collectAsStateWithLifecycle(initialValue = emptyList()) // Use allQuotes for search
+    val allQuotes by viewModel.allQuotes.collectAsStateWithLifecycle(initialValue = emptyList())
     val themesList by viewModel.themesList.collectAsStateWithLifecycle(initialValue = emptyList())
     val selectedTheme by viewModel.selectedTheme.collectAsStateWithLifecycle(initialValue = null)
 
@@ -59,18 +59,25 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
 
     // SEARCH STATE
     var showSearch by remember { mutableStateOf(false) }
+    var selectedQuoteFromSearch by remember { mutableStateOf<Quote?>(null) }
 
     // Handle search result selection
     fun onQuoteSelectedFromSearch(quote: Quote) {
         // Always select 'All' theme so the quote is visible regardless of previous theme
         viewModel.setSelectedTheme("All")
-        // Use a side effect to update the index after theme is set
         showSearch = false
-        // Use a side effect to update the index after theme is set
-        // Revert to the version before the last two changes:
-        LaunchedEffect(viewModel.filteredQuotes, quote) {
-            val idx = viewModel.filteredQuotes.collectAsStateWithLifecycle(initialValue = emptyList()).value.indexOfFirst { it == quote }
-            if (idx >= 0) currentQuoteIndex = idx
+        selectedQuoteFromSearch = quote
+    }
+
+    // Handle quote selection from search with LaunchedEffect
+    LaunchedEffect(selectedQuoteFromSearch) {
+        selectedQuoteFromSearch?.let { quote ->
+            val filteredQuotes = viewModel.filteredQuotes.value
+            val idx = filteredQuotes.indexOfFirst { it == quote }
+            if (idx >= 0) {
+                currentQuoteIndex = idx
+            }
+            selectedQuoteFromSearch = null // Reset after processing
         }
     }
 

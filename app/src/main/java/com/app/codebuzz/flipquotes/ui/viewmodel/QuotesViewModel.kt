@@ -14,7 +14,7 @@ class QuotesViewModel(context: Context) : ViewModel() {
     private val repository = QuotesRepository(context)
 
     private val _allQuotes = MutableStateFlow<List<Quote>>(emptyList())
-    val allQuotes: StateFlow<List<Quote>> = _allQuotes
+    val allQuotes: StateFlow<List<Quote>>  get()= _allQuotes
     private val _filteredQuotes = MutableStateFlow<List<Quote>>(emptyList())
     val filteredQuotes: StateFlow<List<Quote>> = _filteredQuotes
 
