@@ -11,6 +11,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.*
@@ -33,6 +36,7 @@ import com.app.codebuzz.flipquotes.ui.components.QuoteFooter
 import com.app.codebuzz.flipquotes.ui.viewmodel.QuotesViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @SuppressLint("MutableCollectionMutableState")
@@ -60,6 +64,9 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
     // SEARCH STATE
     var showSearch by remember { mutableStateOf(false) }
     var selectedQuoteFromSearch by remember { mutableStateOf<Quote?>(null) }
+
+    // MENU STATE
+    var showMenu by remember { mutableStateOf(false) }
 
     // Handle search result selection
     fun onQuoteSelectedFromSearch(quote: Quote) {
@@ -116,124 +123,148 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                     initialOffsetY = { -50 }
                 )
     ) {
-        // When search is open, hide header/tabs and show home button in footer
-        Scaffold(
-            topBar = {
-                if (!showSearch) {
-                    Column {
-                        Header(
-                            onRefreshClick = {
-                                isRefreshing = true
-                                viewModel.forceRefresh()
-                                isRefreshing = false
-                                currentQuoteIndex = 0
-                            }
-                        )
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Main app content
+            // When search is open, hide header/tabs and show home button in footer
+            Scaffold(
+                topBar = {
+                    if (!showSearch) {
+                        Column {
+                            Header(
+                                onRefreshClick = {
+                                    isRefreshing = true
+                                    viewModel.forceRefresh()
+                                    isRefreshing = false
+                                    currentQuoteIndex = 0
+                                },
+                                onMenuClick = { showMenu = true }
+                            )
 
-                        if (themesList.isNotEmpty()) {
-                            ScrollableTabRow(
-                                selectedTabIndex = pagerState.currentPage,
-                                edgePadding = 12.dp,
-                                containerColor = MaterialTheme.colorScheme.surface,
-                                contentColor = MaterialTheme.colorScheme.onSurface,
-                                indicator = { tabPositions ->
-                                    if (tabPositions.isNotEmpty() && pagerState.currentPage < tabPositions.size) {
-                                        TabRowDefaults.SecondaryIndicator(
-                                            modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
-                                            color = MaterialTheme.colorScheme.primary
+                            if (themesList.isNotEmpty()) {
+                                ScrollableTabRow(
+                                    selectedTabIndex = pagerState.currentPage,
+                                    edgePadding = 12.dp,
+                                    containerColor = MaterialTheme.colorScheme.surface,
+                                    contentColor = MaterialTheme.colorScheme.onSurface,
+                                    indicator = { tabPositions ->
+                                        if (tabPositions.isNotEmpty() && pagerState.currentPage < tabPositions.size) {
+                                            TabRowDefaults.SecondaryIndicator(
+                                                modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                                                color = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                    }
+                                ) {
+                                    themesList.forEachIndexed { index, theme ->
+                                        Tab(
+                                            selected = pagerState.currentPage == index,
+                                            onClick = {
+                                                coroutineScope.launch {
+                                                    pagerState.scrollToPage(index)
+                                                }
+                                            },
+                                            text = {
+                                                Text(
+                                                    text = theme,
+                                                    maxLines = 1,
+                                                    style = MaterialTheme.typography.bodyMedium
+                                                )
+                                            },
+                                            modifier = Modifier.padding(horizontal = 4.dp)
                                         )
                                     }
                                 }
+                            }
+                        }
+                    }
+                },
+                bottomBar = {
+                    if (quotes.isNotEmpty()) {
+                        QuoteFooter(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .windowInsetsPadding(WindowInsets.navigationBars),
+                            isBookmarked = bookmarkStates[safeQuoteIndex] == true,
+                            isHome = showSearch, // Show home button when search is open
+                            onHomeClick = { showSearch = false }, // Home returns to main screen
+                            onShareClick = {
+                                shareQuoteImage(context, quotes[safeQuoteIndex])
+                            },
+                            onBookmarkClick = {
+                                bookmarkStates[safeQuoteIndex] = bookmarkStates[safeQuoteIndex] != true
+                            },
+                            onSearchClick = { showSearch = true }
+                        )
+                    }
+                }
+            ) { paddingValues ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    if (quotes.isEmpty()) {
+                        Text(
+                            text = "No quotes available for this theme",
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    } else {
+                        HorizontalPager(
+                            state = pagerState,
+                            modifier = Modifier.fillMaxSize()
+                        ) { pageIndex ->
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
                             ) {
-                                themesList.forEachIndexed { index, theme ->
-                                    Tab(
-                                        selected = pagerState.currentPage == index,
-                                        onClick = {
-                                            coroutineScope.launch {
-                                                pagerState.scrollToPage(index)
-                                            }
-                                        },
-                                        text = {
-                                            Text(
-                                                text = theme,
-                                                maxLines = 1,
-                                                style = MaterialTheme.typography.bodyMedium
-                                            )
-                                        },
-                                        modifier = Modifier.padding(horizontal = 4.dp)
-                                    )
-                                }
+                                QuoteCard(
+                                    quote = quotes[safeQuoteIndex],
+                                    isRefreshing = isRefreshing,
+                                    onNext = {
+                                        if (quotes.isNotEmpty()) {
+                                            currentQuoteIndex = (currentQuoteIndex + 1) % quotes.size
+                                        }
+                                    },
+                                    onPrevious = {
+                                        if (quotes.isNotEmpty()) {
+                                            currentQuoteIndex = (currentQuoteIndex - 1 + quotes.size) % quotes.size
+                                        }
+                                    }
+                                )
                             }
                         }
                     }
                 }
-            },
-            bottomBar = {
-                if (quotes.isNotEmpty()) {
-                    QuoteFooter(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .windowInsetsPadding(WindowInsets.navigationBars),
-                        isBookmarked = bookmarkStates[safeQuoteIndex] == true,
-                        isHome = showSearch, // Show home button when search is open
-                        onHomeClick = { showSearch = false }, // Home returns to main screen
-                        onShareClick = {
-                            shareQuoteImage(context, quotes[safeQuoteIndex])
-                        },
-                        onBookmarkClick = {
-                            bookmarkStates[safeQuoteIndex] = bookmarkStates[safeQuoteIndex] != true
-                        },
-                        onSearchClick = { showSearch = true }
-                    )
-                }
-            }
-        ) { paddingValues ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                if (quotes.isEmpty()) {
-                    Text(
-                        text = "No quotes available for this theme",
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                } else {
-                    HorizontalPager(
-                        state = pagerState,
-                        modifier = Modifier.fillMaxSize()
-                    ) { pageIndex ->
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            QuoteCard(
-                                quote = quotes[safeQuoteIndex],
-                                isRefreshing = isRefreshing,
-                                onNext = {
-                                    if (quotes.isNotEmpty()) {
-                                        currentQuoteIndex = (currentQuoteIndex + 1) % quotes.size
-                                    }
-                                },
-                                onPrevious = {
-                                    if (quotes.isNotEmpty()) {
-                                        currentQuoteIndex = (currentQuoteIndex - 1 + quotes.size) % quotes.size
-                                    }
-                                }
-                            )
-                        }
-                    }
-                }
 
-                // Search overlay
+                // Search overlay - appears on top of everything
                 if (showSearch) {
                     SearchScreen(
-                        quotes = allQuotes, // Pass the full list of quotes for searching
-                        onQuoteSelected = { onQuoteSelectedFromSearch(it) },
+                        quotes = allQuotes,
+                        onQuoteSelected = { quote ->
+                            onQuoteSelectedFromSearch(quote)
+                        },
                         onClose = { showSearch = false },
                         visible = showSearch
                     )
                 }
+            }
+
+            // Animated Menu Screen overlay that slides in from left to right
+            AnimatedVisibility(
+                visible = showMenu,
+                enter = slideInHorizontally(
+                    animationSpec = tween(300, easing = FastOutSlowInEasing),
+                    initialOffsetX = { -it } // Start from left edge (negative width)
+                ) + fadeIn(animationSpec = tween(300)),
+                exit = slideOutHorizontally(
+                    animationSpec = tween(300, easing = FastOutSlowInEasing),
+                    targetOffsetX = { -it } // Exit to left edge
+                ) + fadeOut(animationSpec = tween(300))
+            ) {
+                MenuScreen(
+                    onBackClick = { showMenu = false },
+                    modifier = Modifier.fillMaxSize()
+                )
             }
         }
     }
@@ -241,59 +272,46 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
 
 fun shareQuoteImage(context: Context, quote: Quote) {
     val activity = context as? Activity ?: return
-    val composeView = ComposeView(context)
-    composeView.setContent {
-        com.app.codebuzz.flipquotes.ui.components.ShareableQuoteCard(quote = quote)
+
+    // Create a ComposeView to render the quote
+    val composeView = ComposeView(context).apply {
+        setContent {
+            QuoteCard(quote = quote)
+        }
     }
 
-    // Get device width and a proportional height for the card
-    val displayMetrics = context.resources.displayMetrics
-    val width = displayMetrics.widthPixels
-    val height = (width * 1.5).toInt() // Adjust this ratio as needed for your card
+    // Measure and layout the ComposeView
+    composeView.measure(
+        android.view.View.MeasureSpec.makeMeasureSpec(800, android.view.View.MeasureSpec.EXACTLY),
+        android.view.View.MeasureSpec.makeMeasureSpec(600, android.view.View.MeasureSpec.EXACTLY)
+    )
+    composeView.layout(0, 0, composeView.measuredWidth, composeView.measuredHeight)
 
-    val container = android.widget.FrameLayout(context)
-    container.addView(composeView)
-    activity.addContentView(container, android.view.ViewGroup.LayoutParams(0, 0)) // Invisible
+    // Create bitmap from the view
+    val bitmap = createBitmap(composeView.measuredWidth, composeView.measuredHeight, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    composeView.draw(canvas)
 
-    composeView.post {
-        val widthSpec = android.view.View.MeasureSpec.makeMeasureSpec(width, android.view.View.MeasureSpec.EXACTLY)
-        val heightSpec = android.view.View.MeasureSpec.makeMeasureSpec(height, android.view.View.MeasureSpec.EXACTLY)
-        composeView.measure(widthSpec, heightSpec)
-        composeView.layout(0, 0, width, height)
-        val bitmap = createBitmap(width, height)
-        val canvas = Canvas(bitmap)
-        composeView.draw(canvas)
+    // Save bitmap and share
+    try {
+        val imageUri = Media.insertImage(context.contentResolver, bitmap, "FlipQuotes_${System.currentTimeMillis()}", "Quote from FlipQuotes")
 
-        val resolver = context.contentResolver
-        val filename = "Quote_${System.currentTimeMillis()}.jpg"
-        val contentValues = android.content.ContentValues().apply {
-            put(Media.DISPLAY_NAME, filename)
-            put(Media.MIME_TYPE, "image/jpeg")
-            put(Media.RELATIVE_PATH, "Pictures/FlipQuotes")
-            put(Media.IS_PENDING, 1)
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_STREAM, imageUri.toUri())
+            putExtra(Intent.EXTRA_TEXT, "\"${quote.quote}\" - ${quote.author}\n\nShared via FlipQuotes")
+            type = "image/*"
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        val imageUri = resolver.insert(Media.EXTERNAL_CONTENT_URI, contentValues)
-        if (imageUri != null) {
-            var out: java.io.OutputStream? = null
-            try {
-                out = resolver.openOutputStream(imageUri)
-                if (out != null) {
-                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out)
-                }
-            } finally {
-                out?.close()
-            }
-            contentValues.clear()
-            contentValues.put(Media.IS_PENDING, 0)
-            resolver.update(imageUri, contentValues, null, null)
-            val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "image/*"
-                putExtra(Intent.EXTRA_STREAM, imageUri)
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                putExtra(Intent.EXTRA_TEXT, "For more amazing quotes check out https://play.google.com/store/apps/details?id=com.app.codebuzz.flipquotes")
-            }
-            context.startActivity(Intent.createChooser(intent, "Share Quote from FlipQuotes"))
+
+        activity.startActivity(Intent.createChooser(shareIntent, "Share Quote"))
+    } catch (e: Exception) {
+        // Fallback to text sharing if image sharing fails
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, "\"${quote.quote}\" - ${quote.author}\n\nShared via FlipQuotes")
+            type = "text/plain"
         }
-        (container.parent as? android.view.ViewGroup)?.removeView(container)
+        activity.startActivity(Intent.createChooser(shareIntent, "Share Quote"))
     }
 }

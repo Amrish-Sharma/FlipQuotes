@@ -1,6 +1,7 @@
 package com.app.codebuzz.flipquotes.ui.components
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -21,7 +22,8 @@ import com.app.codebuzz.flipquotes.R
 @Composable
 fun Header(
     modifier: Modifier = Modifier,
-    onRefreshClick: () -> Unit = {}
+    onRefreshClick: () -> Unit = {},
+    onMenuClick: () -> Unit = {}
 ) {
     TopAppBar(
         title = {
@@ -31,6 +33,14 @@ fun Header(
                 fontWeight = FontWeight.Bold,
                 fontFamily = FontFamily(Font(R.font.playfair_display)) // Use playfair display One for elegant header
             )
+        },
+        navigationIcon = {
+            IconButton(onClick = onMenuClick) {
+                Icon(
+                    imageVector = Icons.Default.Menu,
+                    contentDescription = "Menu"
+                )
+            }
         },
         actions = {
             IconButton(onClick = onRefreshClick) {
@@ -43,7 +53,8 @@ fun Header(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = Color.Black,
             titleContentColor = Color.White,
-            actionIconContentColor = Color.White
+            actionIconContentColor = Color.White,
+            navigationIconContentColor = Color.White
         )
     )
 }
