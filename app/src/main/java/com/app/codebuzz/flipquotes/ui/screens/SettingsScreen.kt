@@ -241,11 +241,11 @@ private fun ThemeSelectionSection(
                                 fontWeight = FontWeight.Normal,
                                 color = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor
                             )
-                            Text(
-                                text = "Light background with dark text",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = if (isBlackTheme) Color(0xFFB0B0B0) else currentTheme.onSurfaceColor.copy(alpha = 0.7f)
-                            )
+//                            Text(
+//                                text = "Light background with dark text",
+//                                style = MaterialTheme.typography.bodySmall,
+//                                color = if (isBlackTheme) Color(0xFFB0B0B0) else currentTheme.onSurfaceColor.copy(alpha = 0.7f)
+//                            )
                         }
                     }
 
@@ -285,11 +285,11 @@ private fun ThemeSelectionSection(
                                 fontWeight = FontWeight.Normal,
                                 color = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor
                             )
-                            Text(
-                                text = "Dark background with light text",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = if (isBlackTheme) Color(0xFFB0B0B0) else currentTheme.onSurfaceColor.copy(alpha = 0.7f)
-                            )
+//                            Text(
+//                                text = "Dark background with light text",
+//                                style = MaterialTheme.typography.bodySmall,
+//                                color = if (isBlackTheme) Color(0xFFB0B0B0) else currentTheme.onSurfaceColor.copy(alpha = 0.7f)
+//                            )
                         }
                     }
                 }
@@ -364,12 +364,12 @@ private fun FontSelectionSection(
                 exit = shrinkVertically(animationSpec = tween(300)) + fadeOut(animationSpec = tween(300))
             ) {
                 Column {
-                    Text(
-                        text = "Choose your preferred fonts (includes system fonts)",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = if (isBlackTheme) Color(0xFFB0B0B0) else currentTheme.onSurfaceColor.copy(alpha = 0.7f),
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
+//                    Text(
+//                        text = "Choose your preferred fonts (includes system fonts)",
+//                        style = MaterialTheme.typography.bodyMedium,
+//                        color = if (isBlackTheme) Color(0xFFB0B0B0) else currentTheme.onSurfaceColor.copy(alpha = 0.7f),
+//                        modifier = Modifier.padding(bottom = 16.dp)
+//                    )
 
                     // Quote Font Section
                     Text(
