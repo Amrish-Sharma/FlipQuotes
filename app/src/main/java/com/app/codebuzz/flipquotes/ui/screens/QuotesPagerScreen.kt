@@ -56,6 +56,7 @@ import com.app.codebuzz.flipquotes.ui.components.Header
 import com.app.codebuzz.flipquotes.ui.components.QuoteCard
 import com.app.codebuzz.flipquotes.ui.components.QuoteFooter
 import com.app.codebuzz.flipquotes.ui.viewmodel.QuotesViewModel
+import com.app.codebuzz.flipquotes.ui.theme.rememberThemeManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -67,6 +68,10 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
     val allQuotes by viewModel.allQuotes.collectAsStateWithLifecycle(initialValue = emptyList())
     val themesList by viewModel.themesList.collectAsStateWithLifecycle(initialValue = emptyList())
     val selectedTheme by viewModel.selectedTheme.collectAsStateWithLifecycle(initialValue = null)
+
+    // Add theme manager
+    val themeManager = rememberThemeManager()
+    val currentTheme by themeManager.currentTheme
 
     var currentQuoteIndex by remember { mutableIntStateOf(0) }
     var isRefreshing by remember { mutableStateOf(false) }
@@ -89,6 +94,7 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
 
     // MENU STATE
     var showMenu by remember { mutableStateOf(false) }
+    var showSettings by remember { mutableStateOf(false) }
 
     // Handle search result selection
     fun onQuoteSelectedFromSearch(quote: Quote) {
@@ -153,6 +159,7 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                     if (!showSearch) {
                         Column {
                             Header(
+                                theme = currentTheme,
                                 onRefreshClick = {
                                     isRefreshing = true
                                     viewModel.forceRefresh()
@@ -210,6 +217,7 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .windowInsetsPadding(WindowInsets.navigationBars),
+                            theme = currentTheme,
                             // Fix: Don't show bookmark when search is open, use actual current quote's bookmark status
                             isBookmarked = if (showSearch) false else bookmarkStates[currentQuoteKey] == true,
                             isHome = showSearch, // Show home button when search is open
@@ -273,6 +281,7 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                         },
                         onClose = { showSearch = false },
                         visible = true,
+                        theme = currentTheme,
                         bookmarkedQuotes = allQuotes.filter { quote ->
                             val quoteKey = "${quote.quote}_${quote.author}"
                             bookmarkStates[quoteKey] == true
@@ -303,6 +312,30 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
             ) {
                 MenuScreen(
                     onBackClick = { showMenu = false },
+                    onSettingsClick = {
+                        showMenu = false
+                        showSettings = true
+                    },
+                    theme = currentTheme,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            // Animated Settings Screen overlay
+            AnimatedVisibility(
+                visible = showSettings,
+                enter = slideInHorizontally(
+                    animationSpec = tween(300, easing = FastOutSlowInEasing),
+                    initialOffsetX = { it } // Start from right edge
+                ) + fadeIn(animationSpec = tween(300)),
+                exit = slideOutHorizontally(
+                    animationSpec = tween(300, easing = FastOutSlowInEasing),
+                    targetOffsetX = { it } // Exit to right edge
+                ) + fadeOut(animationSpec = tween(300))
+            ) {
+                SettingsScreen(
+                    onBackClick = { showSettings = false },
+                    themeManager = themeManager,
                     modifier = Modifier.fillMaxSize()
                 )
             }

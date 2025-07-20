@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.app.codebuzz.flipquotes.data.Quote
+import com.app.codebuzz.flipquotes.ui.theme.AppTheme
 
 @Composable
 fun SearchScreen(
@@ -37,9 +38,10 @@ fun SearchScreen(
     onQuoteSelected: (Quote) -> Unit,
     onClose: () -> Unit,
     visible: Boolean,
-    bookmarkedQuotes: List<Quote> = emptyList(), // Add bookmarked quotes parameter
-    onBookmarkToggle: (Quote) -> Unit = {}, // Add bookmark toggle callback
-    isQuoteBookmarked: (Quote) -> Boolean = { false } // Add bookmark check function
+    theme: AppTheme,
+    bookmarkedQuotes: List<Quote> = emptyList(),
+    onBookmarkToggle: (Quote) -> Unit = {},
+    isQuoteBookmarked: (Quote) -> Boolean = { false }
 ) {
     var searchQuery by remember { mutableStateOf("") }
     var showResults by remember { mutableStateOf(false) }
@@ -89,7 +91,7 @@ fun SearchScreen(
         )
     ) {
         Surface(
-            color = Color.Black.copy(alpha = 0.98f),
+            color = theme.backgroundColor.copy(alpha = 0.98f),
             modifier = Modifier.fillMaxSize()
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -111,23 +113,28 @@ fun SearchScreen(
                                 showBookmarks = false
                                 showSuggestions = it.isNotBlank()
                             },
-                            placeholder = { Text("Start typing...", color = Color.Gray) },
+                            placeholder = {
+                                Text(
+                                    "Start typing to find inspiring quotes",
+                                    color = theme.onSurfaceColor.copy(alpha = 0.6f)
+                                )
+                            },
                             modifier = Modifier
                                 .weight(1f)
                                 .height(56.dp),
                             singleLine = true,
                             colors = TextFieldDefaults.colors(
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                focusedContainerColor = Color.DarkGray,
-                                unfocusedContainerColor = Color.DarkGray,
+                                focusedTextColor = theme.onSurfaceColor,
+                                unfocusedTextColor = theme.onSurfaceColor,
+                                focusedContainerColor = theme.surfaceColor.copy(alpha = 0.8f),
+                                unfocusedContainerColor = theme.surfaceColor.copy(alpha = 0.8f),
                                 focusedIndicatorColor = Color.Yellow,
-                                unfocusedIndicatorColor = Color.Gray,
-                                cursorColor = Color.White,
-                                focusedPlaceholderColor = Color.Gray,
-                                unfocusedPlaceholderColor = Color.Gray
+                                unfocusedIndicatorColor = theme.onSurfaceColor.copy(alpha = 0.5f),
+                                cursorColor = theme.onSurfaceColor,
+                                focusedPlaceholderColor = theme.onSurfaceColor.copy(alpha = 0.6f),
+                                unfocusedPlaceholderColor = theme.onSurfaceColor.copy(alpha = 0.6f)
                             ),
-                            textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.White),
+                            textStyle = MaterialTheme.typography.bodyMedium.copy(color = theme.onSurfaceColor),
                             keyboardOptions = KeyboardOptions.Default.copy(
                                 imeAction = ImeAction.Search
                             ),
@@ -147,7 +154,7 @@ fun SearchScreen(
                                     Icon(
                                         Icons.Default.Clear,
                                         contentDescription = "Clear search",
-                                        tint = Color.White,
+                                        tint = theme.onSurfaceColor,
                                         modifier = Modifier.size(20.dp)
                                     )
                                 }
@@ -158,14 +165,22 @@ fun SearchScreen(
 
                         // Search button
                         IconButton(onClick = { performSearch() }) {
-                            Icon(Icons.Default.Search, contentDescription = "Search", tint = Color.White)
+                            Icon(
+                                Icons.Default.Search,
+                                contentDescription = "Search",
+                                tint = theme.onSurfaceColor
+                            )
                         }
 
                         Spacer(modifier = Modifier.width(8.dp))
 
                         // Close button
                         IconButton(onClick = onClose) {
-                            Icon(Icons.Default.Close, contentDescription = "Close", tint = Color.White)
+                            Icon(
+                                Icons.Default.Close,
+                                contentDescription = "Close",
+                                tint = theme.onSurfaceColor
+                            )
                         }
                     }
 
@@ -177,7 +192,9 @@ fun SearchScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(8.dp)),
-                            colors = CardDefaults.cardColors(containerColor = Color.DarkGray),
+                            colors = CardDefaults.cardColors(
+                                containerColor = theme.surfaceColor.copy(alpha = 0.9f)
+                            ),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
                         ) {
                             Column {
@@ -197,16 +214,9 @@ fun SearchScreen(
                                                 performSearch()
                                             }
                                             .padding(horizontal = 16.dp, vertical = 12.dp),
-                                        color = Color.White,
+                                        color = theme.onSurfaceColor,
                                         style = MaterialTheme.typography.bodyMedium
                                     )
-                                    if (suggestion != filteredSuggestions.last()) {
-                                        HorizontalDivider(
-                                            color = Color.Gray.copy(alpha = 0.3f),
-                                            thickness = 0.5.dp,
-                                            modifier = Modifier.padding(horizontal = 16.dp)
-                                        )
-                                    }
                                 }
                             }
                         }
@@ -223,7 +233,8 @@ fun SearchScreen(
                                             quote = quote,
                                             isBookmarked = isQuoteBookmarked(quote),
                                             onQuoteClick = { onQuoteSelected(quote) },
-                                            onBookmarkClick = { onBookmarkToggle(quote) }
+                                            onBookmarkClick = { onBookmarkToggle(quote) },
+                                            theme = theme
                                         )
                                     }
                                 }
@@ -232,14 +243,14 @@ fun SearchScreen(
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         Text(
                                             "No results found",
-                                            color = Color.White,
+                                            color = theme.onSurfaceColor,
                                             style = MaterialTheme.typography.headlineSmall,
                                             fontWeight = FontWeight.Medium
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
                                             "Try different keywords or check spelling",
-                                            color = Color.Gray,
+                                            color = theme.onSurfaceColor.copy(alpha = 0.7f),
                                             style = MaterialTheme.typography.bodyMedium
                                         )
                                     }
@@ -254,7 +265,8 @@ fun SearchScreen(
                                             quote = quote,
                                             isBookmarked = true,
                                             onQuoteClick = { onQuoteSelected(quote) },
-                                            onBookmarkClick = { onBookmarkToggle(quote) }
+                                            onBookmarkClick = { onBookmarkToggle(quote) },
+                                            theme = theme
                                         )
                                     }
                                 }
@@ -264,20 +276,20 @@ fun SearchScreen(
                                         Icon(
                                             Icons.Outlined.BookmarkBorder,
                                             contentDescription = "No bookmarks",
-                                            tint = Color.Gray,
+                                            tint = theme.onSurfaceColor.copy(alpha = 0.6f),
                                             modifier = Modifier.size(64.dp)
                                         )
                                         Spacer(modifier = Modifier.height(16.dp))
                                         Text(
                                             "No bookmarked quotes yet",
-                                            color = Color.White,
+                                            color = theme.onSurfaceColor,
                                             style = MaterialTheme.typography.headlineSmall,
                                             fontWeight = FontWeight.Medium
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
                                             "Bookmark quotes to save them here",
-                                            color = Color.Gray,
+                                            color = theme.onSurfaceColor.copy(alpha = 0.7f),
                                             style = MaterialTheme.typography.bodyMedium,
                                             textAlign = TextAlign.Center
                                         )
@@ -292,13 +304,13 @@ fun SearchScreen(
                                     Icon(
                                         Icons.Default.Search,
                                         contentDescription = "Search",
-                                        tint = Color.Gray,
+                                        tint = theme.onSurfaceColor.copy(alpha = 0.6f),
                                         modifier = Modifier.size(64.dp)
                                     )
                                     Spacer(modifier = Modifier.height(16.dp))
                                     Text(
                                         "Start typing to find inspiring quotes",
-                                        color = Color.White,
+                                        color = theme.onSurfaceColor,
                                         style = MaterialTheme.typography.headlineSmall,
                                         fontWeight = FontWeight.Medium,
                                         textAlign = TextAlign.Center
@@ -306,7 +318,7 @@ fun SearchScreen(
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(
                                         "Search by quote, author, or theme",
-                                        color = Color.Gray,
+                                        color = theme.onSurfaceColor.copy(alpha = 0.7f),
                                         style = MaterialTheme.typography.bodyMedium,
                                         textAlign = TextAlign.Center
                                     )
@@ -329,8 +341,8 @@ fun SearchScreen(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(16.dp),
-                    containerColor = if (showBookmarks) Color.Yellow else Color.DarkGray,
-                    contentColor = if (showBookmarks) Color.Black else Color.White
+                    containerColor = if (showBookmarks) Color.Yellow else theme.surfaceColor,
+                    contentColor = if (showBookmarks) Color.Black else theme.onSurfaceColor
                 ) {
                     Icon(
                         imageVector = if (showBookmarks) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
@@ -348,6 +360,7 @@ private fun QuoteCard(
     isBookmarked: Boolean,
     onQuoteClick: () -> Unit,
     onBookmarkClick: () -> Unit,
+    theme: AppTheme,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -355,7 +368,9 @@ private fun QuoteCard(
             .fillMaxWidth()
             .padding(vertical = 4.dp)
             .clickable { onQuoteClick() },
-        colors = CardDefaults.cardColors(containerColor = Color.DarkGray),
+        colors = CardDefaults.cardColors(
+            containerColor = theme.surfaceColor.copy(alpha = 0.9f)
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
@@ -370,7 +385,7 @@ private fun QuoteCard(
             ) {
                 Text(
                     text = quote.quote,
-                    color = Color.White,
+                    color = theme.onSurfaceColor,
                     style = MaterialTheme.typography.bodyLarge,
                     lineHeight = 24.sp
                 )
@@ -384,7 +399,7 @@ private fun QuoteCard(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = quote.theme.uppercase(),
-                    color = Color.LightGray,
+                    color = theme.onSurfaceColor.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.labelSmall,
                     letterSpacing = 0.8.sp
                 )
@@ -400,7 +415,7 @@ private fun QuoteCard(
                 Icon(
                     imageVector = if (isBookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
                     contentDescription = if (isBookmarked) "Remove bookmark" else "Add bookmark",
-                    tint = if (isBookmarked) Color.Yellow else Color.White,
+                    tint = if (isBookmarked) theme.onSurfaceColor else theme.onSurfaceColor,
                     modifier = Modifier.size(20.dp)
                 )
             }

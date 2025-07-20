@@ -26,11 +26,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.core.net.toUri
+import com.app.codebuzz.flipquotes.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuScreen(
     onBackClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    theme: AppTheme,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -39,7 +42,7 @@ fun MenuScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Color.White) // Set blank/white background
+            .background(theme.backgroundColor)
     ) {
         // Header for menu screen
         TopAppBar(
@@ -59,9 +62,9 @@ fun MenuScreen(
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = Color.Black,
-                titleContentColor = Color.White,
-                navigationIconContentColor = Color.White
+                containerColor = theme.primaryColor,
+                titleContentColor = theme.onPrimaryColor,
+                navigationIconContentColor = theme.onPrimaryColor
             )
         )
 
@@ -77,7 +80,8 @@ fun MenuScreen(
                     icon = Icons.Default.Settings,
                     title = "Settings",
                     description = "App preferences and configuration",
-                    onClick = { /* TODO: Navigate to settings */ }
+                    onClick = onSettingsClick,
+                    theme = theme
                 )
             }
 
@@ -88,7 +92,8 @@ fun MenuScreen(
                     description = "Rate FlipQuotes on Play Store",
                     onClick = {
                         openPlayStore(context)
-                    }
+                    },
+                    theme = theme
                 )
             }
 
@@ -99,7 +104,8 @@ fun MenuScreen(
                     description = "Share FlipQuotes with friends",
                     onClick = {
                         shareApp(context)
-                    }
+                    },
+                    theme = theme
                 )
             }
 
@@ -108,7 +114,8 @@ fun MenuScreen(
                     icon = Icons.Default.Info,
                     title = "About",
                     description = "App version and information",
-                    onClick = { showDialog = true }
+                    onClick = { showDialog = true },
+                    theme = theme
                 )
             }
         }
@@ -127,13 +134,14 @@ private fun MenuItemCard(
     title: String,
     description: String,
     onClick: () -> Unit,
+    theme: AppTheme,
     modifier: Modifier = Modifier
 ) {
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = theme.surfaceColor.copy(alpha = 0.9f)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
@@ -147,7 +155,7 @@ private fun MenuItemCard(
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = theme.onSurfaceColor,
                 modifier = Modifier.size(24.dp)
             )
 
@@ -157,12 +165,13 @@ private fun MenuItemCard(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = theme.onSurfaceColor
                 )
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = theme.onSurfaceColor.copy(alpha = 0.7f)
                 )
             }
         }

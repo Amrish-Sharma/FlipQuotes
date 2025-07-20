@@ -11,17 +11,18 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.app.codebuzz.flipquotes.R
+import com.app.codebuzz.flipquotes.ui.theme.AppTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Header(
     modifier: Modifier = Modifier,
+    theme: AppTheme,
     onRefreshClick: () -> Unit = {},
     onMenuClick: () -> Unit = {}
 ) {
@@ -51,10 +52,10 @@ fun Header(
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Black,
-            titleContentColor = Color.White,
-            actionIconContentColor = Color.White,
-            navigationIconContentColor = Color.White
+            containerColor = theme.primaryColor,
+            titleContentColor = theme.onPrimaryColor,
+            actionIconContentColor = theme.onPrimaryColor,
+            navigationIconContentColor = theme.onPrimaryColor
         )
     )
 }

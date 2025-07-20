@@ -17,10 +17,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.app.codebuzz.flipquotes.ui.theme.AppTheme
+import com.app.codebuzz.flipquotes.ui.theme.AppThemes
 
 @Composable
 fun QuoteFooter(
     modifier: Modifier = Modifier,
+    theme: AppTheme,
     isBookmarked: Boolean = false,
     isHome: Boolean = false,
     onHomeClick: () -> Unit = {},
@@ -31,7 +34,7 @@ fun QuoteFooter(
     Surface(
         modifier = modifier
             .fillMaxWidth(), // Remove bottom padding
-        color = Color.Black,
+        color = theme.primaryColor,
         shadowElevation = 8.dp
     ) {
         Row(
@@ -53,14 +56,16 @@ fun QuoteFooter(
                         icon = Icons.Filled.Home,
                         contentDescription = "Go Home",
                         onClick = onHomeClick,
-                        isActive = false
+                        isActive = false,
+                        theme = theme
                     )
                 } else {
                     FooterIconButton(
                         icon = Icons.Filled.Search,
                         contentDescription = "Search quotes",
                         onClick = onSearchClick,
-                        isActive = false
+                        isActive = false,
+                        theme = theme
                     )
                 }
             }
@@ -75,7 +80,8 @@ fun QuoteFooter(
                     icon = if (isBookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
                     contentDescription = if (isBookmarked) "Remove bookmark" else "Add bookmark",
                     onClick = onBookmarkClick,
-                    isActive = isBookmarked
+                    isActive = isBookmarked,
+                    theme = theme
                 )
             }
             // SHARE BUTTON (rightmost)
@@ -88,7 +94,8 @@ fun QuoteFooter(
                 FooterIconButton(
                     icon = Icons.Filled.Share,
                     contentDescription = "Share quote",
-                    onClick = onShareClick
+                    onClick = onShareClick,
+                    theme = theme
                 )
             }
         }
@@ -100,6 +107,7 @@ private fun FooterIconButton(
     icon: ImageVector,
     contentDescription: String,
     onClick: () -> Unit,
+    theme: AppTheme,
     modifier: Modifier = Modifier,
     isActive: Boolean = false
 ) {
@@ -110,7 +118,7 @@ private fun FooterIconButton(
         Icon(
             imageVector = icon,
             contentDescription = contentDescription,
-            tint = if (isActive) Color.Yellow else Color.White,
+            tint = if (isActive) theme.onSurfaceColor else theme.onPrimaryColor,
             modifier = Modifier.size(24.dp)
         )
     }
@@ -120,6 +128,7 @@ private fun FooterIconButton(
 @Composable
 fun QuoteFooterPreview() {
     QuoteFooter(
+        theme = AppThemes.WhiteTheme,
         isBookmarked = true
     )
 }
