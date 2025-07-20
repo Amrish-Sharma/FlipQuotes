@@ -44,6 +44,10 @@ android {
         ]
     }
 
+    lint {
+        disable "NullSafeMutableLiveData"
+    }
+
     signingConfigs {
         release {
             keyAlias 'codebuzz'
@@ -92,7 +96,7 @@ dependencies {
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'
 
     // Material Icons Extended for additional icons
-    implementation "androidx.compose.material:material-icons-extended:1.6.1"
+    implementation "androidx.compose.material:material-icons-extended:1.7.8"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'

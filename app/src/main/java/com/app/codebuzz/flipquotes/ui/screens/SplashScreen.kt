@@ -150,7 +150,8 @@ fun SplashScreenContent() {
                     text = "Loading amazing quotes...",
                     fontSize = 14.sp,
                     color = Color.White.copy(alpha = 0.6f),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    fontStyle =  androidx.compose.ui.text.font.FontStyle.Italic
                 )
             }
 

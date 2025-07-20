@@ -29,7 +29,7 @@ fun Header(
                 text = "FlipQuotes",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily(Font(R.font.kotta_one)) // Use Kotta One for elegant header
+                fontFamily = FontFamily(Font(R.font.playfair_display)) // Use Kotta One for elegant header
             )
         },
         actions = {
