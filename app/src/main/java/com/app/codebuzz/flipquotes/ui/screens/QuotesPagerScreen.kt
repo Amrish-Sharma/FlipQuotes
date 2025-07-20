@@ -67,8 +67,6 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
         // Use a side effect to update the index after theme is set
         showSearch = false
         // Use a side effect to update the index after theme is set
-        // (previously: currentQuoteIndex = viewModel.filteredQuotes.value.indexOfFirst { it == quote })
-        // (previously: LaunchedEffect(key1 = viewModel.filteredQuotes.value, key2 = quote) { ... })
         // Revert to the version before the last two changes:
         val idx = viewModel.filteredQuotes.value.indexOfFirst { it == quote }
         if (idx >= 0) currentQuoteIndex = idx
