@@ -15,7 +15,7 @@
 - Fixed background color inconsistencies in shared images and app UI.
 
 ### Notes
-- Minimum SDK: 32
+- Minimum SDK: 35
 - Target SDK: 35
 - Kotlin Compose compiler extension: 1.6.10
 

@@ -19,8 +19,8 @@ android {
         applicationId "com.app.codebuzz.flipquotes"
         minSdk 32
         targetSdk 35
-        versionCode 7
-        versionName "1.3"
+        versionCode 9
+        versionName "1.5"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     composeOptions {
