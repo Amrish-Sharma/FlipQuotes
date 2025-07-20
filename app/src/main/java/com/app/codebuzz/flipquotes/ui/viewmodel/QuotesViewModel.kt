@@ -13,7 +13,7 @@ import kotlinx.coroutines.launch
 class QuotesViewModel(context: Context) : ViewModel() {
     private val repository = QuotesRepository(context)
 
-    private val _allQuotes = MutableStateFlow<List<Quote>>(emptyList())
+    val _allQuotes = MutableStateFlow<List<Quote>>(emptyList())
     private val _filteredQuotes = MutableStateFlow<List<Quote>>(emptyList())
     val filteredQuotes: StateFlow<List<Quote>> = _filteredQuotes
 

@@ -57,7 +57,7 @@ fun QuoteCard(
 
     VerticalPager(
         state = pagerState,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(), // Undo: revert to original full height
         pageSpacing = 8.dp
     ) { page ->
         Box(

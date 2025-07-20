@@ -11,8 +11,11 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.app.codebuzz.flipquotes.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -25,7 +28,8 @@ fun Header(
             Text(
                 text = "FlipQuotes",
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                fontFamily = FontFamily(Font(R.font.kotta_one)) // Use Kotta One for elegant header
             )
         },
         actions = {

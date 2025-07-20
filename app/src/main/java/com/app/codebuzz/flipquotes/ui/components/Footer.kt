@@ -4,16 +4,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material.icons.filled.ThumbUp
-import androidx.compose.material.icons.outlined.ThumbUp
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
@@ -21,15 +22,15 @@ import androidx.compose.ui.unit.sp
 fun QuoteFooter(
     modifier: Modifier = Modifier,
     isBookmarked: Boolean = false,
-    isLiked: Boolean = false,
-    likeCount: String = "0",
+    isHome: Boolean = false,
+    onHomeClick: () -> Unit = {},
+    onSearchClick: () -> Unit = {}, // NEW: search button callback
     onBookmarkClick: () -> Unit = {},
-    onLikeClick: () -> Unit = {},
     onShareClick: () -> Unit = {}
 ) {
     Surface(
         modifier = modifier
-            .fillMaxWidth(),
+            .fillMaxWidth(), // Remove bottom padding
         color = Color.Black,
         shadowElevation = 8.dp
     ) {
@@ -38,58 +39,52 @@ fun QuoteFooter(
                 .fillMaxWidth()
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.Bottom // Align all items to bottom
+            verticalAlignment = Alignment.Bottom
         ) {
-            // Bookmark button - wrap in Column for consistent height
+            // HOME or SEARCH BUTTON (leftmost)
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.height(64.dp) // Fixed height for all columns
+                modifier = Modifier.height(64.dp)
             ) {
-                Spacer(modifier = Modifier.height(22.dp)) // Placeholder for consistent spacing
+                Spacer(modifier = Modifier.height(22.dp))
+                if (isHome) {
+                    FooterIconButton(
+                        icon = Icons.Filled.Home,
+                        contentDescription = "Go Home",
+                        onClick = onHomeClick,
+                        isActive = false
+                    )
+                } else {
+                    FooterIconButton(
+                        icon = Icons.Filled.Search,
+                        contentDescription = "Search quotes",
+                        onClick = onSearchClick,
+                        isActive = false
+                    )
+                }
+            }
+            // BOOKMARK BUTTON (center)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.height(64.dp)
+            ) {
+                Spacer(modifier = Modifier.height(22.dp))
                 FooterIconButton(
-                    icon = if (isBookmarked) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
+                    icon = if (isBookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
                     contentDescription = if (isBookmarked) "Remove bookmark" else "Add bookmark",
                     onClick = onBookmarkClick,
                     isActive = isBookmarked
                 )
             }
-
-            // Like button with count - Stack vertically for better visibility
+            // SHARE BUTTON (rightmost)
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
-                modifier = Modifier.height(64.dp) // Fixed height for all columns
+                modifier = Modifier.height(64.dp)
             ) {
-                // Count positioned above the button
-                if (isLiked || (likeCount.toIntOrNull() != null && likeCount.toInt() > 0)) {
-                    Text(
-                        text = likeCount,
-                        color = Color.White,
-                        fontSize = 14.sp,
-                        style = MaterialTheme.typography.labelMedium,
-                        modifier = Modifier.padding(bottom = 4.dp)
-                    )
-                } else {
-                    // Placeholder to maintain consistent spacing
-                    Spacer(modifier = Modifier.height(22.dp))
-                }
-
-                FooterIconButton(
-                    icon = if (isLiked) Icons.Filled.ThumbUp else Icons.Outlined.ThumbUp,
-                    contentDescription = if (isLiked) "Unlike" else "Like",
-                    onClick = onLikeClick,
-                    isActive = isLiked
-                )
-            }
-
-            // Share button - wrap in Column for consistent height
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-                modifier = Modifier.height(64.dp) // Fixed height for all columns
-            ) {
-                Spacer(modifier = Modifier.height(22.dp)) // Placeholder for consistent spacing
+                Spacer(modifier = Modifier.height(22.dp))
                 FooterIconButton(
                     icon = Icons.Filled.Share,
                     contentDescription = "Share quote",
@@ -119,4 +114,12 @@ private fun FooterIconButton(
             modifier = Modifier.size(24.dp)
         )
     }
+}
+
+@Preview
+@Composable
+fun QuoteFooterPreview() {
+    QuoteFooter(
+        isBookmarked = true
+    )
 }

@@ -31,6 +31,7 @@ import com.app.codebuzz.flipquotes.ui.components.QuoteCard
 import com.app.codebuzz.flipquotes.ui.components.Header
 import com.app.codebuzz.flipquotes.ui.components.QuoteFooter
 import com.app.codebuzz.flipquotes.ui.viewmodel.QuotesViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
@@ -38,14 +39,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun QuotePagerScreen(viewModel: QuotesViewModel) {
     val quotes by viewModel.filteredQuotes.collectAsStateWithLifecycle(initialValue = emptyList())
+    val allQuotes by viewModel._allQuotes.collectAsStateWithLifecycle(initialValue = emptyList()) // Use allQuotes for search
     val themesList by viewModel.themesList.collectAsStateWithLifecycle(initialValue = emptyList())
     val selectedTheme by viewModel.selectedTheme.collectAsStateWithLifecycle(initialValue = null)
 
     var currentQuoteIndex by remember { mutableIntStateOf(0) }
     var isRefreshing by remember { mutableStateOf(false) }
-    val likeStates = remember { mutableStateMapOf<Int, Boolean>() }
     val bookmarkStates = remember { mutableStateMapOf<Int, Boolean>() }
-    val likeCounts = remember { mutableStateMapOf<Int, Int>() }
 
     val pagerState = rememberPagerState(
         initialPage = 0,
@@ -57,10 +57,27 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
     // Smooth entrance animation state
     var isAppVisible by remember { mutableStateOf(false) }
 
+    // SEARCH STATE
+    var showSearch by remember { mutableStateOf(false) }
+
+    // Handle search result selection
+    fun onQuoteSelectedFromSearch(quote: Quote) {
+        // Always select 'All' theme so the quote is visible regardless of previous theme
+        viewModel.setSelectedTheme("All")
+        // Use a side effect to update the index after theme is set
+        showSearch = false
+        // Use a side effect to update the index after theme is set
+        // (previously: currentQuoteIndex = viewModel.filteredQuotes.value.indexOfFirst { it == quote })
+        // (previously: LaunchedEffect(key1 = viewModel.filteredQuotes.value, key2 = quote) { ... })
+        // Revert to the version before the last two changes:
+        val idx = viewModel.filteredQuotes.value.indexOfFirst { it == quote }
+        if (idx >= 0) currentQuoteIndex = idx
+    }
+
     // Trigger smooth fade-in after a short delay to ensure everything is positioned
     LaunchedEffect(quotes, themesList) {
         if (quotes.isNotEmpty() && themesList.isNotEmpty() && !isAppVisible) {
-            kotlinx.coroutines.delay(100) // Small delay for smooth positioning
+            delay(100) // Small delay for smooth positioning
             isAppVisible = true
         }
     }
@@ -92,50 +109,53 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                     initialOffsetY = { -50 }
                 )
     ) {
+        // When search is open, hide header/tabs and show home button in footer
         Scaffold(
             topBar = {
-                Column {
-                    Header(
-                        onRefreshClick = {
-                            isRefreshing = true
-                            viewModel.forceRefresh()
-                            isRefreshing = false
-                            currentQuoteIndex = 0
-                        }
-                    )
+                if (!showSearch) {
+                    Column {
+                        Header(
+                            onRefreshClick = {
+                                isRefreshing = true
+                                viewModel.forceRefresh()
+                                isRefreshing = false
+                                currentQuoteIndex = 0
+                            }
+                        )
 
-                    if (themesList.isNotEmpty()) {
-                        ScrollableTabRow(
-                            selectedTabIndex = pagerState.currentPage,
-                            edgePadding = 12.dp,
-                            containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = MaterialTheme.colorScheme.onSurface,
-                            indicator = { tabPositions ->
-                                if (tabPositions.isNotEmpty() && pagerState.currentPage < tabPositions.size) {
-                                    TabRowDefaults.SecondaryIndicator(
-                                        modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
-                                        color = MaterialTheme.colorScheme.primary
+                        if (themesList.isNotEmpty()) {
+                            ScrollableTabRow(
+                                selectedTabIndex = pagerState.currentPage,
+                                edgePadding = 12.dp,
+                                containerColor = MaterialTheme.colorScheme.surface,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                                indicator = { tabPositions ->
+                                    if (tabPositions.isNotEmpty() && pagerState.currentPage < tabPositions.size) {
+                                        TabRowDefaults.SecondaryIndicator(
+                                            modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
+                            ) {
+                                themesList.forEachIndexed { index, theme ->
+                                    Tab(
+                                        selected = pagerState.currentPage == index,
+                                        onClick = {
+                                            coroutineScope.launch {
+                                                pagerState.scrollToPage(index)
+                                            }
+                                        },
+                                        text = {
+                                            Text(
+                                                text = theme,
+                                                maxLines = 1,
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        },
+                                        modifier = Modifier.padding(horizontal = 4.dp)
                                     )
                                 }
-                            }
-                        ) {
-                            themesList.forEachIndexed { index, theme ->
-                                Tab(
-                                    selected = pagerState.currentPage == index,
-                                    onClick = {
-                                        coroutineScope.launch {
-                                            pagerState.scrollToPage(index)
-                                        }
-                                    },
-                                    text = {
-                                        Text(
-                                            text = theme,
-                                            maxLines = 1,
-                                            style = MaterialTheme.typography.bodyMedium
-                                        )
-                                    },
-                                    modifier = Modifier.padding(horizontal = 4.dp)
-                                )
                             }
                         }
                     }
@@ -147,20 +167,16 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .windowInsetsPadding(WindowInsets.navigationBars),
-                        likeCount = (likeCounts[safeQuoteIndex] ?: 0).toString(),
-                        isLiked = likeStates[safeQuoteIndex] == true,
                         isBookmarked = bookmarkStates[safeQuoteIndex] == true,
-                        onLikeClick = {
-                            likeStates[safeQuoteIndex] = likeStates[safeQuoteIndex] != true
-                            likeCounts[safeQuoteIndex] = (likeCounts[safeQuoteIndex] ?: 0) +
-                                    if (likeStates[safeQuoteIndex] == true) 1 else -1
-                        },
+                        isHome = showSearch, // Show home button when search is open
+                        onHomeClick = { showSearch = false }, // Home returns to main screen
                         onShareClick = {
                             shareQuoteImage(context, quotes[safeQuoteIndex])
                         },
                         onBookmarkClick = {
                             bookmarkStates[safeQuoteIndex] = bookmarkStates[safeQuoteIndex] != true
-                        }
+                        },
+                        onSearchClick = { showSearch = true }
                     )
                 }
             }
@@ -200,6 +216,16 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                             )
                         }
                     }
+                }
+
+                // Search overlay
+                if (showSearch) {
+                    SearchScreen(
+                        quotes = allQuotes, // Pass the full list of quotes for searching
+                        onQuoteSelected = { onQuoteSelectedFromSearch(it) },
+                        onClose = { showSearch = false },
+                        visible = showSearch
+                    )
                 }
             }
         }
