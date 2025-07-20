@@ -57,7 +57,7 @@ fun QuoteCard(
 
     VerticalPager(
         state = pagerState,
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize(), // Reverted to full height to ensure proper layout rendering across all screen sizes
         pageSpacing = 8.dp
     ) { page ->
         Box(
