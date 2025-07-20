@@ -16,6 +16,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -27,7 +28,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.createBitmap
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.codebuzz.flipquotes.data.Quote
 import com.app.codebuzz.flipquotes.ui.components.QuoteCard
@@ -292,45 +292,169 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
 fun shareQuoteImage(context: Context, quote: Quote) {
     val activity = context as? Activity ?: return
 
-    // Create a ComposeView to render the quote
-    val composeView = ComposeView(context).apply {
-        setContent {
-            QuoteCard(quote = quote)
+    try {
+        // Create a bitmap using Canvas drawing instead of ComposeView
+        val bitmap = createQuoteBitmapWithCanvas(context, quote)
+
+        // Save the bitmap to device storage
+        val imageUri = saveBitmapToDevice(context, bitmap, quote)
+
+        if (imageUri != null) {
+            // Create share intent with image and promotional text
+            val promotionalText = "For more amazing quotes check out FlipQuotes app: https://play.google.com/store/apps/details?id=com.app.codebuzz.flipquotes"
+
+            val shareIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_STREAM, imageUri)
+                putExtra(Intent.EXTRA_TEXT, promotionalText)
+                putExtra(Intent.EXTRA_SUBJECT, "Inspiring Quote from FlipQuotes")
+                type = "image/png"
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+
+            activity.startActivity(Intent.createChooser(shareIntent, "Share Quote"))
+        } else {
+            // Fallback to text sharing if image creation fails
+            shareAsText(activity, quote)
+        }
+
+    } catch (e: Exception) {
+        // Fallback to text sharing if anything fails
+        shareAsText(activity, quote)
+    }
+}
+
+private fun createQuoteBitmapWithCanvas(context: Context, quote: Quote): Bitmap {
+    // Use portrait dimensions to match app layout
+    val width = 600
+    val height = 800
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+
+    try {
+        // Load and draw the texture background
+        val textureDrawable = androidx.core.content.ContextCompat.getDrawable(context, com.app.codebuzz.flipquotes.R.drawable.texture)
+        textureDrawable?.let { drawable ->
+            drawable.setBounds(0, 0, width, height)
+            drawable.draw(canvas)
+        }
+    } catch (e: Exception) {
+        // Fallback background if texture fails to load
+        val backgroundPaint = android.graphics.Paint().apply {
+            color = android.graphics.Color.parseColor("#F5F5DC") // Beige color
+            style = android.graphics.Paint.Style.FILL
+        }
+        canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), backgroundPaint)
+    }
+
+    // Try to load the custom kotta_one font like in QuoteCard
+    val customTypeface = try {
+        androidx.core.content.res.ResourcesCompat.getFont(context, com.app.codebuzz.flipquotes.R.font.kotta_one)
+    } catch (e: Exception) {
+        android.graphics.Typeface.DEFAULT
+    }
+
+    // Quote text styling to match QuoteCard (headlineLarge with kotta_one font)
+    val quotePaint = android.graphics.Paint().apply {
+        color = android.graphics.Color.BLACK
+        textSize = 32f // Adjusted for better readability
+        typeface = customTypeface ?: android.graphics.Typeface.DEFAULT
+        isAntiAlias = true
+        textAlign = android.graphics.Paint.Align.CENTER
+    }
+
+    // Split quote text into lines
+    val maxWidth = width - 80 // More padding for portrait
+    val quoteText = "\"${quote.quote}\""
+    val lines = wrapTextToLines(quoteText, quotePaint, maxWidth.toFloat())
+
+    // Calculate vertical positioning for portrait layout
+    val totalTextHeight = lines.size * 40
+    val startY = (height / 2 - totalTextHeight / 2)
+
+    // Draw quote lines
+    lines.forEachIndexed { index, line ->
+        canvas.drawText(line, width / 2f, startY + index * 40f, quotePaint)
+    }
+
+    // Author text styling to match QuoteCard (bodyLarge style)
+    val authorPaint = android.graphics.Paint().apply {
+        color = android.graphics.Color.DKGRAY
+        textSize = 24f
+        typeface = android.graphics.Typeface.DEFAULT // Using default like MaterialTheme.typography.bodyLarge
+        isAntiAlias = true
+        textAlign = android.graphics.Paint.Align.CENTER
+    }
+    canvas.drawText("~ ${quote.author}", width / 2f, startY + lines.size * 40f + 50f, authorPaint)
+
+    // App branding at bottom
+    val brandPaint = android.graphics.Paint().apply {
+        color = android.graphics.Color.parseColor("#777777")
+        textSize = 18f
+        typeface = android.graphics.Typeface.DEFAULT
+        isAntiAlias = true
+        textAlign = android.graphics.Paint.Align.CENTER
+    }
+    canvas.drawText("FlipQuotes", width / 2f, height - 50f, brandPaint)
+
+    return bitmap
+}
+
+private fun wrapTextToLines(text: String, paint: android.graphics.Paint, maxWidth: Float): List<String> {
+    val words = text.split(" ")
+    val lines = mutableListOf<String>()
+    var currentLine = ""
+
+    for (word in words) {
+        val testLine = if (currentLine.isEmpty()) word else "$currentLine $word"
+        val bounds = android.graphics.Rect()
+        paint.getTextBounds(testLine, 0, testLine.length, bounds)
+
+        if (bounds.width() <= maxWidth) {
+            currentLine = testLine
+        } else {
+            if (currentLine.isNotEmpty()) {
+                lines.add(currentLine)
+            }
+            currentLine = word
         }
     }
 
-    // Measure and layout the ComposeView
-    composeView.measure(
-        android.view.View.MeasureSpec.makeMeasureSpec(800, android.view.View.MeasureSpec.EXACTLY),
-        android.view.View.MeasureSpec.makeMeasureSpec(600, android.view.View.MeasureSpec.EXACTLY)
-    )
-    composeView.layout(0, 0, composeView.measuredWidth, composeView.measuredHeight)
+    if (currentLine.isNotEmpty()) {
+        lines.add(currentLine)
+    }
 
-    // Create bitmap from the view
-    val bitmap = createBitmap(composeView.measuredWidth, composeView.measuredHeight, Bitmap.Config.ARGB_8888)
-    val canvas = Canvas(bitmap)
-    composeView.draw(canvas)
+    return lines
+}
 
-    // Save bitmap and share
+private fun saveBitmapToDevice(context: Context, bitmap: Bitmap, quote: Quote): android.net.Uri? {
+    return try {
+        val filename = "FlipQuotes_${System.currentTimeMillis()}.png"
+        val imageUri = Media.insertImage(
+            context.contentResolver,
+            bitmap,
+            filename,
+            "Quote: ${quote.quote.take(50)}... - ${quote.author}"
+        )
+        imageUri?.let { android.net.Uri.parse(it) }
+    } catch (e: Exception) {
+        null
+    }
+}
+
+private fun shareAsText(activity: Activity, quote: Quote) {
     try {
-        val imageUri = Media.insertImage(context.contentResolver, bitmap, "FlipQuotes_${System.currentTimeMillis()}", "Quote from FlipQuotes")
+        val quoteText = "\"${quote.quote}\"\n\n~ ${quote.author}\n\nFor more amazing quotes check out FlipQuotes app: https://play.google.com/store/apps/details?id=com.app.codebuzz.flipquotes"
 
         val shareIntent = Intent().apply {
             action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_STREAM, imageUri.toUri())
-            putExtra(Intent.EXTRA_TEXT, "\"${quote.quote}\" - ${quote.author}\n\nShared via FlipQuotes")
-            type = "image/*"
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            putExtra(Intent.EXTRA_TEXT, quoteText)
+            putExtra(Intent.EXTRA_SUBJECT, "Inspiring Quote from FlipQuotes")
+            type = "text/plain"
         }
 
         activity.startActivity(Intent.createChooser(shareIntent, "Share Quote"))
     } catch (e: Exception) {
-        // Fallback to text sharing if image sharing fails
-        val shareIntent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_TEXT, "\"${quote.quote}\" - ${quote.author}\n\nShared via FlipQuotes")
-            type = "text/plain"
-        }
-        activity.startActivity(Intent.createChooser(shareIntent, "Share Quote"))
+        // Silent fallback - prevent any crashes
     }
 }
