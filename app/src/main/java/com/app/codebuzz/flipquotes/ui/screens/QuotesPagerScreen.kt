@@ -255,6 +255,7 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                             ) {
                                 QuoteCard(
                                     quote = quotes[safeQuoteIndex],
+                                    themeManager = themeManager,
                                     isRefreshing = isRefreshing,
                                     onNext = {
                                         if (quotes.isNotEmpty()) {
