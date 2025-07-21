@@ -51,7 +51,9 @@ fun Header(
                 // val player = android.media.MediaPlayer.create(context, R.raw.refresh_sound)
                 // player?.setOnCompletionListener { it.release() }
                 // player?.start()
-            } catch (_: Exception) {}
+            } catch (e: Exception) {
+                Log.e("Header", "Error playing sound", e)
+            }
             playSound = false
         }
     }
