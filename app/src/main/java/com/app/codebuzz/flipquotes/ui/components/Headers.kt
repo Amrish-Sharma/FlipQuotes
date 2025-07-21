@@ -52,7 +52,7 @@ fun Header(
                 // player?.setOnCompletionListener { it.release() }
                 // player?.start()
             } catch (e: Exception) {
-                Log.e("Header", "Error playing sound", e)
+e.printStackTrace()
             }
             playSound = false
         }
