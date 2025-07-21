@@ -102,7 +102,7 @@ fun SettingsScreen(
 
                 // Visual divider between sections
                 item {
-                    Divider(
+                    HorizontalDivider(
                         color = currentTheme.onSurfaceColor.copy(alpha = 0.1f),
                         thickness = 1.dp,
                         modifier = Modifier.padding(vertical = 8.dp)
