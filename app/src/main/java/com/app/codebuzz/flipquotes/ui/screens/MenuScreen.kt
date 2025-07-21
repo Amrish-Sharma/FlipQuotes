@@ -233,7 +233,7 @@ private fun openPlayStore(context: Context) {
         context.startActivity(intent)
     } catch (e: Exception) {
         // Handle case where no browser is available or other errors
-        e.printStackTrace()
+        Toast.makeText(context, "Unable to open the Play Store. Please check your browser or internet connection.", Toast.LENGTH_LONG).show()
     }
 }
 
