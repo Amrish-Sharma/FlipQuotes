@@ -64,8 +64,9 @@ fun SettingsScreen(
                 title = {
                     Text(
                         text = "Settings",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold
+                        fontSize = 22.sp, // Match MenuScreen
+                        fontWeight = FontWeight.Bold,
+                        color = currentTheme.onPrimaryColor // Ensure color consistency
                     )
                 },
                 navigationIcon = {
@@ -73,7 +74,7 @@ fun SettingsScreen(
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back",
-                            tint = currentTheme.onPrimaryColor
+                            tint = currentTheme.onPrimaryColor // Ensure color consistency
                         )
                     }
                 },
@@ -89,7 +90,7 @@ fun SettingsScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(24.dp) // Increased spacing between sections
+                verticalArrangement = Arrangement.spacedBy(24.dp) // Match MenuScreen spacing
             ) {
                 item {
                     ThemeSelectionSection(
@@ -180,10 +181,10 @@ private fun ThemeSelectionSection(
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = "Theme",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Normal,
-                    color = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
-                    modifier = Modifier.weight(1f)
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 18.sp,
+                    color = currentTheme.onSurfaceColor
                 )
                 Icon(
                     imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
@@ -237,15 +238,11 @@ private fun ThemeSelectionSection(
                         Column {
                             Text(
                                 text = "White Theme",
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Normal,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 18.sp,
                                 color = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor
                             )
-//                            Text(
-//                                text = "Light background with dark text",
-//                                style = MaterialTheme.typography.bodySmall,
-//                                color = if (isBlackTheme) Color(0xFFB0B0B0) else currentTheme.onSurfaceColor.copy(alpha = 0.7f)
-//                            )
                         }
                     }
 
@@ -281,15 +278,11 @@ private fun ThemeSelectionSection(
                         Column {
                             Text(
                                 text = "Black Theme",
-                                style = MaterialTheme.typography.bodyLarge,
-                                fontWeight = FontWeight.Normal,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Medium,
+                                fontSize = 18.sp,
                                 color = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor
                             )
-//                            Text(
-//                                text = "Dark background with light text",
-//                                style = MaterialTheme.typography.bodySmall,
-//                                color = if (isBlackTheme) Color(0xFFB0B0B0) else currentTheme.onSurfaceColor.copy(alpha = 0.7f)
-//                            )
                         }
                     }
                 }
@@ -344,10 +337,10 @@ private fun FontSelectionSection(
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = "Font",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Normal,
-                    color = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
-                    modifier = Modifier.weight(1f)
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 18.sp,
+                    color = currentTheme.onSurfaceColor
                 )
                 Icon(
                     imageVector = if (isExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
@@ -364,18 +357,12 @@ private fun FontSelectionSection(
                 exit = shrinkVertically(animationSpec = tween(300)) + fadeOut(animationSpec = tween(300))
             ) {
                 Column {
-//                    Text(
-//                        text = "Choose your preferred fonts (includes system fonts)",
-//                        style = MaterialTheme.typography.bodyMedium,
-//                        color = if (isBlackTheme) Color(0xFFB0B0B0) else currentTheme.onSurfaceColor.copy(alpha = 0.7f),
-//                        modifier = Modifier.padding(bottom = 16.dp)
-//                    )
-
                     // Quote Font Section
                     Text(
                         text = "Quote Font",
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium,
+                        fontSize = 18.sp,
                         color = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
@@ -391,6 +378,7 @@ private fun FontSelectionSection(
                             value = availableFonts.find { it.first == currentQuoteFont }?.second ?: "Kotta One",
                             onValueChange = {},
                             readOnly = true,
+                            textStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium, fontSize = 18.sp),
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = quoteFontExpanded) },
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
@@ -415,6 +403,9 @@ private fun FontSelectionSection(
                                     text = {
                                         Text(
                                             text = fontName,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Medium,
+                                            fontSize = 18.sp,
                                             color = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor
                                         )
                                     },
@@ -436,8 +427,9 @@ private fun FontSelectionSection(
                     // Author Font Section
                     Text(
                         text = "Author Font",
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium,
+                        fontSize = 18.sp,
                         color = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
                         modifier = Modifier.padding(bottom = 8.dp)
                     )
@@ -453,6 +445,7 @@ private fun FontSelectionSection(
                             value = availableFonts.find { it.first == currentAuthorFont }?.second ?: "Playfair Display",
                             onValueChange = {},
                             readOnly = true,
+                            textStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium, fontSize = 18.sp),
                             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = authorFontExpanded) },
                             colors = OutlinedTextFieldDefaults.colors(
                                 focusedTextColor = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
@@ -477,6 +470,9 @@ private fun FontSelectionSection(
                                     text = {
                                         Text(
                                             text = fontName,
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Medium,
+                                            fontSize = 18.sp,
                                             color = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor
                                         )
                                     },
