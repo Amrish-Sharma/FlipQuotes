@@ -32,6 +32,7 @@ import kotlin.math.absoluteValue
 @Composable
 fun QuoteCard(
     quote: Quote,
+    themeManager: com.app.codebuzz.flipquotes.ui.theme.ThemeManager,
     isRefreshing: Boolean = false,
     onNext: () -> Unit = {},
     onPrevious: () -> Unit = {},
@@ -118,7 +119,10 @@ fun QuoteCard(
                             }
                         } else {
                             // Direct content update during scrolling
-                            QuoteContent(quote = quote)
+                            QuoteContent(
+                                quote = quote,
+                                themeManager = themeManager
+                            )
                         }
                     }
                 }
@@ -128,7 +132,45 @@ fun QuoteCard(
 }
 
 @Composable
-fun QuoteContent(quote: Quote, modifier: Modifier = Modifier) {
+fun QuoteContent(
+    quote: Quote,
+    themeManager: com.app.codebuzz.flipquotes.ui.theme.ThemeManager? = null,
+    modifier: Modifier = Modifier
+) {
+    val currentQuoteFont by (themeManager?.quoteFont ?: mutableStateOf("kotta_one"))
+    val currentAuthorFont by (themeManager?.authorFont ?: mutableStateOf("playfair_display"))
+
+    // Map font names to font resources (custom fonts and system fonts)
+    val quoteFontFamily = when (currentQuoteFont) {
+        // Custom fonts from res/font
+        "kotta_one" -> FontFamily(Font(R.font.kotta_one))
+        "playfair_display" -> FontFamily(Font(R.font.playfair_display))
+        "droid_sans" -> FontFamily(Font(R.font.droid_sans))
+        // Android system fonts
+        "default" -> FontFamily.Default
+        "sans_serif" -> FontFamily.SansSerif
+        "serif" -> FontFamily.Serif
+        "monospace" -> FontFamily.Monospace
+        "cursive" -> FontFamily.Cursive
+        "fantasy" -> FontFamily.SansSerif // Fantasy maps to SansSerif as fallback
+        else -> FontFamily(Font(R.font.kotta_one))
+    }
+
+    val authorFontFamily = when (currentAuthorFont) {
+        // Custom fonts from res/font
+        "kotta_one" -> FontFamily(Font(R.font.kotta_one))
+        "playfair_display" -> FontFamily(Font(R.font.playfair_display))
+        "droid_sans" -> FontFamily(Font(R.font.droid_sans))
+        // Android system fonts
+        "default" -> FontFamily.Default
+        "sans_serif" -> FontFamily.SansSerif
+        "serif" -> FontFamily.Serif
+        "monospace" -> FontFamily.Monospace
+        "cursive" -> FontFamily.Cursive
+        "fantasy" -> FontFamily.SansSerif // Fantasy maps to SansSerif as fallback
+        else -> FontFamily(Font(R.font.playfair_display))
+    }
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -137,7 +179,7 @@ fun QuoteContent(quote: Quote, modifier: Modifier = Modifier) {
         Text(
             text = "\"${quote.quote}\"",
             style = MaterialTheme.typography.headlineLarge.copy(
-                fontFamily = FontFamily(Font(resId = R.font.kotta_one))
+                fontFamily = quoteFontFamily
             ),
             color = Color.Black,
             textAlign = TextAlign.Center,
@@ -146,7 +188,9 @@ fun QuoteContent(quote: Quote, modifier: Modifier = Modifier) {
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = "~ ${quote.author}",
-            style = MaterialTheme.typography.bodyLarge,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontFamily = authorFontFamily
+            ),
             color = Color.DarkGray,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
