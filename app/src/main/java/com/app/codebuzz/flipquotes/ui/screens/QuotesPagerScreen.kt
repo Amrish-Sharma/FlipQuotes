@@ -16,6 +16,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -45,6 +46,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
@@ -59,6 +61,7 @@ import com.app.codebuzz.flipquotes.ui.viewmodel.QuotesViewModel
 import com.app.codebuzz.flipquotes.ui.theme.rememberThemeManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.abs
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @SuppressLint("MutableCollectionMutableState")
@@ -266,7 +269,25 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                                         if (quotes.isNotEmpty()) {
                                             currentQuoteIndex = (currentQuoteIndex - 1 + quotes.size) % quotes.size
                                         }
-                                    }
+                                    },
+                                    onMenuOpen = { showMenu = true },
+                                    onThemeNext = {
+                                        // Navigate to next theme if available
+                                        if (pagerState.currentPage < themesList.size - 1) {
+                                            coroutineScope.launch {
+                                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                            }
+                                        }
+                                    },
+                                    onThemePrevious = {
+                                        // Navigate to previous theme if available
+                                        if (pagerState.currentPage > 0) {
+                                            coroutineScope.launch {
+                                                pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                                            }
+                                        }
+                                    },
+                                    isOnAllThemes = selectedTheme == "All"
                                 )
                             }
                         }
@@ -402,55 +423,71 @@ private fun createQuoteBitmapWithCanvas(context: Context, quote: Quote): Bitmap 
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), backgroundPaint)
     }
 
-    // Try to load the custom kotta_one font like in QuoteCard
-    val customTypeface = try {
+    // Load custom fonts to match QuoteCard styling
+    val quoteTypeface = try {
         androidx.core.content.res.ResourcesCompat.getFont(context, com.app.codebuzz.flipquotes.R.font.kotta_one)
     } catch (_: Exception) {
         android.graphics.Typeface.DEFAULT
     }
 
-    // Quote text styling to match QuoteCard (headlineLarge with kotta_one font)
+    val authorTypeface = try {
+        androidx.core.content.res.ResourcesCompat.getFont(context, com.app.codebuzz.flipquotes.R.font.playfair_display)
+    } catch (_: Exception) {
+        android.graphics.Typeface.DEFAULT
+    }
+
+    val brandTypeface = try {
+        androidx.core.content.res.ResourcesCompat.getFont(context, com.app.codebuzz.flipquotes.R.font.playfair_display)
+    } catch (_: Exception) {
+        android.graphics.Typeface.DEFAULT
+    }
+
+    // Quote text styling to match QuoteCard (headlineLarge with user's selected font)
     val quotePaint = android.graphics.Paint().apply {
         color = android.graphics.Color.BLACK
-        textSize = 32f // Adjusted for better readability
-        typeface = customTypeface ?: android.graphics.Typeface.DEFAULT
+        textSize = 36f // Increase size to match app display better
+        typeface = quoteTypeface
         isAntiAlias = true
         textAlign = android.graphics.Paint.Align.CENTER
+        style = android.graphics.Paint.Style.FILL
     }
 
     // Split quote text into lines
-    val maxWidth = width - 80 // More padding for portrait
+    val maxWidth = width - 100 // Better padding for portrait
     val quoteText = "\"${quote.quote}\""
     val lines = wrapTextToLines(quoteText, quotePaint, maxWidth.toFloat())
 
     // Calculate vertical positioning for portrait layout
-    val totalTextHeight = lines.size * 40
-    val startY = (height / 2 - totalTextHeight / 2)
+    val lineSpacing = 45f // Increase line spacing for better readability
+    val totalTextHeight = lines.size * lineSpacing
+    val startY = (height / 2 - totalTextHeight / 2) + 20f // Slightly adjust center position
 
     // Draw quote lines
     lines.forEachIndexed { index, line ->
-        canvas.drawText(line, width / 2f, startY + index * 40f, quotePaint)
+        canvas.drawText(line, width / 2f, startY + index * lineSpacing, quotePaint)
     }
 
-    // Author text styling to match QuoteCard (bodyLarge style)
+    // Author text styling to match QuoteCard (bodyLarge with playfair_display)
     val authorPaint = android.graphics.Paint().apply {
         color = android.graphics.Color.DKGRAY
-        textSize = 24f
-        typeface = android.graphics.Typeface.DEFAULT // Using default like MaterialTheme.typography.bodyLarge
+        textSize = 28f // Increase size to match better
+        typeface = authorTypeface
         isAntiAlias = true
         textAlign = android.graphics.Paint.Align.CENTER
+        style = android.graphics.Paint.Style.FILL
     }
-    canvas.drawText("~ ${quote.author}", width / 2f, startY + lines.size * 40f + 50f, authorPaint)
+    canvas.drawText("~ ${quote.author}", width / 2f, startY + lines.size * lineSpacing + 60f, authorPaint)
 
-    // App branding at bottom
+    // FlipQuotes watermark with Playfair Display font
     val brandPaint = android.graphics.Paint().apply {
-        color = "#777777".toColorInt()
-        textSize = 18f
-        typeface = android.graphics.Typeface.DEFAULT
+        color = "#666666".toColorInt() // Slightly lighter gray for watermark effect
+        textSize = 22f // Increase size for better visibility
+        typeface = brandTypeface
         isAntiAlias = true
         textAlign = android.graphics.Paint.Align.CENTER
+        style = android.graphics.Paint.Style.FILL
     }
-    canvas.drawText("FlipQuotes", width / 2f, height - 50f, brandPaint)
+    canvas.drawText("FlipQuotes", width / 2f, height - 40f, brandPaint)
 
     return bitmap
 }

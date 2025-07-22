@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -43,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -67,6 +69,17 @@ fun MenuScreen(
         modifier = modifier
             .fillMaxSize()
             .background(theme.backgroundColor)
+            .pointerInput(Unit) {
+                detectHorizontalDragGestures(
+                    onDragEnd = {},
+                    onHorizontalDrag = { _, dragAmount ->
+                        // Right to left swipe - close menu
+                        if (dragAmount < -50f) {
+                            onBackClick()
+                        }
+                    }
+                )
+            }
     ) {
         // Header for menu screen
         TopAppBar(

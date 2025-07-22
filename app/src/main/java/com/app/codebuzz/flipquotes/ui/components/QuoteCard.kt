@@ -7,6 +7,7 @@ import androidx.compose.animation.core.*
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
@@ -36,6 +38,10 @@ fun QuoteCard(
     isRefreshing: Boolean = false,
     onNext: () -> Unit = {},
     onPrevious: () -> Unit = {},
+    onMenuOpen: () -> Unit = {},
+    onThemeNext: () -> Unit = {},
+    onThemePrevious: () -> Unit = {},
+    isOnAllThemes: Boolean = true,
     header: @Composable () -> Unit = {}
 ) {
     val pagerState = rememberPagerState(
@@ -97,7 +103,29 @@ fun QuoteCard(
 
                     // Main content - center the quote content
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .pointerInput(Unit) {
+                                detectHorizontalDragGestures(
+                                    onDragEnd = {},
+                                    onHorizontalDrag = { _, dragAmount ->
+                                        // Left to right swipe
+                                        if (dragAmount > 50f) {
+                                            if (isOnAllThemes) {
+                                                // Open menu when on "All" themes
+                                                onMenuOpen()
+                                            } else {
+                                                // Navigate to previous theme when not on "All" themes
+                                                onThemePrevious()
+                                            }
+                                        }
+                                        // Right to left swipe - navigate to next theme
+                                        else if (dragAmount < -50f) {
+                                            onThemeNext()
+                                        }
+                                    }
+                                )
+                            },
                         contentAlignment = Alignment.Center
                     ) {
                         if (isRefreshing) {
@@ -133,12 +161,12 @@ fun QuoteCard(
 
 @Composable
 fun QuoteContent(
+    modifier: Modifier = Modifier,
     quote: Quote,
-    themeManager: com.app.codebuzz.flipquotes.ui.theme.ThemeManager? = null,
-    modifier: Modifier = Modifier
+    themeManager: com.app.codebuzz.flipquotes.ui.theme.ThemeManager? = null
 ) {
-    val currentQuoteFont by (themeManager?.quoteFont ?: mutableStateOf("kotta_one"))
-    val currentAuthorFont by (themeManager?.authorFont ?: mutableStateOf("playfair_display"))
+    val currentQuoteFont by remember { themeManager?.quoteFont ?: mutableStateOf("kotta_one") }
+    val currentAuthorFont by remember { themeManager?.authorFont ?: mutableStateOf("playfair_display") }
 
     // Map font names to font resources (custom fonts and system fonts)
     val quoteFontFamily = when (currentQuoteFont) {
