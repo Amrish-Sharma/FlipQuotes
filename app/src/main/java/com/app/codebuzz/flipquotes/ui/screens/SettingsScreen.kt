@@ -339,7 +339,7 @@ private fun FontDialog(
                             unfocusedTrailingIconColor = if (isBlackTheme) Color(0xFFB0B0B0) else currentTheme.onSurfaceColor.copy(alpha = 0.7f)
                         ),
                         modifier = Modifier
-                            .menuAnchor(MenuAnchorType.PrimaryNotEditable)
+                            .menuAnchor()
                             .fillMaxWidth()
                     )
 
