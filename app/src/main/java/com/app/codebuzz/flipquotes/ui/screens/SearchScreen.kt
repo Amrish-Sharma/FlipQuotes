@@ -12,10 +12,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -102,7 +100,7 @@ fun SearchScreen(
                         .windowInsetsPadding(WindowInsets.statusBars) // Add padding for status bar
                         .windowInsetsPadding(WindowInsets.navigationBars) // Add padding for system navigation
                 ) {
-                    // Enhanced Search Bar with Clear button and Voice search
+                    // Enhanced Search Bar with Clear button and Bookmark button
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
@@ -176,12 +174,21 @@ fun SearchScreen(
 
                         Spacer(modifier = Modifier.width(8.dp))
 
-                        // Close button
-                        IconButton(onClick = onClose) {
+                        // Bookmark button - moved from floating position to search bar row
+                        IconButton(
+                            onClick = {
+                                showBookmarks = !showBookmarks
+                                showResults = false
+                                showSuggestions = false
+                                if (showBookmarks) {
+                                    searchQuery = ""
+                                }
+                            }
+                        ) {
                             Icon(
-                                Icons.Default.Close,
-                                contentDescription = "Close",
-                                tint = theme.onSurfaceColor
+                                imageVector = if (showBookmarks) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
+                                contentDescription = "Show bookmarked quotes",
+                                tint = if (showBookmarks) Color.Yellow else theme.onSurfaceColor
                             )
                         }
                     }
@@ -340,28 +347,6 @@ fun SearchScreen(
                             }
                         }
                     }
-                }
-
-                // Floating Bookmark Button (top-right corner)
-                FloatingActionButton(
-                    onClick = {
-                        showBookmarks = !showBookmarks
-                        showResults = false
-                        showSuggestions = false
-                        if (showBookmarks) {
-                            searchQuery = ""
-                        }
-                    },
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(16.dp),
-                    containerColor = if (showBookmarks) Color.Yellow else theme.surfaceColor,
-                    contentColor = if (showBookmarks) Color.Black else theme.onSurfaceColor
-                ) {
-                    Icon(
-                        imageVector = if (showBookmarks) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                        contentDescription = "Show bookmarked quotes"
-                    )
                 }
             }
         }

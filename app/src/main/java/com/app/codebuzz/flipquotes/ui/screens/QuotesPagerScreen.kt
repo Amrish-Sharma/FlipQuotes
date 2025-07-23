@@ -343,18 +343,8 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                 )
             }
 
-            // Animated Settings Screen overlay
-            AnimatedVisibility(
-                visible = showSettings,
-                enter = slideInHorizontally(
-                    animationSpec = tween(300, easing = FastOutSlowInEasing),
-                    initialOffsetX = { it } // Start from right edge
-                ) + fadeIn(animationSpec = tween(300)),
-                exit = slideOutHorizontally(
-                    animationSpec = tween(300, easing = FastOutSlowInEasing),
-                    targetOffsetX = { it } // Exit to right edge
-                ) + fadeOut(animationSpec = tween(300))
-            ) {
+            // Settings Screen overlay - no animation, appears instantly
+            if (showSettings) {
                 SettingsScreen(
                     onBackClick = { showSettings = false },
                     themeManager = themeManager,

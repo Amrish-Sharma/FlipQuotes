@@ -71,10 +71,12 @@ fun MenuScreen(
             .background(theme.backgroundColor)
             .pointerInput(Unit) {
                 detectHorizontalDragGestures(
+                    onDragStart = {},
                     onDragEnd = {},
                     onHorizontalDrag = { _, dragAmount ->
-                        // Right to left swipe - close menu
-                        if (dragAmount < -50f) {
+                        // Enhanced sensitivity - detect even the slightest left swipes (reduced threshold from 50f to 20f)
+                        // Right to left swipe (negative dragAmount) - close menu
+                        if (dragAmount < -20f) {
                             onBackClick()
                         }
                     }

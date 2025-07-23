@@ -107,21 +107,29 @@ fun QuoteCard(
                             .fillMaxSize()
                             .pointerInput(Unit) {
                                 detectHorizontalDragGestures(
+                                    onDragStart = {},
                                     onDragEnd = {},
                                     onHorizontalDrag = { _, dragAmount ->
-                                        // Left to right swipe
-                                        if (dragAmount > 50f) {
+                                        // Enhanced sensitivity - detect even the slightest swipes (reduced threshold from 50f to 20f)
+                                        // Right to left swipe (negative dragAmount) - navigate to next theme
+                                        if (dragAmount < -20f) {
                                             if (isOnAllThemes) {
-                                                // Open menu when on "All" themes
-                                                onMenuOpen()
+                                                // On "All" theme: left swipe switches to next theme
+                                                onThemeNext()
                                             } else {
-                                                // Navigate to previous theme when not on "All" themes
-                                                onThemePrevious()
+                                                // On other themes: continue theme navigation
+                                                onThemeNext()
                                             }
                                         }
-                                        // Right to left swipe - navigate to next theme
-                                        else if (dragAmount < -50f) {
-                                            onThemeNext()
+                                        // Left to right swipe (positive dragAmount)
+                                        else if (dragAmount > 20f) {
+                                            if (isOnAllThemes) {
+                                                // On "All" theme: right swipe opens menu
+                                                onMenuOpen()
+                                            } else {
+                                                // On other themes: navigate to previous theme
+                                                onThemePrevious()
+                                            }
                                         }
                                     }
                                 )
