@@ -34,7 +34,6 @@ import com.app.codebuzz.flipquotes.ui.theme.AppTheme
 fun SearchScreen(
     quotes: List<Quote>,
     onQuoteSelected: (Quote) -> Unit,
-    onClose: () -> Unit,
     visible: Boolean,
     theme: AppTheme,
     bookmarkedQuotes: List<Quote> = emptyList(),
@@ -115,8 +114,10 @@ fun SearchScreen(
                             },
                             placeholder = {
                                 Text(
-                                    "Start typing to find inspiring quotes",
-                                    color = theme.onSurfaceColor.copy(alpha = 0.6f)
+                                    "Search quotes...",
+                                    color = theme.onSurfaceColor.copy(alpha = 0.6f),
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Light, fontSize = 16.sp)
+
                                 )
                             },
                             modifier = Modifier

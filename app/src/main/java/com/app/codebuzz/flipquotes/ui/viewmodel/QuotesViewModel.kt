@@ -25,7 +25,6 @@ class QuotesViewModel(context: Context) : ViewModel() {
     val selectedTheme: StateFlow<String?> = _selectedTheme
 
     private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
 
     init {
         fetchQuotes()

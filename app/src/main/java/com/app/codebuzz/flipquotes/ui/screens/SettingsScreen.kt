@@ -1,7 +1,6 @@
 package com.app.codebuzz.flipquotes.ui.screens
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
@@ -139,7 +138,6 @@ fun SettingsScreen(
         if (showAppearanceDialog) {
             AppearanceDialog(
                 themeManager = themeManager,
-                currentTheme = currentTheme,
                 onDismiss = { showAppearanceDialog = false },
                 onThemeChanged = {
                     showToast = true
@@ -164,105 +162,8 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun AppearanceSection(
-    onAppearanceClick: () -> Unit,
-    currentTheme: com.app.codebuzz.flipquotes.ui.theme.AppTheme,
-    modifier: Modifier = Modifier
-) {
-    val isBlackTheme = currentTheme == com.app.codebuzz.flipquotes.ui.theme.AppThemes.BlackTheme
-
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isBlackTheme) Color(0xFF1A1A1A) else MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
-        ) {
-            // Clickable Header with icon
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onAppearanceClick() }
-                    .padding(bottom = 16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Palette,
-                    contentDescription = "Theme",
-                    tint = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
-                    modifier = Modifier.size(28.dp)
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = "Appearance",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 18.sp,
-                    color = currentTheme.onSurfaceColor
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun FontSection(
-    onFontClick: () -> Unit,
-    currentTheme: com.app.codebuzz.flipquotes.ui.theme.AppTheme,
-    modifier: Modifier = Modifier
-) {
-    val isBlackTheme = currentTheme == com.app.codebuzz.flipquotes.ui.theme.AppThemes.BlackTheme
-
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isBlackTheme) Color(0xFF1A1A1A) else MaterialTheme.colorScheme.surface
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        shape = RoundedCornerShape(16.dp)
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
-        ) {
-            // Clickable Header with icon
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onFontClick() }
-                    .padding(bottom = 16.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.TextFields,
-                    contentDescription = "Font",
-                    tint = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
-                    modifier = Modifier.size(28.dp)
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Text(
-                    text = "Font",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 18.sp,
-                    color = currentTheme.onSurfaceColor
-                )
-            }
-        }
-    }
-}
-
-@Composable
 private fun AppearanceDialog(
     themeManager: ThemeManager,
-    currentTheme: com.app.codebuzz.flipquotes.ui.theme.AppTheme,
     onDismiss: () -> Unit,
     onThemeChanged: () -> Unit
 ) {

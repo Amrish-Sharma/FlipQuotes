@@ -2,17 +2,39 @@
 
 package com.app.codebuzz.flipquotes.ui.components
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.pager.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.VerticalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,8 +63,7 @@ fun QuoteCard(
     onMenuOpen: () -> Unit = {},
     onThemeNext: () -> Unit = {},
     onThemePrevious: () -> Unit = {},
-    isOnAllThemes: Boolean = true,
-    header: @Composable () -> Unit = {}
+    isOnAllThemes: Boolean = true
 ) {
     val pagerState = rememberPagerState(
         initialPage = Int.MAX_VALUE / 2,
@@ -105,30 +126,30 @@ fun QuoteCard(
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .pointerInput(Unit) {
+                            .pointerInput(isOnAllThemes) {
                                 detectHorizontalDragGestures(
                                     onDragStart = {},
                                     onDragEnd = {},
                                     onHorizontalDrag = { _, dragAmount ->
-                                        // Enhanced sensitivity - detect even the slightest swipes (reduced threshold from 50f to 20f)
-                                        // Right to left swipe (negative dragAmount) - navigate to next theme
-                                        if (dragAmount < -20f) {
-                                            if (isOnAllThemes) {
-                                                // On "All" theme: left swipe switches to next theme
-                                                onThemeNext()
-                                            } else {
-                                                // On other themes: continue theme navigation
-                                                onThemeNext()
-                                            }
-                                        }
+                                        // Enhanced sensitivity - detect even the slightest swipes (reduced threshold from 20f to 10f)
                                         // Left to right swipe (positive dragAmount)
-                                        else if (dragAmount > 20f) {
+                                        if (dragAmount > 10f) {
                                             if (isOnAllThemes) {
                                                 // On "All" theme: right swipe opens menu
                                                 onMenuOpen()
                                             } else {
                                                 // On other themes: navigate to previous theme
                                                 onThemePrevious()
+                                            }
+                                        }
+                                        // Right to left swipe (negative dragAmount) - navigate to next theme
+                                        else if (dragAmount < -10f) {
+                                            if (isOnAllThemes) {
+                                                // On "All" theme: left swipe switches to next theme
+                                                onThemeNext()
+                                            } else {
+                                                // On other themes: continue theme navigation
+                                                onThemeNext()
                                             }
                                         }
                                     }
@@ -234,60 +255,3 @@ fun QuoteContent(
     }
 }
 
-@Composable
-fun ShareableQuoteCard(quote: Quote) {
-    // Draw the texture background with rectangular corners, no black or solid color
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Black) // Set black background for padding/edges
-    ) {
-        Card(
-            shape = RectangleShape, // Rectangular corners
-            modifier = Modifier.fillMaxSize(),
-            colors = CardDefaults.cardColors(containerColor = Color.Transparent)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.texture),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.matchParentSize()
-                )
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        Text(
-                            text = quote.quote,
-                            style = MaterialTheme.typography.headlineLarge
-                            .copy(fontFamily = FontFamily(Font(resId = R.font.kotta_one))),
-                            color = Color.Black,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "- ${quote.author}",
-                            style = MaterialTheme.typography.bodyLarge
-                            .copy(fontFamily = FontFamily(Font(resId = R.font.kotta_one))),
-                            color = Color.DarkGray,
-                            textAlign = TextAlign.End,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-                }
-            }
-        }
-    }
-}

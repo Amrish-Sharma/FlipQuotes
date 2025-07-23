@@ -16,7 +16,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -46,22 +45,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.toColorInt
-import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.codebuzz.flipquotes.data.Quote
 import com.app.codebuzz.flipquotes.ui.components.Header
 import com.app.codebuzz.flipquotes.ui.components.QuoteCard
 import com.app.codebuzz.flipquotes.ui.components.QuoteFooter
-import com.app.codebuzz.flipquotes.ui.viewmodel.QuotesViewModel
 import com.app.codebuzz.flipquotes.ui.theme.rememberThemeManager
+import com.app.codebuzz.flipquotes.ui.viewmodel.QuotesViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @SuppressLint("MutableCollectionMutableState")
@@ -301,7 +297,6 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                         onQuoteSelected = { quote ->
                             onQuoteSelectedFromSearch(quote)
                         },
-                        onClose = { showSearch = false },
                         visible = true,
                         theme = currentTheme,
                         bookmarkedQuotes = allQuotes.filter { quote ->
@@ -335,7 +330,7 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                 MenuScreen(
                     onBackClick = { showMenu = false },
                     onSettingsClick = {
-                        showMenu = false
+                        // Don't hide menu when opening settings - keep it underneath
                         showSettings = true
                     },
                     theme = currentTheme,
@@ -343,10 +338,13 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                 )
             }
 
-            // Settings Screen overlay - no animation, appears instantly
+            // Settings Screen overlay - appears on top of Menu screen
             if (showSettings) {
                 SettingsScreen(
-                    onBackClick = { showSettings = false },
+                    onBackClick = {
+                        // Only close settings, menu remains visible underneath
+                        showSettings = false
+                    },
                     themeManager = themeManager,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -512,13 +510,31 @@ private fun wrapTextToLines(text: String, paint: android.graphics.Paint, maxWidt
 private fun saveBitmapToDevice(context: Context, bitmap: Bitmap, quote: Quote): android.net.Uri? {
     return try {
         val filename = "FlipQuotes_${System.currentTimeMillis()}.png"
-        val imageUri = Media.insertImage(
-            context.contentResolver,
-            bitmap,
-            filename,
-            "Quote: ${quote.quote.take(50)}... - ${quote.author}"
+        val contentValues = android.content.ContentValues().apply {
+            put(Media.DISPLAY_NAME, filename)
+            put(Media.MIME_TYPE, "image/png")
+            put(Media.DESCRIPTION, "Quote: ${quote.quote.take(50)}... - ${quote.author}")
+            put(Media.RELATIVE_PATH, android.os.Environment.DIRECTORY_PICTURES)
+            put(Media.IS_PENDING, 1)
+        }
+
+        val uri = context.contentResolver.insert(
+            Media.EXTERNAL_CONTENT_URI,
+            contentValues
         )
-        imageUri?.toUri()
+
+        uri?.let { imageUri ->
+            context.contentResolver.openOutputStream(imageUri)?.use { outputStream ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            }
+
+            // Mark as not pending on Android Q+
+            contentValues.clear()
+            contentValues.put(Media.IS_PENDING, 0)
+            context.contentResolver.update(imageUri, contentValues, null, null)
+
+            imageUri
+        }
     } catch (_: Exception) {
         null
     }
