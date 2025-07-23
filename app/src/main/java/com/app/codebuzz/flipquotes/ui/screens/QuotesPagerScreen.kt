@@ -49,14 +49,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.toColorInt
-import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.app.codebuzz.flipquotes.data.Quote
 import com.app.codebuzz.flipquotes.ui.components.Header
 import com.app.codebuzz.flipquotes.ui.components.QuoteCard
 import com.app.codebuzz.flipquotes.ui.components.QuoteFooter
-import com.app.codebuzz.flipquotes.ui.viewmodel.QuotesViewModel
 import com.app.codebuzz.flipquotes.ui.theme.rememberThemeManager
+import com.app.codebuzz.flipquotes.ui.viewmodel.QuotesViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -266,7 +265,25 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                                         if (quotes.isNotEmpty()) {
                                             currentQuoteIndex = (currentQuoteIndex - 1 + quotes.size) % quotes.size
                                         }
-                                    }
+                                    },
+                                    onMenuOpen = { showMenu = true },
+                                    onThemeNext = {
+                                        // Navigate to next theme if available
+                                        if (pagerState.currentPage < themesList.size - 1) {
+                                            coroutineScope.launch {
+                                                pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                            }
+                                        }
+                                    },
+                                    onThemePrevious = {
+                                        // Navigate to previous theme if available
+                                        if (pagerState.currentPage > 0) {
+                                            coroutineScope.launch {
+                                                pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                                            }
+                                        }
+                                    },
+                                    isOnAllThemes = selectedTheme == "All"
                                 )
                             }
                         }
@@ -280,7 +297,6 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                         onQuoteSelected = { quote ->
                             onQuoteSelectedFromSearch(quote)
                         },
-                        onClose = { showSearch = false },
                         visible = true,
                         theme = currentTheme,
                         bookmarkedQuotes = allQuotes.filter { quote ->
@@ -314,7 +330,7 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                 MenuScreen(
                     onBackClick = { showMenu = false },
                     onSettingsClick = {
-                        showMenu = false
+                        // Don't hide menu when opening settings - keep it underneath
                         showSettings = true
                     },
                     theme = currentTheme,
@@ -322,20 +338,13 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                 )
             }
 
-            // Animated Settings Screen overlay
-            AnimatedVisibility(
-                visible = showSettings,
-                enter = slideInHorizontally(
-                    animationSpec = tween(300, easing = FastOutSlowInEasing),
-                    initialOffsetX = { it } // Start from right edge
-                ) + fadeIn(animationSpec = tween(300)),
-                exit = slideOutHorizontally(
-                    animationSpec = tween(300, easing = FastOutSlowInEasing),
-                    targetOffsetX = { it } // Exit to right edge
-                ) + fadeOut(animationSpec = tween(300))
-            ) {
+            // Settings Screen overlay - appears on top of Menu screen
+            if (showSettings) {
                 SettingsScreen(
-                    onBackClick = { showSettings = false },
+                    onBackClick = {
+                        // Only close settings, menu remains visible underneath
+                        showSettings = false
+                    },
                     themeManager = themeManager,
                     modifier = Modifier.fillMaxSize()
                 )
@@ -402,55 +411,71 @@ private fun createQuoteBitmapWithCanvas(context: Context, quote: Quote): Bitmap 
         canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), backgroundPaint)
     }
 
-    // Try to load the custom kotta_one font like in QuoteCard
-    val customTypeface = try {
+    // Load custom fonts to match QuoteCard styling
+    val quoteTypeface = try {
         androidx.core.content.res.ResourcesCompat.getFont(context, com.app.codebuzz.flipquotes.R.font.kotta_one)
     } catch (_: Exception) {
         android.graphics.Typeface.DEFAULT
     }
 
-    // Quote text styling to match QuoteCard (headlineLarge with kotta_one font)
+    val authorTypeface = try {
+        androidx.core.content.res.ResourcesCompat.getFont(context, com.app.codebuzz.flipquotes.R.font.playfair_display)
+    } catch (_: Exception) {
+        android.graphics.Typeface.DEFAULT
+    }
+
+    val brandTypeface = try {
+        androidx.core.content.res.ResourcesCompat.getFont(context, com.app.codebuzz.flipquotes.R.font.playfair_display)
+    } catch (_: Exception) {
+        android.graphics.Typeface.DEFAULT
+    }
+
+    // Quote text styling to match QuoteCard (headlineLarge with user's selected font)
     val quotePaint = android.graphics.Paint().apply {
         color = android.graphics.Color.BLACK
-        textSize = 32f // Adjusted for better readability
-        typeface = customTypeface ?: android.graphics.Typeface.DEFAULT
+        textSize = 36f // Increase size to match app display better
+        typeface = quoteTypeface
         isAntiAlias = true
         textAlign = android.graphics.Paint.Align.CENTER
+        style = android.graphics.Paint.Style.FILL
     }
 
     // Split quote text into lines
-    val maxWidth = width - 80 // More padding for portrait
+    val maxWidth = width - 100 // Better padding for portrait
     val quoteText = "\"${quote.quote}\""
     val lines = wrapTextToLines(quoteText, quotePaint, maxWidth.toFloat())
 
     // Calculate vertical positioning for portrait layout
-    val totalTextHeight = lines.size * 40
-    val startY = (height / 2 - totalTextHeight / 2)
+    val lineSpacing = 45f // Increase line spacing for better readability
+    val totalTextHeight = lines.size * lineSpacing
+    val startY = (height / 2 - totalTextHeight / 2) + 20f // Slightly adjust center position
 
     // Draw quote lines
     lines.forEachIndexed { index, line ->
-        canvas.drawText(line, width / 2f, startY + index * 40f, quotePaint)
+        canvas.drawText(line, width / 2f, startY + index * lineSpacing, quotePaint)
     }
 
-    // Author text styling to match QuoteCard (bodyLarge style)
+    // Author text styling to match QuoteCard (bodyLarge with playfair_display)
     val authorPaint = android.graphics.Paint().apply {
         color = android.graphics.Color.DKGRAY
-        textSize = 24f
-        typeface = android.graphics.Typeface.DEFAULT // Using default like MaterialTheme.typography.bodyLarge
+        textSize = 28f // Increase size to match better
+        typeface = authorTypeface
         isAntiAlias = true
         textAlign = android.graphics.Paint.Align.CENTER
+        style = android.graphics.Paint.Style.FILL
     }
-    canvas.drawText("~ ${quote.author}", width / 2f, startY + lines.size * 40f + 50f, authorPaint)
+    canvas.drawText("~ ${quote.author}", width / 2f, startY + lines.size * lineSpacing + 60f, authorPaint)
 
-    // App branding at bottom
+    // FlipQuotes watermark with Playfair Display font
     val brandPaint = android.graphics.Paint().apply {
-        color = "#777777".toColorInt()
-        textSize = 18f
-        typeface = android.graphics.Typeface.DEFAULT
+        color = "#666666".toColorInt() // Slightly lighter gray for watermark effect
+        textSize = 22f // Increase size for better visibility
+        typeface = brandTypeface
         isAntiAlias = true
         textAlign = android.graphics.Paint.Align.CENTER
+        style = android.graphics.Paint.Style.FILL
     }
-    canvas.drawText("FlipQuotes", width / 2f, height - 50f, brandPaint)
+    canvas.drawText("FlipQuotes", width / 2f, height - 40f, brandPaint)
 
     return bitmap
 }
@@ -485,13 +510,31 @@ private fun wrapTextToLines(text: String, paint: android.graphics.Paint, maxWidt
 private fun saveBitmapToDevice(context: Context, bitmap: Bitmap, quote: Quote): android.net.Uri? {
     return try {
         val filename = "FlipQuotes_${System.currentTimeMillis()}.png"
-        val imageUri = Media.insertImage(
-            context.contentResolver,
-            bitmap,
-            filename,
-            "Quote: ${quote.quote.take(50)}... - ${quote.author}"
+        val contentValues = android.content.ContentValues().apply {
+            put(Media.DISPLAY_NAME, filename)
+            put(Media.MIME_TYPE, "image/png")
+            put(Media.DESCRIPTION, "Quote: ${quote.quote.take(50)}... - ${quote.author}")
+            put(Media.RELATIVE_PATH, android.os.Environment.DIRECTORY_PICTURES)
+            put(Media.IS_PENDING, 1)
+        }
+
+        val uri = context.contentResolver.insert(
+            Media.EXTERNAL_CONTENT_URI,
+            contentValues
         )
-        imageUri?.toUri()
+
+        uri?.let { imageUri ->
+            context.contentResolver.openOutputStream(imageUri)?.use { outputStream ->
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            }
+
+            // Mark as not pending on Android Q+
+            contentValues.clear()
+            contentValues.put(Media.IS_PENDING, 0)
+            context.contentResolver.update(imageUri, contentValues, null, null)
+
+            imageUri
+        }
     } catch (_: Exception) {
         null
     }

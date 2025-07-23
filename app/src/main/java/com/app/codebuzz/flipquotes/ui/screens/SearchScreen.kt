@@ -12,10 +12,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -36,7 +34,6 @@ import com.app.codebuzz.flipquotes.ui.theme.AppTheme
 fun SearchScreen(
     quotes: List<Quote>,
     onQuoteSelected: (Quote) -> Unit,
-    onClose: () -> Unit,
     visible: Boolean,
     theme: AppTheme,
     bookmarkedQuotes: List<Quote> = emptyList(),
@@ -99,8 +96,10 @@ fun SearchScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp)
+                        .windowInsetsPadding(WindowInsets.statusBars) // Add padding for status bar
+                        .windowInsetsPadding(WindowInsets.navigationBars) // Add padding for system navigation
                 ) {
-                    // Enhanced Search Bar with Clear button and Voice search
+                    // Enhanced Search Bar with Clear button and Bookmark button
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
@@ -115,8 +114,10 @@ fun SearchScreen(
                             },
                             placeholder = {
                                 Text(
-                                    "Start typing to find inspiring quotes",
-                                    color = theme.onSurfaceColor.copy(alpha = 0.6f)
+                                    "Search quotes...",
+                                    color = theme.onSurfaceColor.copy(alpha = 0.6f),
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Light, fontSize = 16.sp)
+
                                 )
                             },
                             modifier = Modifier
@@ -174,12 +175,21 @@ fun SearchScreen(
 
                         Spacer(modifier = Modifier.width(8.dp))
 
-                        // Close button
-                        IconButton(onClick = onClose) {
+                        // Bookmark button - moved from floating position to search bar row
+                        IconButton(
+                            onClick = {
+                                showBookmarks = !showBookmarks
+                                showResults = false
+                                showSuggestions = false
+                                if (showBookmarks) {
+                                    searchQuery = ""
+                                }
+                            }
+                        ) {
                             Icon(
-                                Icons.Default.Close,
-                                contentDescription = "Close",
-                                tint = theme.onSurfaceColor
+                                imageVector = if (showBookmarks) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
+                                contentDescription = "Show bookmarked quotes",
+                                tint = if (showBookmarks) Color.Yellow else theme.onSurfaceColor
                             )
                         }
                     }
@@ -224,71 +234,111 @@ fun SearchScreen(
                     }
 
                     // Content Area
-                    when {
-                        showResults -> {
-                            if (filteredQuotes.isNotEmpty()) {
-                                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                                    items(filteredQuotes) { quote ->
-                                        QuoteCard(
-                                            quote = quote,
-                                            isBookmarked = isQuoteBookmarked(quote),
-                                            onQuoteClick = { onQuoteSelected(quote) },
-                                            onBookmarkClick = { onBookmarkToggle(quote) },
-                                            theme = theme
-                                        )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(bottom = 80.dp) // Add bottom padding to account for footer height
+                    ) {
+                        when {
+                            showResults -> {
+                                if (filteredQuotes.isNotEmpty()) {
+                                    LazyColumn(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentPadding = PaddingValues(bottom = 16.dp) // Extra padding for last item
+                                    ) {
+                                        items(filteredQuotes) { quote ->
+                                            QuoteCard(
+                                                quote = quote,
+                                                isBookmarked = isQuoteBookmarked(quote),
+                                                onQuoteClick = { onQuoteSelected(quote) },
+                                                onBookmarkClick = { onBookmarkToggle(quote) },
+                                                theme = theme
+                                            )
+                                        }
                                     }
-                                }
-                            } else {
-                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Text(
-                                            "No results found",
-                                            color = theme.onSurfaceColor,
-                                            style = MaterialTheme.typography.headlineSmall,
-                                            fontWeight = FontWeight.Medium
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Text(
-                                            "Try different keywords or check spelling",
-                                            color = theme.onSurfaceColor.copy(alpha = 0.7f),
-                                            style = MaterialTheme.typography.bodyMedium
-                                        )
+                                } else {
+                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Text(
+                                                "No results found",
+                                                color = theme.onSurfaceColor,
+                                                style = MaterialTheme.typography.headlineSmall,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Text(
+                                                "Try different keywords or check spelling",
+                                                color = theme.onSurfaceColor.copy(alpha = 0.7f),
+                                                style = MaterialTheme.typography.bodyMedium
+                                            )
+                                        }
                                     }
                                 }
                             }
-                        }
-                        showBookmarks -> {
-                            if (bookmarkedQuotes.isNotEmpty()) {
-                                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                                    items(bookmarkedQuotes) { quote ->
-                                        QuoteCard(
-                                            quote = quote,
-                                            isBookmarked = true,
-                                            onQuoteClick = { onQuoteSelected(quote) },
-                                            onBookmarkClick = { onBookmarkToggle(quote) },
-                                            theme = theme
-                                        )
+                            showBookmarks -> {
+                                if (bookmarkedQuotes.isNotEmpty()) {
+                                    LazyColumn(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentPadding = PaddingValues(bottom = 16.dp) // Extra padding for last item
+                                    ) {
+                                        items(bookmarkedQuotes) { quote ->
+                                            QuoteCard(
+                                                quote = quote,
+                                                isBookmarked = true,
+                                                onQuoteClick = { onQuoteSelected(quote) },
+                                                onBookmarkClick = { onBookmarkToggle(quote) },
+                                                theme = theme
+                                            )
+                                        }
+                                    }
+                                } else {
+                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                            Icon(
+                                                Icons.Outlined.BookmarkBorder,
+                                                contentDescription = "No bookmarks",
+                                                tint = theme.onSurfaceColor.copy(alpha = 0.6f),
+                                                modifier = Modifier.size(64.dp)
+                                            )
+                                            Spacer(modifier = Modifier.height(16.dp))
+                                            Text(
+                                                "No bookmarked quotes yet",
+                                                color = theme.onSurfaceColor,
+                                                style = MaterialTheme.typography.headlineSmall,
+                                                fontWeight = FontWeight.Medium
+                                            )
+                                            Spacer(modifier = Modifier.height(8.dp))
+                                            Text(
+                                                "Bookmark quotes to save them here",
+                                                color = theme.onSurfaceColor.copy(alpha = 0.7f),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                textAlign = TextAlign.Center
+                                            )
+                                        }
                                     }
                                 }
-                            } else {
+                            }
+                            else -> {
+                                // Welcome placeholder message
                                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         Icon(
-                                            Icons.Outlined.BookmarkBorder,
-                                            contentDescription = "No bookmarks",
+                                            Icons.Default.Search,
+                                            contentDescription = "Search",
                                             tint = theme.onSurfaceColor.copy(alpha = 0.6f),
                                             modifier = Modifier.size(64.dp)
                                         )
                                         Spacer(modifier = Modifier.height(16.dp))
                                         Text(
-                                            "No bookmarked quotes yet",
+                                            "Start typing to find inspiring quotes",
                                             color = theme.onSurfaceColor,
                                             style = MaterialTheme.typography.headlineSmall,
-                                            fontWeight = FontWeight.Medium
+                                            fontWeight = FontWeight.Medium,
+                                            textAlign = TextAlign.Center
                                         )
                                         Spacer(modifier = Modifier.height(8.dp))
                                         Text(
-                                            "Bookmark quotes to save them here",
+                                            "Search by quote, author, or theme",
                                             color = theme.onSurfaceColor.copy(alpha = 0.7f),
                                             style = MaterialTheme.typography.bodyMedium,
                                             textAlign = TextAlign.Center
@@ -297,57 +347,7 @@ fun SearchScreen(
                                 }
                             }
                         }
-                        else -> {
-                            // Welcome placeholder message
-                            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Icon(
-                                        Icons.Default.Search,
-                                        contentDescription = "Search",
-                                        tint = theme.onSurfaceColor.copy(alpha = 0.6f),
-                                        modifier = Modifier.size(64.dp)
-                                    )
-                                    Spacer(modifier = Modifier.height(16.dp))
-                                    Text(
-                                        "Start typing to find inspiring quotes",
-                                        color = theme.onSurfaceColor,
-                                        style = MaterialTheme.typography.headlineSmall,
-                                        fontWeight = FontWeight.Medium,
-                                        textAlign = TextAlign.Center
-                                    )
-                                    Spacer(modifier = Modifier.height(8.dp))
-                                    Text(
-                                        "Search by quote, author, or theme",
-                                        color = theme.onSurfaceColor.copy(alpha = 0.7f),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        textAlign = TextAlign.Center
-                                    )
-                                }
-                            }
-                        }
                     }
-                }
-
-                // Floating Bookmark Button (top-right corner)
-                FloatingActionButton(
-                    onClick = {
-                        showBookmarks = !showBookmarks
-                        showResults = false
-                        showSuggestions = false
-                        if (showBookmarks) {
-                            searchQuery = ""
-                        }
-                    },
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(16.dp),
-                    containerColor = if (showBookmarks) Color.Yellow else theme.surfaceColor,
-                    contentColor = if (showBookmarks) Color.Black else theme.onSurfaceColor
-                ) {
-                    Icon(
-                        imageVector = if (showBookmarks) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                        contentDescription = "Show bookmarked quotes"
-                    )
                 }
             }
         }

@@ -2,7 +2,7 @@ package com.app.codebuzz.flipquotes.data
 
 import android.content.Context
 import android.content.SharedPreferences
-import com.app.codebuzz.flipquotes.data.Quote
+import androidx.core.content.edit
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
@@ -11,7 +11,6 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
 import java.util.concurrent.TimeUnit
-import androidx.core.content.edit
 
 class QuotesRepository(private val context: Context) {
 
@@ -97,10 +96,15 @@ class QuotesRepository(private val context: Context) {
 
             val response = client.newCall(request).execute()
             if (response.isSuccessful) {
-                val json = response.body?.string() ?: ""
-                if (json.isNotEmpty()) {
-                    val listType = object : TypeToken<List<Quote>>() {}.type
-                    gson.fromJson(json, listType) ?: emptyList()
+                val body = response.body
+                if (body != null) {
+                    val json = body.string()
+                    if (json.isNotEmpty()) {
+                        val listType = object : TypeToken<List<Quote>>() {}.type
+                        gson.fromJson(json, listType) ?: emptyList()
+                    } else {
+                        emptyList()
+                    }
                 } else {
                     emptyList()
                 }
@@ -138,14 +142,4 @@ class QuotesRepository(private val context: Context) {
         networkQuotes.ifEmpty { loadFromCache() }
     }
 
-    // Get cache info for debugging
-    fun getCacheInfo(): String {
-        val cacheFile = File(context.filesDir, CACHE_FILE_NAME)
-        val lastUpdate = prefs.getLong(LAST_UPDATE_KEY, 0)
-        val cacheAge = System.currentTimeMillis() - lastUpdate
-
-        return "Cache exists: ${cacheFile.exists()}, " +
-               "Size: ${if (cacheFile.exists()) "${cacheFile.length()} bytes" else "0"}, " +
-               "Age: ${TimeUnit.MILLISECONDS.toMinutes(cacheAge)} minutes"
-    }
 }
