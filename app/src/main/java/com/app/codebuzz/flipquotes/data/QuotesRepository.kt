@@ -96,10 +96,15 @@ class QuotesRepository(private val context: Context) {
 
             val response = client.newCall(request).execute()
             if (response.isSuccessful) {
-                val json = response.body.string()
-                if (json.isNotEmpty()) {
-                    val listType = object : TypeToken<List<Quote>>() {}.type
-                    gson.fromJson(json, listType) ?: emptyList()
+                val body = response.body
+                if (body != null) {
+                    val json = body.string()
+                    if (json.isNotEmpty()) {
+                        val listType = object : TypeToken<List<Quote>>() {}.type
+                        gson.fromJson(json, listType) ?: emptyList()
+                    } else {
+                        emptyList()
+                    }
                 } else {
                     emptyList()
                 }
