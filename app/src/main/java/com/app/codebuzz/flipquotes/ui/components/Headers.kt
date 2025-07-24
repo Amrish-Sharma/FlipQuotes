@@ -1,6 +1,8 @@
 package com.app.codebuzz.flipquotes.ui.components
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FlipToBack
+import androidx.compose.material.icons.filled.FlipToFront
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,8 +35,10 @@ import androidx.compose.ui.platform.LocalContext
 @Composable
 fun Header(
     theme: AppTheme,
+    isFlipMode: Boolean = false,
     onRefreshClick: () -> Unit = {},
-    onMenuClick: () -> Unit = {}
+    onMenuClick: () -> Unit = {},
+    onFlipToggle: () -> Unit = {}
 ) {
     val context = LocalContext.current
     var isRotating by remember { mutableStateOf(false) }
@@ -75,6 +79,13 @@ e.printStackTrace()
             }
         },
         actions = {
+            IconButton(onClick = onFlipToggle) {
+                Icon(
+                    imageVector = if (isFlipMode) Icons.Default.FlipToFront else Icons.Default.FlipToBack,
+                    contentDescription = if (isFlipMode) "Show original quotes" else "Show flipped quotes",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
             IconButton(onClick = {
                 isRotating = true
                 playSound = true
