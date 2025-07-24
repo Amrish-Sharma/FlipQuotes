@@ -3,5 +3,6 @@ package com.app.codebuzz.flipquotes.data
 data class Quote(
     val quote: String,
     val author: String,
-    val theme: String
+    val theme: String,
+    val flippedQuote: String? = null
 )

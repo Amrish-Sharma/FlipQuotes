@@ -57,6 +57,7 @@ import kotlin.math.absoluteValue
 fun QuoteCard(
     quote: Quote,
     themeManager: com.app.codebuzz.flipquotes.ui.theme.ThemeManager,
+    isFlipMode: Boolean = false,
     isRefreshing: Boolean = false,
     onNext: () -> Unit = {},
     onPrevious: () -> Unit = {},
@@ -172,12 +173,16 @@ fun QuoteCard(
                                 },
                                 label = "quote transition"
                             ) { currentQuote ->
-                                QuoteContent(quote = currentQuote)
+                                QuoteContent(
+                                    quote = currentQuote,
+                                    isFlipMode = isFlipMode
+                                )
                             }
                         } else {
                             // Direct content update during scrolling
                             QuoteContent(
                                 quote = quote,
+                                isFlipMode = isFlipMode,
                                 themeManager = themeManager
                             )
                         }
@@ -192,6 +197,7 @@ fun QuoteCard(
 fun QuoteContent(
     modifier: Modifier = Modifier,
     quote: Quote,
+    isFlipMode: Boolean = false,
     themeManager: com.app.codebuzz.flipquotes.ui.theme.ThemeManager? = null
 ) {
     val currentQuoteFont by remember { themeManager?.quoteFont ?: mutableStateOf("kotta_one") }
@@ -233,8 +239,14 @@ fun QuoteContent(
         verticalArrangement = Arrangement.Center,
         modifier = modifier.fillMaxWidth().padding(horizontal = 16.dp)
     ) {
+        val displayQuote = if (isFlipMode && quote.flippedQuote != null) {
+            quote.flippedQuote
+        } else {
+            quote.quote
+        }
+        
         Text(
-            text = "\"${quote.quote}\"",
+            text = "\"$displayQuote\"",
             style = MaterialTheme.typography.headlineLarge.copy(
                 fontFamily = quoteFontFamily
             ),

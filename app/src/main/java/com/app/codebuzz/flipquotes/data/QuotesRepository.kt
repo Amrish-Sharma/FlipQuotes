@@ -24,6 +24,49 @@ class QuotesRepository(private val context: Context) {
         private const val QUOTES_URL = "https://raw.githubusercontent.com/Amrish-Sharma/fq_quotes/refs/heads/quote-with-theme/quote_with_theme.json"
     }
 
+    private fun generateFlippedQuote(originalQuote: String): String {
+        val flippingSuffixes = listOf(
+            "...or so they say",
+            "...said no one ever",
+            "...in your dreams",
+            "...yeah right",
+            "...if only it were that simple",
+            "...easier said than done",
+            "...sure, let me get right on that",
+            "...welcome to reality",
+            "...in a perfect world maybe",
+            "...that's adorable"
+        )
+        
+        val sarcasticPrefixes = listOf(
+            "Obviously, ",
+            "Clearly, ",
+            "Of course, ",
+            "Naturally, ",
+            "Apparently, "
+        )
+        
+        val flipPatterns = listOf(
+            // Add sarcastic suffix
+            { quote: String -> "$quote ${flippingSuffixes.random()}" },
+            // Add sarcastic prefix  
+            { quote: String -> "${sarcasticPrefixes.random()}$quote" },
+            // Replace positive words with negative
+            { quote: String -> 
+                quote.replace("success", "failure", ignoreCase = true)
+                     .replace("always", "never", ignoreCase = true)
+                     .replace("possible", "impossible", ignoreCase = true)
+                     .replace("can", "cannot", ignoreCase = true)
+                     .replace("will", "will not", ignoreCase = true)
+                     .replace("yes", "no", ignoreCase = true)
+            },
+            // Add ironic twist
+            { quote: String -> "The opposite of '$quote' is probably true" }
+        )
+        
+        return flipPatterns.random().invoke(originalQuote)
+    }
+
     suspend fun getQuotes(): List<Quote> = withContext(Dispatchers.IO) {
         try {
             // Check if cache is valid and exists
@@ -73,7 +116,15 @@ class QuotesRepository(private val context: Context) {
             if (cacheFile.exists()) {
                 val json = cacheFile.readText()
                 val listType = object : TypeToken<List<Quote>>() {}.type
-                gson.fromJson(json, listType) ?: emptyList()
+                val quotes: List<Quote> = gson.fromJson(json, listType) ?: emptyList()
+                // Add flipped quotes if they don't exist
+                quotes.map { quote ->
+                    if (quote.flippedQuote == null) {
+                        quote.copy(flippedQuote = generateFlippedQuote(quote.quote))
+                    } else {
+                        quote
+                    }
+                }
             } else {
                 emptyList()
             }
@@ -101,7 +152,11 @@ class QuotesRepository(private val context: Context) {
                     val json = body.string()
                     if (json.isNotEmpty()) {
                         val listType = object : TypeToken<List<Quote>>() {}.type
-                        gson.fromJson(json, listType) ?: emptyList()
+                        val quotes: List<Quote> = gson.fromJson(json, listType) ?: emptyList()
+                        // Add flipped quotes to network data
+                        quotes.map { quote ->
+                            quote.copy(flippedQuote = generateFlippedQuote(quote.quote))
+                        }
                     } else {
                         emptyList()
                     }

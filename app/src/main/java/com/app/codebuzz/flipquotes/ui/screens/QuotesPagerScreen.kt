@@ -67,6 +67,7 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
     val allQuotes by viewModel.allQuotes.collectAsStateWithLifecycle(initialValue = emptyList())
     val themesList by viewModel.themesList.collectAsStateWithLifecycle(initialValue = emptyList())
     val selectedTheme by viewModel.selectedTheme.collectAsStateWithLifecycle(initialValue = null)
+    val isFlipMode by viewModel.isFlipMode.collectAsStateWithLifecycle(initialValue = false)
 
     // Add theme manager
     val themeManager = rememberThemeManager()
@@ -159,13 +160,15 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                         Column {
                             Header(
                                 theme = currentTheme,
+                                isFlipMode = isFlipMode,
                                 onRefreshClick = {
                                     isRefreshing = true
                                     viewModel.forceRefresh()
                                     isRefreshing = false
                                     currentQuoteIndex = 0
                                 },
-                                onMenuClick = { showMenu = true }
+                                onMenuClick = { showMenu = true },
+                                onFlipToggle = { viewModel.toggleFlipMode() }
                             )
 
                             if (themesList.isNotEmpty()) {
@@ -222,7 +225,7 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                             isHome = showSearch, // Show home button when search is open
                             onHomeClick = { showSearch = false }, // Home returns to main screen
                             onShareClick = {
-                                shareQuoteImage(context, quotes[safeQuoteIndex])
+                                shareQuoteImage(context, quotes[safeQuoteIndex], isFlipMode)
                             },
                             onBookmarkClick = {
                                 val quoteKey = "${currentQuote.quote}_${currentQuote.author}"
@@ -255,6 +258,7 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                                 QuoteCard(
                                     quote = quotes[safeQuoteIndex],
                                     themeManager = themeManager,
+                                    isFlipMode = isFlipMode,
                                     isRefreshing = isRefreshing,
                                     onNext = {
                                         if (quotes.isNotEmpty()) {
@@ -353,12 +357,12 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
     }
 }
 
-fun shareQuoteImage(context: Context, quote: Quote) {
+fun shareQuoteImage(context: Context, quote: Quote, isFlipMode: Boolean = false) {
     val activity = context as? Activity ?: return
 
     try {
         // Create a bitmap using Canvas drawing instead of ComposeView
-        val bitmap = createQuoteBitmapWithCanvas(context, quote)
+        val bitmap = createQuoteBitmapWithCanvas(context, quote, isFlipMode)
 
         // Save the bitmap to device storage
         val imageUri = saveBitmapToDevice(context, bitmap, quote)
@@ -379,16 +383,16 @@ fun shareQuoteImage(context: Context, quote: Quote) {
             activity.startActivity(Intent.createChooser(shareIntent, "Share Quote"))
         } else {
             // Fallback to text sharing if image creation fails
-            shareAsText(activity, quote)
+            shareAsText(activity, quote, isFlipMode)
         }
 
     } catch (_: Exception) {
         // Fallback to text sharing if anything fails
-        shareAsText(activity, quote)
+        shareAsText(activity, quote, isFlipMode)
     }
 }
 
-private fun createQuoteBitmapWithCanvas(context: Context, quote: Quote): Bitmap {
+private fun createQuoteBitmapWithCanvas(context: Context, quote: Quote, isFlipMode: Boolean = false): Bitmap {
     // Use portrait dimensions to match app layout
     val width = 600
     val height = 800
@@ -442,7 +446,12 @@ private fun createQuoteBitmapWithCanvas(context: Context, quote: Quote): Bitmap 
 
     // Split quote text into lines
     val maxWidth = width - 100 // Better padding for portrait
-    val quoteText = "\"${quote.quote}\""
+    val displayQuote = if (isFlipMode && quote.flippedQuote != null) {
+        quote.flippedQuote
+    } else {
+        quote.quote
+    }
+    val quoteText = "\"$displayQuote\""
     val lines = wrapTextToLines(quoteText, quotePaint, maxWidth.toFloat())
 
     // Calculate vertical positioning for portrait layout
@@ -540,9 +549,14 @@ private fun saveBitmapToDevice(context: Context, bitmap: Bitmap, quote: Quote): 
     }
 }
 
-private fun shareAsText(activity: Activity, quote: Quote) {
+private fun shareAsText(activity: Activity, quote: Quote, isFlipMode: Boolean = false) {
     try {
-        val quoteText = "\"${quote.quote}\"\n\n~ ${quote.author}\n\nFor more amazing quotes check out FlipQuotes app: https://play.google.com/store/apps/details?id=com.app.codebuzz.flipquotes"
+        val displayQuote = if (isFlipMode && quote.flippedQuote != null) {
+            quote.flippedQuote
+        } else {
+            quote.quote
+        }
+        val quoteText = "\"$displayQuote\"\n\n~ ${quote.author}\n\nFor more amazing quotes check out FlipQuotes app: https://play.google.com/store/apps/details?id=com.app.codebuzz.flipquotes"
 
         val shareIntent = Intent().apply {
             action = Intent.ACTION_SEND

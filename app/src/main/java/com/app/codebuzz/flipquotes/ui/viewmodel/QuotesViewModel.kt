@@ -25,9 +25,16 @@ class QuotesViewModel(context: Context) : ViewModel() {
     val selectedTheme: StateFlow<String?> = _selectedTheme
 
     private val _isLoading = MutableStateFlow(false)
+    
+    private val _isFlipMode = MutableStateFlow(false)
+    val isFlipMode: StateFlow<Boolean> = _isFlipMode
 
     init {
         fetchQuotes()
+    }
+    
+    fun toggleFlipMode() {
+        _isFlipMode.value = !_isFlipMode.value
     }
 
     fun setSelectedTheme(theme: String?) {
