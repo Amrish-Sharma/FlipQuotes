@@ -17,6 +17,12 @@ FlipQuotes is an Android application inspired by the layout of InShorts. The app
 2. Open the project in Android Studio.
 3. Build the project to download dependencies and set up the environment.
 
+### Building Release APK/AAB
+- For release APK: `./gradlew assembleRelease`
+- For App Bundle: `./gradlew bundleRelease`
+
+**Note**: R8 minification is enabled for release builds. Mapping files for crash deobfuscation are generated at `app/build/outputs/mapping/release/mapping.txt`. See [DEOBFUSCATION_GUIDE.md](DEOBFUSCATION_GUIDE.md) for more details.
+
 ## Usage
 
 - Launch the app to view quotes.
