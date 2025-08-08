@@ -48,6 +48,9 @@ class ThemeManager(context: Context) {
     private val _authorFont = mutableStateOf(getInitialAuthorFont())
     val authorFont: State<String> = _authorFont
 
+    private val _cardBackground = mutableStateOf(getInitialCardBackground())
+    val cardBackground: State<String> = _cardBackground
+
     private fun getInitialTheme(): AppTheme {
         val savedTheme = sharedPreferences.getString("selected_theme", "black")
         return if (savedTheme == "black") AppThemes.BlackTheme else AppThemes.WhiteTheme
@@ -59,6 +62,10 @@ class ThemeManager(context: Context) {
 
     private fun getInitialAuthorFont(): String {
         return sharedPreferences.getString("author_font", "playfair_display") ?: "playfair_display"
+    }
+
+    private fun getInitialCardBackground(): String {
+        return sharedPreferences.getString("card_background", "white") ?: "white"
     }
 
     fun setTheme(themeName: String) {
@@ -88,6 +95,14 @@ class ThemeManager(context: Context) {
         }
     }
 
+    fun setCardBackground(colorName: String) {
+        _cardBackground.value = colorName
+        with(sharedPreferences.edit()) {
+            putString("card_background", colorName)
+            apply()
+        }
+    }
+
     fun isBlackTheme(): Boolean {
         return _currentTheme.value == AppThemes.BlackTheme
     }
@@ -105,6 +120,15 @@ class ThemeManager(context: Context) {
             "monospace" to "Monospace",
             "cursive" to "Cursive",
             "fantasy" to "Fantasy"
+        )
+    }
+
+    fun getAvailableBackgrounds(): List<Pair<String, String>> {
+        return listOf(
+            "white" to "Classic Elegant",
+            "gradient_sunset" to "Sunset Gradient",
+            "minimalist" to "Modern Minimalist",
+            "nature_pattern" to "Nature Organic"
         )
     }
 }

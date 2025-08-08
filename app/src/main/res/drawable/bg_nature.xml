@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="400dp"
+    android:height="600dp"
+    android:viewportWidth="400"
+    android:viewportHeight="600">
+
+    <!-- Clean nature gradient background - no patterns -->
+    <path
+        android:pathData="M0,0 L400,0 L400,600 L0,600 Z">
+        <aapt:attr name="android:fillColor" xmlns:aapt="http://schemas.android.com/aapt">
+            <gradient
+                android:startColor="#F8FDF8"
+                android:centerColor="#F1F8F1"
+                android:endColor="#E8F5E8"
+                android:angle="270" />
+        </aapt:attr>
+    </path>
+
+</vector>

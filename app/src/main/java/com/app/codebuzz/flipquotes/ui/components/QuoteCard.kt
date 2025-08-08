@@ -114,11 +114,9 @@ fun QuoteCard(
                 elevation = CardDefaults.cardElevation(8.dp)
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
-                    // Texture background
-                    Image(
-                        painter = painterResource(id = R.drawable.texture),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
+                    // Dynamic background based on user preference
+                    CardBackground(
+                        backgroundType = themeManager.cardBackground.value,
                         modifier = Modifier.fillMaxSize()
                     )
 
@@ -196,6 +194,15 @@ fun QuoteContent(
 ) {
     val currentQuoteFont by remember { themeManager?.quoteFont ?: mutableStateOf("kotta_one") }
     val currentAuthorFont by remember { themeManager?.authorFont ?: mutableStateOf("playfair_display") }
+    val currentBackground by remember { themeManager?.cardBackground ?: mutableStateOf("white") }
+
+    // Determine text colors based on background
+    val (textColor, authorColor) = when (currentBackground) {
+        "gradient_sunset" -> Color.White to Color(0xFFE0E0E0)
+        "minimalist" -> Color(0xFF2C3E50) to Color(0xFF5D6D7E)
+        "nature_pattern" -> Color(0xFF2E7D32) to Color(0xFF4CAF50)
+        else -> Color.Black to Color.DarkGray // white background and fallback
+    }
 
     // Map font names to font resources (custom fonts and system fonts)
     val quoteFontFamily = when (currentQuoteFont) {
@@ -238,7 +245,7 @@ fun QuoteContent(
             style = MaterialTheme.typography.headlineLarge.copy(
                 fontFamily = quoteFontFamily
             ),
-            color = Color.Black,
+            color = textColor,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
@@ -248,10 +255,9 @@ fun QuoteContent(
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontFamily = authorFontFamily
             ),
-            color = Color.DarkGray,
+            color = authorColor,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth()
         )
     }
 }
-

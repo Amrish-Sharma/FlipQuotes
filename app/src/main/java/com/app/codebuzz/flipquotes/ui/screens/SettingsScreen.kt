@@ -31,6 +31,7 @@ fun SettingsScreen(
     var showToast by remember { mutableStateOf(false) }
     var showAppearanceDialog by remember { mutableStateOf(false) }
     var showFontDialog by remember { mutableStateOf(false) }
+    var showBackgroundDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Show toast when settings change
@@ -111,6 +112,25 @@ fun SettingsScreen(
                         theme = currentTheme
                     )
                 }
+
+                // Visual divider between sections
+                item {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        thickness = 1.dp,
+                        color = currentTheme.onSurfaceColor.copy(alpha = 0.2f)
+                    )
+                }
+
+                item {
+                    SettingsItemCard(
+                        icon = Icons.Default.Palette,
+                        title = "Card Background",
+                        description = "Choose your quote card background style",
+                        onClick = { showBackgroundDialog = true },
+                        theme = currentTheme
+                    )
+                }
             }
         }
 
@@ -155,6 +175,19 @@ fun SettingsScreen(
                 onFontChanged = {
                     showToast = true
                     showFontDialog = false
+                }
+            )
+        }
+
+        // Background Dialog
+        if (showBackgroundDialog) {
+            BackgroundDialog(
+                themeManager = themeManager,
+                currentTheme = currentTheme,
+                onDismiss = { showBackgroundDialog = false },
+                onBackgroundChanged = {
+                    showToast = true
+                    showBackgroundDialog = false
                 }
             )
         }
@@ -438,6 +471,89 @@ private fun FontDialog(
                                 )
                             )
                         }
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = onDismiss
+            ) {
+                Text(
+                    "Close",
+                    color = if (isBlackTheme) Color(0xFFE5E5E5) else MaterialTheme.colorScheme.primary
+                )
+            }
+        },
+        containerColor = if (isBlackTheme) Color(0xFF1A1A1A) else MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(16.dp)
+    )
+}
+
+@Composable
+private fun BackgroundDialog(
+    themeManager: ThemeManager,
+    currentTheme: com.app.codebuzz.flipquotes.ui.theme.AppTheme,
+    onDismiss: () -> Unit,
+    onBackgroundChanged: () -> Unit
+) {
+    val isBlackTheme = themeManager.isBlackTheme()
+    val currentCardBackground by themeManager.cardBackground
+    val availableBackgrounds = themeManager.getAvailableBackgrounds()
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Select Card Background",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = if (isBlackTheme) Color(0xFFE5E5E5) else Color.Black
+            )
+        },
+        text = {
+            Column {
+                Text(
+                    text = "Choose your quote card background style",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = if (isBlackTheme) Color(0xFFB0B0B0) else Color.Black.copy(alpha = 0.7f),
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+
+                // Background options
+                availableBackgrounds.forEach { (backgroundKey, backgroundName) ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = (backgroundKey == currentCardBackground),
+                                onClick = {
+                                    themeManager.setCardBackground(backgroundKey)
+                                    onBackgroundChanged()
+                                },
+                                role = Role.RadioButton
+                            )
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = (backgroundKey == currentCardBackground),
+                            onClick = {
+                                themeManager.setCardBackground(backgroundKey)
+                                onBackgroundChanged()
+                            },
+                            colors = RadioButtonDefaults.colors(
+                                selectedColor = if (isBlackTheme) Color(0xFFE5E5E5) else MaterialTheme.colorScheme.primary,
+                                unselectedColor = if (isBlackTheme) Color(0xFFB0B0B0) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                            )
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = backgroundName,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = if (isBlackTheme) Color(0xFFE5E5E5) else Color.Black
+                        )
                     }
                 }
             }
