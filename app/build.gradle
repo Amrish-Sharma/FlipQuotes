@@ -24,6 +24,19 @@ android {
         versionName "1.9"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
+    
+    // App Bundle configuration
+    bundle {
+        language {
+            enableSplit = false
+        }
+        density {
+            enableSplit = true
+        }
+        abi {
+            enableSplit = true
+        }
+    }
     composeOptions {
         kotlinCompilerExtensionVersion '1.6.10' // Updated for Kotlin 2.1.20 compatibility
     }
@@ -63,6 +76,17 @@ android {
             signingConfig signingConfigs.release
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            // Enable debug symbols for native libraries in App Bundle
+            debuggable false
+            ndk {
+                debugSymbolLevel 'FULL'
+            }
+        }
+        debug {
+            debuggable true
+            ndk {
+                debugSymbolLevel 'FULL'
+            }
         }
     }
 }
