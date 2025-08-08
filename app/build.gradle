@@ -27,8 +27,14 @@ android {
     
     // App Bundle configuration
     bundle {
-        debuggableRelease {
-            enableCodeShrinking = false
+        language {
+            enableSplit = false
+        }
+        density {
+            enableSplit = true
+        }
+        abi {
+            enableSplit = true
         }
     }
     composeOptions {
