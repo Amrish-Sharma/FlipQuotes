@@ -1,8 +1,16 @@
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
-    id 'org.jetbrains.kotlin.plugin.compose' version '2.2.0' // ✅ Required for Kotlin 2.x Compose
+    id 'org.jetbrains.kotlin.plugin.compose' version '2.4.10' // Updated for Kotlin 2.4.10
     id 'com.google.gms.google-services'
+}
+
+kotlin {
+    compilerOptions {
+        freeCompilerArgs.addAll(
+            "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
+            "-opt-in=com.google.accompanist.pager.ExperimentalPagerApi"
+        )
+    }
 }
 repositories {
     google()
@@ -14,19 +22,19 @@ android {
         buildConfig true
     }
     namespace "com.app.codebuzz.flipquotes"
-    compileSdk 35
+    compileSdk 37
 
     defaultConfig {
         applicationId "com.app.codebuzz.flipquotes"
         minSdk 32
-        targetSdk 35
+        targetSdk 36
         versionCode 13
         versionName "1.9"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion '1.6.10' // Updated for Kotlin 2.1.20 compatibility
-    }
+    // composeOptions {
+    //     kotlinCompilerExtensionVersion '1.6.10' // Managed by Kotlin Compose plugin
+    // }
 
     buildFeatures {
         compose true
@@ -37,13 +45,13 @@ android {
         targetCompatibility JavaVersion.VERSION_17
     }
 
-    kotlinOptions {
-        jvmTarget = '17'
-        freeCompilerArgs += [
-            "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
-            "-opt-in=com.google.accompanist.pager.ExperimentalPagerApi"
-        ]
-    }
+    // kotlinOptions {
+    //     jvmTarget = '17'
+    //     freeCompilerArgs += [
+    //         "-opt-in=androidx.compose.material3.ExperimentalMaterial3Api",
+    //         "-opt-in=com.google.accompanist.pager.ExperimentalPagerApi"
+    //     ]
+    // }
 
     lint {
         disable "NullSafeMutableLiveData"
@@ -79,19 +87,19 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:5.1.0'
 
     // Jetpack Compose
-    implementation platform('androidx.compose:compose-bom:2025.07.00')
+    implementation platform('androidx.compose:compose-bom:2026.08.00')
     implementation 'androidx.compose.ui:ui'
-    implementation 'androidx.compose.material3:material3:1.3.2'
+    implementation 'androidx.compose.material3:material3:1.4.0'
     implementation 'androidx.compose.foundation:foundation'
-    implementation 'androidx.activity:activity-compose'
+    implementation 'androidx.activity:activity-compose:1.13.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-compose:2.9.2'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-compose'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     implementation 'androidx.compose.ui:ui-tooling-preview'
 
     // Compose Foundation (includes pager functionality)
-    implementation 'androidx.compose.foundation:foundation:1.8.3'
-    implementation 'androidx.compose.foundation:foundation-layout:1.8.3'
+    implementation 'androidx.compose.foundation:foundation'
+    implementation 'androidx.compose.foundation:foundation-layout'
 
     // Coroutines for async operations
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2'

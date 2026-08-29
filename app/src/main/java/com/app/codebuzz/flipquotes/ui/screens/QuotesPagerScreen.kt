@@ -29,7 +29,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ScrollableTabRow
+import androidx.compose.material3.SecondaryScrollableTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
@@ -58,6 +58,7 @@ import com.app.codebuzz.flipquotes.ui.theme.rememberThemeManager
 import com.app.codebuzz.flipquotes.ui.viewmodel.QuotesViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @SuppressLint("MutableCollectionMutableState")
@@ -73,19 +74,16 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
     val currentTheme by themeManager.currentTheme
 
     var currentQuoteIndex by remember { mutableIntStateOf(0) }
-    var isRefreshing by remember { mutableStateOf(false) }
+    var isRefreshing by remember { mutableStateOf(value = false) }
     // Fix: Use quote content as key instead of index to maintain bookmark state across theme changes
     val bookmarkStates = remember { mutableStateMapOf<String, Boolean>() }
 
-    val pagerState = rememberPagerState(
-        initialPage = 0,
-        pageCount = { themesList.size }
-    )
+    val pagerState = rememberPagerState(initialPage = 0) { themesList.size }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
     // Smooth entrance animation state
-    var isAppVisible by remember { mutableStateOf(false) }
+    var isAppVisible by remember { mutableStateOf(value = false) }
 
     // SEARCH STATE
     var showSearch by remember { mutableStateOf(false) }
@@ -105,7 +103,7 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
 
     // Handle quote selection from search with LaunchedEffect
     LaunchedEffect(selectedQuoteFromSearch) {
-        selectedQuoteFromSearch?.let { quote ->
+        selectedQuoteFromSearch?.let { quote: Quote ->
             val filteredQuotes = viewModel.filteredQuotes.value
             val idx = filteredQuotes.indexOfFirst { it == quote }
             if (idx >= 0) {
@@ -118,7 +116,7 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
     // Trigger smooth fade-in after a short delay to ensure everything is positioned
     LaunchedEffect(quotes, themesList) {
         if (quotes.isNotEmpty() && themesList.isNotEmpty() && !isAppVisible) {
-            delay(100) // Small delay for smooth positioning
+            delay(100.milliseconds) // Small delay for smooth positioning
             isAppVisible = true
         }
     }
@@ -147,8 +145,7 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
         enter = fadeIn(animationSpec = tween(600, easing = FastOutSlowInEasing)) +
                 slideInVertically(
                     animationSpec = tween(600, easing = FastOutSlowInEasing),
-                    initialOffsetY = { -50 }
-                )
+                ) { -50 }
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             // Main app content
@@ -169,18 +166,16 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                             )
 
                             if (themesList.isNotEmpty()) {
-                                ScrollableTabRow(
+                                SecondaryScrollableTabRow(
                                     selectedTabIndex = pagerState.currentPage,
                                     edgePadding = 12.dp,
                                     containerColor = MaterialTheme.colorScheme.surface,
                                     contentColor = MaterialTheme.colorScheme.onSurface,
-                                    indicator = { tabPositions ->
-                                        if (tabPositions.isNotEmpty() && pagerState.currentPage < tabPositions.size) {
-                                            TabRowDefaults.SecondaryIndicator(
-                                                modifier = Modifier.tabIndicatorOffset(tabPositions[pagerState.currentPage]),
-                                                color = MaterialTheme.colorScheme.primary
-                                            )
-                                        }
+                                    indicator = {
+                                        TabRowDefaults.SecondaryIndicator(
+                                            modifier = Modifier.tabIndicatorOffset(pagerState.currentPage),
+                                            color = MaterialTheme.colorScheme.primary
+                                        )
                                     }
                                 ) {
                                     themesList.forEachIndexed { index, theme ->
@@ -247,7 +242,7 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                         HorizontalPager(
                             state = pagerState,
                             modifier = Modifier.fillMaxSize()
-                        ) { pageIndex ->
+                        ) { _ ->
                             Box(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center
@@ -263,13 +258,13 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                                     },
                                     onPrevious = {
                                         if (quotes.isNotEmpty()) {
-                                            currentQuoteIndex = (currentQuoteIndex - 1 + quotes.size) % quotes.size
+                                            currentQuoteIndex = ((currentQuoteIndex - 1) + quotes.size) % quotes.size
                                         }
                                     },
                                     onMenuOpen = { showMenu = true },
                                     onThemeNext = {
                                         // Navigate to next theme if available
-                                        if (pagerState.currentPage < themesList.size - 1) {
+                                        if (pagerState.currentPage < (themesList.size - 1)) {
                                             coroutineScope.launch {
                                                 pagerState.animateScrollToPage(pagerState.currentPage + 1)
                                             }
@@ -299,7 +294,7 @@ fun QuotePagerScreen(viewModel: QuotesViewModel) {
                         },
                         visible = true,
                         theme = currentTheme,
-                        bookmarkedQuotes = allQuotes.filter { quote ->
+                        bookmarkedQuotes = allQuotes.filter { quote: Quote ->
                             val quoteKey = "${quote.quote}_${quote.author}"
                             bookmarkStates[quoteKey] == true
                         },
@@ -490,13 +485,13 @@ private fun wrapTextToLines(text: String, paint: android.graphics.Paint, maxWidt
         val bounds = android.graphics.Rect()
         paint.getTextBounds(testLine, 0, testLine.length, bounds)
 
-        if (bounds.width() <= maxWidth) {
-            currentLine = testLine
+        currentLine = if (bounds.width() <= maxWidth) {
+            testLine
         } else {
             if (currentLine.isNotEmpty()) {
                 lines.add(currentLine)
             }
-            currentLine = word
+            word
         }
     }
 
