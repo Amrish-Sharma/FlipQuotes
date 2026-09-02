@@ -9,3 +9,4 @@
 /.idea/caches/**
 build/**
 .kotlin/**
+./upload_certificate.pem
