@@ -1,7 +1,7 @@
 buildscript {
     
     ext {
-        kotlin_version = '2.1.20'
+        kotlin_version = '2.4.10'
         compose_version = '1.6.7'
     }
 
@@ -12,17 +12,16 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:8.7.3'
+        classpath 'com.android.tools.build:gradle:9.3.2'
         classpath 'com.google.gms:google-services:4.4.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.20" // Updated for Kotlin 2.1.20
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:2.4.10" // Updated for Kotlin 2.4.10
     }
 }
 
 allprojects {
     repositories {
+        google()
         mavenCentral()
-        maven { url 'https://maven.pkg.jetbrains.space/public/p/kotlin/dev' }
-
     }
 }
 
