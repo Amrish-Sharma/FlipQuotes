@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -59,6 +60,7 @@ import com.app.codebuzz.flipquotes.ui.theme.AppTheme
 fun MenuScreen(
     onBackClick: () -> Unit,
     onSettingsClick: () -> Unit,
+    onDailyQuoteClick: () -> Unit,
     theme: AppTheme,
     modifier: Modifier = Modifier
 ) {
@@ -114,6 +116,24 @@ fun MenuScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            item {
+                MenuItemCard(
+                    icon = Icons.Default.WbSunny,
+                    title = "Quote of the Day",
+                    description = "Today's handpicked quote",
+                    onClick = onDailyQuoteClick,
+                    theme = theme
+                )
+            }
+            //separator
+            item {
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    thickness = 1.dp,
+                    color = theme.onSurfaceColor.copy(alpha = 0.2f)
+                )
+            }
+
             item {
                 MenuItemCard(
                     icon = Icons.Default.Settings,

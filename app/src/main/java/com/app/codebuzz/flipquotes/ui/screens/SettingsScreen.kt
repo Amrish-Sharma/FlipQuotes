@@ -1,5 +1,9 @@
 package com.app.codebuzz.flipquotes.ui.screens
 
+import android.Manifest
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -7,6 +11,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Palette
 import androidx.compose.material.icons.filled.TextFields
 import androidx.compose.material3.*
@@ -14,10 +19,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.app.codebuzz.flipquotes.data.ReminderPreferences
+import com.app.codebuzz.flipquotes.notifications.NotificationHelper
+import com.app.codebuzz.flipquotes.notifications.ReminderScheduler
 import com.app.codebuzz.flipquotes.ui.theme.ThemeManager
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,6 +40,10 @@ fun SettingsScreen(
     var showToast by remember { mutableStateOf(false) }
     var showAppearanceDialog by remember { mutableStateOf(false) }
     var showFontDialog by remember { mutableStateOf(false) }
+    var showReminderDialog by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val reminderPrefs = remember { ReminderPreferences(context) }
+    var reminderEnabled by remember { mutableStateOf(reminderPrefs.enabled) }
     val snackbarHostState = remember { SnackbarHostState() }
 
     // Show toast when settings change
@@ -111,6 +124,28 @@ fun SettingsScreen(
                         theme = currentTheme
                     )
                 }
+
+                item {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        thickness = 1.dp,
+                        color = currentTheme.onSurfaceColor.copy(alpha = 0.2f)
+                    )
+                }
+
+                item {
+                    SettingsItemCard(
+                        icon = Icons.Default.Notifications,
+                        title = "Daily Reminder",
+                        description = if (reminderEnabled) {
+                            "On · %02d:%02d".format(reminderPrefs.hour, reminderPrefs.minute)
+                        } else {
+                            "Get the Quote of the Day as a notification"
+                        },
+                        onClick = { showReminderDialog = true },
+                        theme = currentTheme
+                    )
+                }
             }
         }
 
@@ -158,7 +193,137 @@ fun SettingsScreen(
                 }
             )
         }
+
+        // Daily Reminder Dialog
+        if (showReminderDialog) {
+            ReminderDialog(
+                reminderPrefs = reminderPrefs,
+                isBlackTheme = themeManager.isBlackTheme(),
+                onDismiss = { showReminderDialog = false },
+                onSaved = {
+                    reminderEnabled = reminderPrefs.enabled
+                    showToast = true
+                    showReminderDialog = false
+                }
+            )
+        }
     }
+}
+
+@Composable
+private fun ReminderDialog(
+    reminderPrefs: ReminderPreferences,
+    isBlackTheme: Boolean,
+    onDismiss: () -> Unit,
+    onSaved: () -> Unit
+) {
+    val context = LocalContext.current
+    var enabled by remember { mutableStateOf(reminderPrefs.enabled) }
+    val timeState = rememberTimePickerState(
+        initialHour = reminderPrefs.hour,
+        initialMinute = reminderPrefs.minute,
+        is24Hour = android.text.format.DateFormat.is24HourFormat(context)
+    )
+    val textColor = if (isBlackTheme) Color(0xFFE5E5E5) else Color.Black
+    val subtleColor = if (isBlackTheme) Color(0xFFB0B0B0) else Color.Black.copy(alpha = 0.7f)
+
+    fun save() {
+        reminderPrefs.enabled = enabled
+        reminderPrefs.hour = timeState.hour
+        reminderPrefs.minute = timeState.minute
+        if (enabled) {
+            ReminderScheduler.schedule(context, timeState.hour, timeState.minute)
+        } else {
+            ReminderScheduler.cancel(context)
+        }
+        onSaved()
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            save()
+        } else {
+            enabled = false
+            Toast.makeText(context, "Allow notifications to receive daily reminders", Toast.LENGTH_LONG).show()
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Daily Reminder",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = textColor
+            )
+        },
+        text = {
+            Column {
+                Text(
+                    text = "Get the Quote of the Day as a notification",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = subtleColor,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "Remind me daily",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = textColor,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Switch(checked = enabled, onCheckedChange = { enabled = it })
+                }
+                if (enabled) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    TimeInput(
+                        state = timeState,
+                        colors = if (isBlackTheme) {
+                            TimePickerDefaults.colors(
+                                timeSelectorSelectedContainerColor = Color(0xFFE5E5E5),
+                                timeSelectorSelectedContentColor = Color.Black,
+                                timeSelectorUnselectedContainerColor = Color(0xFF2D2D2D),
+                                timeSelectorUnselectedContentColor = Color(0xFFE5E5E5),
+                                periodSelectorSelectedContainerColor = Color(0xFFE5E5E5),
+                                periodSelectorSelectedContentColor = Color.Black,
+                                periodSelectorUnselectedContentColor = Color(0xFFB0B0B0)
+                            )
+                        } else {
+                            TimePickerDefaults.colors()
+                        }
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val needsPermission = enabled && !NotificationHelper.canPostNotifications(context)
+                    if (needsPermission) {
+                        permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    } else {
+                        save()
+                    }
+                }
+            ) {
+                Text("Save", color = if (isBlackTheme) Color(0xFFE5E5E5) else MaterialTheme.colorScheme.primary)
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancel", color = subtleColor)
+            }
+        },
+        containerColor = if (isBlackTheme) Color(0xFF1A1A1A) else MaterialTheme.colorScheme.surface,
+        shape = RoundedCornerShape(16.dp)
+    )
 }
 
 @Composable

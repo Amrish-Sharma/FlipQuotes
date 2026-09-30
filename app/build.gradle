@@ -28,8 +28,8 @@ android {
         applicationId "com.app.codebuzz.flipquotes"
         minSdk 32
         targetSdk 36
-        versionCode 14
-        versionName "1.9.1"
+        versionCode 15
+        versionName "2.0"
         testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
     // composeOptions {
@@ -103,6 +103,12 @@ dependencies {
 
     // Coroutines for async operations
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.11.0'
+
+    // Daily reminder scheduling
+    implementation 'androidx.work:work-runtime-ktx:2.10.0'
+
+    // Home-screen widget
+    implementation 'androidx.glance:glance-appwidget:1.1.1'
 
     // Material Icons Extended for additional icons
     implementation "androidx.compose.material:material-icons-extended:1.7.8"

@@ -3,8 +3,11 @@ package com.app.codebuzz.flipquotes.ui.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.app.codebuzz.flipquotes.data.BookmarksRepository
+import com.app.codebuzz.flipquotes.data.DailyQuoteProvider
 import com.app.codebuzz.flipquotes.data.Quote
 import com.app.codebuzz.flipquotes.data.QuotesRepository
+import com.app.codebuzz.flipquotes.data.key
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -26,9 +29,30 @@ class QuotesViewModel(context: Context) : ViewModel() {
 
     private val _isLoading = MutableStateFlow(false)
 
+    private val bookmarksRepository = BookmarksRepository(context)
+    private val _bookmarkedKeys = MutableStateFlow(bookmarksRepository.getAll())
+    val bookmarkedKeys: StateFlow<Set<String>> = _bookmarkedKeys
+
+    private val appContext = context.applicationContext
+    private val _dailyQuote = MutableStateFlow<Quote?>(null)
+    val dailyQuote: StateFlow<Quote?> = _dailyQuote
+
     init {
         fetchQuotes()
     }
+
+    fun toggleBookmark(quote: Quote) {
+        _bookmarkedKeys.value = bookmarksRepository.toggle(quote.key)
+    }
+
+    fun loadDailyQuote() {
+        viewModelScope.launch {
+            _dailyQuote.value = DailyQuoteProvider.getToday(appContext)
+        }
+    }
+
+    // True the first time the app is opened on a given day
+    fun shouldAutoShowDailyQuote(): Boolean = DailyQuoteProvider.shouldAutoShowToday(appContext)
 
     fun setSelectedTheme(theme: String?) {
         _selectedTheme.value = theme
