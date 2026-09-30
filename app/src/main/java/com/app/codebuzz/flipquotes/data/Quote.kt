@@ -5,3 +5,6 @@ data class Quote(
     val author: String,
     val theme: String
 )
+
+// Stable identifier used for bookmarks
+val Quote.key: String get() = "${quote}_${author}"

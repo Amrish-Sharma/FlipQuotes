@@ -14,5 +14,6 @@
     <string name="read_more">Read More</string>
     <string name="menu">Menu</string>
     <string name="refresh">refresh</string>
+    <string name="widget_description">Today\'s quote on your home screen</string>
 
 </resources>
