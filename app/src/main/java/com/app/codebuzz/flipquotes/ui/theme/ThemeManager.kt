@@ -2,6 +2,7 @@ package com.app.codebuzz.flipquotes.ui.theme
 
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -12,7 +13,9 @@ data class AppTheme(
     val surfaceColor: Color,
     val onSurfaceColor: Color,
     val primaryColor: Color,
-    val onPrimaryColor: Color
+    val onPrimaryColor: Color,
+    val accentColor: Color,
+    val isDark: Boolean
 )
 
 // Define theme variants
@@ -22,7 +25,9 @@ object AppThemes {
         surfaceColor = Color.White,
         onSurfaceColor = Color.Black,
         primaryColor = Color.White,
-        onPrimaryColor = Color.Black
+        onPrimaryColor = Color.Black,
+        accentColor = Color(0xFF8A5A00),
+        isDark = false
     )
 
     val BlackTheme = AppTheme(
@@ -30,17 +35,34 @@ object AppThemes {
         surfaceColor = Color.Black,
         onSurfaceColor = Color.White,
         primaryColor = Color.Black,
-        onPrimaryColor = Color.White
+        onPrimaryColor = Color.White,
+        accentColor = Color(0xFFFFD54F),
+        isDark = true
     )
 }
 
 // Theme manager class
-class ThemeManager(context: Context) {
+class ThemeManager(context: Context, private val systemInDarkTheme: State<Boolean>) {
+
+    companion object {
+        const val THEME_SYSTEM = "system"
+        const val THEME_WHITE = "white"
+        const val THEME_BLACK = "black"
+    }
+
     private val sharedPreferences: SharedPreferences =
         context.getSharedPreferences("theme_preferences", Context.MODE_PRIVATE)
 
-    private val _currentTheme = mutableStateOf(getInitialTheme())
-    val currentTheme: State<AppTheme> = _currentTheme
+    private val _themeMode = mutableStateOf(getInitialThemeMode())
+    val themeMode: State<String> = _themeMode
+
+    val currentTheme: State<AppTheme> = derivedStateOf {
+        when (_themeMode.value) {
+            THEME_BLACK -> AppThemes.BlackTheme
+            THEME_WHITE -> AppThemes.WhiteTheme
+            else -> if (systemInDarkTheme.value) AppThemes.BlackTheme else AppThemes.WhiteTheme
+        }
+    }
 
     private val _quoteFont = mutableStateOf(getInitialQuoteFont())
     val quoteFont: State<String> = _quoteFont
@@ -48,9 +70,11 @@ class ThemeManager(context: Context) {
     private val _authorFont = mutableStateOf(getInitialAuthorFont())
     val authorFont: State<String> = _authorFont
 
-    private fun getInitialTheme(): AppTheme {
-        val savedTheme = sharedPreferences.getString("selected_theme", "black")
-        return if (savedTheme == "black") AppThemes.BlackTheme else AppThemes.WhiteTheme
+    private val _swipeHintSeen = mutableStateOf(sharedPreferences.getBoolean("swipe_hint_seen", false))
+    val swipeHintSeen: State<Boolean> = _swipeHintSeen
+
+    private fun getInitialThemeMode(): String {
+        return sharedPreferences.getString("selected_theme", THEME_SYSTEM) ?: THEME_SYSTEM
     }
 
     private fun getInitialQuoteFont(): String {
@@ -62,8 +86,7 @@ class ThemeManager(context: Context) {
     }
 
     fun setTheme(themeName: String) {
-        val newTheme = if (themeName == "black") AppThemes.BlackTheme else AppThemes.WhiteTheme
-        _currentTheme.value = newTheme
+        _themeMode.value = themeName
 
         // Save to SharedPreferences
         with(sharedPreferences.edit()) {
@@ -88,8 +111,17 @@ class ThemeManager(context: Context) {
         }
     }
 
+    fun markSwipeHintSeen() {
+        if (_swipeHintSeen.value) return
+        _swipeHintSeen.value = true
+        with(sharedPreferences.edit()) {
+            putBoolean("swipe_hint_seen", true)
+            apply()
+        }
+    }
+
     fun isBlackTheme(): Boolean {
-        return _currentTheme.value == AppThemes.BlackTheme
+        return currentTheme.value.isDark
     }
 
     fun getAvailableFonts(): List<Pair<String, String>> {
@@ -113,5 +145,6 @@ class ThemeManager(context: Context) {
 @Composable
 fun rememberThemeManager(): ThemeManager {
     val context = LocalContext.current
-    return remember { ThemeManager(context) }
+    val systemInDarkTheme = rememberUpdatedState(isSystemInDarkTheme())
+    return remember { ThemeManager(context, systemInDarkTheme) }
 }

@@ -2,9 +2,9 @@ package com.app.codebuzz.flipquotes.ui.screens
 
 import android.Manifest
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
@@ -18,12 +18,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.app.codebuzz.flipquotes.R
 import com.app.codebuzz.flipquotes.data.ReminderPreferences
 import com.app.codebuzz.flipquotes.notifications.NotificationHelper
 import com.app.codebuzz.flipquotes.notifications.ReminderScheduler
@@ -45,175 +46,145 @@ fun SettingsScreen(
     val reminderPrefs = remember { ReminderPreferences(context) }
     var reminderEnabled by remember { mutableStateOf(reminderPrefs.enabled) }
     val snackbarHostState = remember { SnackbarHostState() }
+    val settingsSavedMessage = stringResource(R.string.settings_saved)
+
+    BackHandler(onBack = onBackClick)
 
     // Show toast when settings change
     LaunchedEffect(showToast) {
         if (showToast) {
             snackbarHostState.showSnackbar(
-                message = "Settings saved",
+                message = settingsSavedMessage,
                 duration = SnackbarDuration.Short
             )
             showToast = false
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(currentTheme.backgroundColor)
-        ) {
-            // Header for settings screen
-            TopAppBar(
-                title = {
-                    Text(
-                        text = "Settings",
-                        fontSize = 20.sp, // Match MenuScreen
-                        fontWeight = FontWeight.Bold,
-                        color = currentTheme.onPrimaryColor // Ensure color consistency
+    // Surface also keeps touches from reaching the screens underneath
+    Surface(color = currentTheme.backgroundColor, modifier = modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                // Header for settings screen
+                TopAppBar(
+                    title = {
+                        Text(
+                            text = stringResource(R.string.settings),
+                            fontSize = 20.sp, // Match MenuScreen
+                            fontWeight = FontWeight.Bold,
+                            color = currentTheme.onPrimaryColor // Ensure color consistency
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onBackClick) {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.back),
+                                tint = currentTheme.onPrimaryColor // Ensure color consistency
+                            )
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = currentTheme.primaryColor,
+                        titleContentColor = currentTheme.onPrimaryColor,
+                        navigationIconContentColor = currentTheme.onPrimaryColor
                     )
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = currentTheme.onPrimaryColor // Ensure color consistency
+                )
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(vertical = 8.dp)
+                ) {
+                    item {
+                        MenuListItem(
+                            icon = Icons.Default.Palette,
+                            title = stringResource(R.string.appearance),
+                            description = stringResource(R.string.appearance_description),
+                            onClick = { showAppearanceDialog = true },
+                            theme = currentTheme
                         )
                     }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = currentTheme.primaryColor,
-                    titleContentColor = currentTheme.onPrimaryColor,
-                    navigationIconContentColor = currentTheme.onPrimaryColor
-                )
-            )
 
-            // Settings content with improved spacing and dividers
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp) // Match MenuScreen spacing
-            ) {
-                item {
-                    SettingsItemCard(
-                        icon = Icons.Default.Palette,
-                        title = "Appearance",
-                        description = "Choose your preferred theme",
-                        onClick = { showAppearanceDialog = true },
-                        theme = currentTheme
-                    )
-                }
+                    item {
+                        MenuListItem(
+                            icon = Icons.Default.TextFields,
+                            title = stringResource(R.string.font),
+                            description = stringResource(R.string.font_description),
+                            onClick = { showFontDialog = true },
+                            theme = currentTheme
+                        )
+                    }
 
-                // Visual divider between sections
-                item {
-                    HorizontalDivider(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        thickness = 1.dp,
-                        color = currentTheme.onSurfaceColor.copy(alpha = 0.2f)
-                    )
-                }
-
-                item {
-                    SettingsItemCard(
-                        icon = Icons.Default.TextFields,
-                        title = "Font",
-                        description = "Customize your quote and author fonts",
-                        onClick = { showFontDialog = true },
-                        theme = currentTheme
-                    )
-                }
-
-                item {
-                    HorizontalDivider(
-                        modifier = Modifier.padding(vertical = 8.dp),
-                        thickness = 1.dp,
-                        color = currentTheme.onSurfaceColor.copy(alpha = 0.2f)
-                    )
-                }
-
-                item {
-                    SettingsItemCard(
-                        icon = Icons.Default.Notifications,
-                        title = "Daily Reminder",
-                        description = if (reminderEnabled) {
-                            "On · %02d:%02d".format(reminderPrefs.hour, reminderPrefs.minute)
-                        } else {
-                            "Get the Quote of the Day as a notification"
-                        },
-                        onClick = { showReminderDialog = true },
-                        theme = currentTheme
-                    )
+                    item {
+                        MenuListItem(
+                            icon = Icons.Default.Notifications,
+                            title = stringResource(R.string.daily_reminder),
+                            description = if (reminderEnabled) {
+                                stringResource(
+                                    R.string.daily_reminder_on,
+                                    "%02d:%02d".format(reminderPrefs.hour, reminderPrefs.minute)
+                                )
+                            } else {
+                                stringResource(R.string.daily_reminder_description)
+                            },
+                            onClick = { showReminderDialog = true },
+                            theme = currentTheme
+                        )
+                    }
                 }
             }
-        }
 
-        // Snackbar for save confirmation
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter)
-        ) { snackbarData ->
-            Snackbar(
-                snackbarData = snackbarData,
-                containerColor = if (currentTheme == com.app.codebuzz.flipquotes.ui.theme.AppThemes.BlackTheme) {
-                    Color(0xFF2D2D2D) // Darker background for better contrast in black theme
-                } else {
-                    MaterialTheme.colorScheme.inverseSurface
-                },
-                contentColor = if (currentTheme == com.app.codebuzz.flipquotes.ui.theme.AppThemes.BlackTheme) {
-                    Color(0xFFE0E0E0) // Lighter text for better contrast in black theme
-                } else {
-                    MaterialTheme.colorScheme.inverseOnSurface
-                }
+            // Snackbar for save confirmation
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
             )
         }
+    }
 
-        // Appearance Dialog
-        if (showAppearanceDialog) {
-            AppearanceDialog(
-                themeManager = themeManager,
-                onDismiss = { showAppearanceDialog = false },
-                onThemeChanged = {
-                    showToast = true
-                    showAppearanceDialog = false
-                }
-            )
-        }
+    // Appearance Dialog
+    if (showAppearanceDialog) {
+        AppearanceDialog(
+            themeManager = themeManager,
+            onDismiss = { showAppearanceDialog = false },
+            onThemeChanged = {
+                showToast = true
+                showAppearanceDialog = false
+            }
+        )
+    }
 
-        // Font Dialog
-        if (showFontDialog) {
-            FontDialog(
-                themeManager = themeManager,
-                currentTheme = currentTheme,
-                onDismiss = { showFontDialog = false },
-                onFontChanged = {
-                    showToast = true
-                    showFontDialog = false
-                }
-            )
-        }
+    // Font Dialog
+    if (showFontDialog) {
+        FontDialog(
+            themeManager = themeManager,
+            onDismiss = { showFontDialog = false },
+            onFontChanged = {
+                showToast = true
+                showFontDialog = false
+            }
+        )
+    }
 
-        // Daily Reminder Dialog
-        if (showReminderDialog) {
-            ReminderDialog(
-                reminderPrefs = reminderPrefs,
-                isBlackTheme = themeManager.isBlackTheme(),
-                onDismiss = { showReminderDialog = false },
-                onSaved = {
-                    reminderEnabled = reminderPrefs.enabled
-                    showToast = true
-                    showReminderDialog = false
-                }
-            )
-        }
+    // Daily Reminder Dialog
+    if (showReminderDialog) {
+        ReminderDialog(
+            reminderPrefs = reminderPrefs,
+            onDismiss = { showReminderDialog = false },
+            onSaved = {
+                reminderEnabled = reminderPrefs.enabled
+                showToast = true
+                showReminderDialog = false
+            }
+        )
     }
 }
 
 @Composable
 private fun ReminderDialog(
     reminderPrefs: ReminderPreferences,
-    isBlackTheme: Boolean,
     onDismiss: () -> Unit,
     onSaved: () -> Unit
 ) {
@@ -224,8 +195,7 @@ private fun ReminderDialog(
         initialMinute = reminderPrefs.minute,
         is24Hour = android.text.format.DateFormat.is24HourFormat(context)
     )
-    val textColor = if (isBlackTheme) Color(0xFFE5E5E5) else Color.Black
-    val subtleColor = if (isBlackTheme) Color(0xFFB0B0B0) else Color.Black.copy(alpha = 0.7f)
+    val permissionNeededMessage = stringResource(R.string.notification_permission_needed)
 
     fun save() {
         reminderPrefs.enabled = enabled
@@ -246,7 +216,7 @@ private fun ReminderDialog(
             save()
         } else {
             enabled = false
-            Toast.makeText(context, "Allow notifications to receive daily reminders", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, permissionNeededMessage, Toast.LENGTH_LONG).show()
         }
     }
 
@@ -254,18 +224,16 @@ private fun ReminderDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Daily Reminder",
+                text = stringResource(R.string.daily_reminder),
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = textColor
+                fontWeight = FontWeight.Bold
             )
         },
         text = {
             Column {
                 Text(
-                    text = "Get the Quote of the Day as a notification",
+                    text = stringResource(R.string.daily_reminder_description),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = subtleColor,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
                 Row(
@@ -273,32 +241,17 @@ private fun ReminderDialog(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Remind me daily",
+                        text = stringResource(R.string.remind_me_daily),
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Medium,
-                        color = textColor,
+                        color = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.weight(1f)
                     )
                     Switch(checked = enabled, onCheckedChange = { enabled = it })
                 }
                 if (enabled) {
                     Spacer(modifier = Modifier.height(16.dp))
-                    TimeInput(
-                        state = timeState,
-                        colors = if (isBlackTheme) {
-                            TimePickerDefaults.colors(
-                                timeSelectorSelectedContainerColor = Color(0xFFE5E5E5),
-                                timeSelectorSelectedContentColor = Color.Black,
-                                timeSelectorUnselectedContainerColor = Color(0xFF2D2D2D),
-                                timeSelectorUnselectedContentColor = Color(0xFFE5E5E5),
-                                periodSelectorSelectedContainerColor = Color(0xFFE5E5E5),
-                                periodSelectorSelectedContentColor = Color.Black,
-                                periodSelectorUnselectedContentColor = Color(0xFFB0B0B0)
-                            )
-                        } else {
-                            TimePickerDefaults.colors()
-                        }
-                    )
+                    TimeInput(state = timeState)
                 }
             }
         },
@@ -313,15 +266,14 @@ private fun ReminderDialog(
                     }
                 }
             ) {
-                Text("Save", color = if (isBlackTheme) Color(0xFFE5E5E5) else MaterialTheme.colorScheme.primary)
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel", color = subtleColor)
+                Text(stringResource(R.string.cancel), color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         },
-        containerColor = if (isBlackTheme) Color(0xFF1A1A1A) else MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp)
     )
 }
@@ -332,95 +284,58 @@ private fun AppearanceDialog(
     onDismiss: () -> Unit,
     onThemeChanged: () -> Unit
 ) {
-    val isBlackTheme = themeManager.isBlackTheme()
+    val themeMode by themeManager.themeMode
+    val options = listOf(
+        ThemeManager.THEME_SYSTEM to R.string.theme_system,
+        ThemeManager.THEME_WHITE to R.string.theme_white,
+        ThemeManager.THEME_BLACK to R.string.theme_black
+    )
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Appearance",
+                text = stringResource(R.string.appearance),
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = if (isBlackTheme) Color(0xFFE5E5E5) else Color.Black
+                fontWeight = FontWeight.Bold
             )
         },
         text = {
             Column {
                 Text(
-                    text = "Choose your preferred theme",
+                    text = stringResource(R.string.appearance_description),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = if (isBlackTheme) Color(0xFFB0B0B0) else Color.Black.copy(alpha = 0.7f),
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                // White Theme Option
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .selectable(
-                            selected = !isBlackTheme,
-                            onClick = {
-                                themeManager.setTheme("white")
-                                onThemeChanged()
-                            },
-                            role = Role.RadioButton
+                options.forEach { (mode, label) ->
+                    val selectTheme = {
+                        themeManager.setTheme(mode)
+                        onThemeChanged()
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .selectable(
+                                selected = themeMode == mode,
+                                onClick = selectTheme,
+                                role = Role.RadioButton
+                            )
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        RadioButton(
+                            selected = themeMode == mode,
+                            onClick = selectTheme
                         )
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = !isBlackTheme,
-                        onClick = {
-                            themeManager.setTheme("white")
-                            onThemeChanged()
-                        },
-                        colors = RadioButtonDefaults.colors(
-                            selectedColor = if (isBlackTheme) Color(0xFFE5E5E5) else MaterialTheme.colorScheme.primary,
-                            unselectedColor = if (isBlackTheme) Color(0xFFB0B0B0) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Text(
+                            text = stringResource(label),
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "White theme",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = if (isBlackTheme) Color(0xFFE5E5E5) else Color.Black
-                    )
-                }
-
-                // Black Theme Option
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .selectable(
-                            selected = isBlackTheme,
-                            onClick = {
-                                themeManager.setTheme("black")
-                                onThemeChanged()
-                            },
-                            role = Role.RadioButton
-                        )
-                        .padding(vertical = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        selected = isBlackTheme,
-                        onClick = {
-                            themeManager.setTheme("black")
-                            onThemeChanged()
-                        },
-                        colors = RadioButtonDefaults.colors(
-                            selectedColor = if (isBlackTheme) Color(0xFFE5E5E5) else MaterialTheme.colorScheme.primary,
-                            unselectedColor = if (isBlackTheme) Color(0xFFB0B0B0) else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-                        )
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "Black theme",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Medium,
-                        color = if (isBlackTheme) Color(0xFFE5E5E5) else Color.Black
-                    )
+                    }
                 }
             }
         },
@@ -428,13 +343,9 @@ private fun AppearanceDialog(
             TextButton(
                 onClick = onDismiss
             ) {
-                Text(
-                    "Close",
-                    color = if (isBlackTheme) Color(0xFFE5E5E5) else MaterialTheme.colorScheme.primary
-                )
+                Text(stringResource(R.string.close))
             }
         },
-        containerColor = if (isBlackTheme) Color(0xFF1A1A1A) else MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp)
     )
 }
@@ -442,11 +353,9 @@ private fun AppearanceDialog(
 @Composable
 private fun FontDialog(
     themeManager: ThemeManager,
-    currentTheme: com.app.codebuzz.flipquotes.ui.theme.AppTheme,
     onDismiss: () -> Unit,
     onFontChanged: () -> Unit
 ) {
-    val isBlackTheme = themeManager.isBlackTheme()
     val currentQuoteFont by themeManager.quoteFont
     val currentAuthorFont by themeManager.authorFont
     val availableFonts = themeManager.getAvailableFonts()
@@ -455,218 +364,108 @@ private fun FontDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Select Fonts",
+                text = stringResource(R.string.select_fonts),
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                color = if (isBlackTheme) Color(0xFFE5E5E5) else Color.Black
+                fontWeight = FontWeight.Bold
             )
         },
         text = {
             Column {
                 Text(
-                    text = "Customize your quote and author fonts",
+                    text = stringResource(R.string.font_description),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = if (isBlackTheme) Color(0xFFB0B0B0) else Color.Black.copy(alpha = 0.7f),
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
 
-                // Quote Font Section
-                Text(
-                    text = "Quote Font",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 18.sp,
-                    color = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-
-                var quoteFontExpanded by remember { mutableStateOf(false) }
-
-                ExposedDropdownMenuBox(
-                    expanded = quoteFontExpanded,
-                    onExpandedChange = { quoteFontExpanded = !quoteFontExpanded },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    OutlinedTextField(
-                        value = availableFonts.find { it.first == currentQuoteFont }?.second ?: "Kotta One",
-                        onValueChange = {},
-                        readOnly = true,
-                        textStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = quoteFontExpanded)
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
-                            unfocusedTextColor = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
-                            focusedBorderColor = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
-                            unfocusedBorderColor = if (isBlackTheme) Color(0xFFB0B0B0) else currentTheme.onSurfaceColor.copy(alpha = 0.5f),
-                            focusedTrailingIconColor = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
-                            unfocusedTrailingIconColor = if (isBlackTheme) Color(0xFFB0B0B0) else currentTheme.onSurfaceColor.copy(alpha = 0.7f)
-                        ),
-                        modifier = Modifier
-                            .menuAnchor()
-                            .fillMaxWidth()
-                    )
-
-                    ExposedDropdownMenu(
-                        expanded = quoteFontExpanded,
-                        onDismissRequest = { quoteFontExpanded = false },
-                        modifier = Modifier.background(if (isBlackTheme) Color(0xFF2A2A2A) else currentTheme.surfaceColor)
-                    ) {
-                        availableFonts.forEach { (fontKey, fontName) ->
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        text = fontName,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Medium,
-                                        fontSize = 18.sp,
-                                        color = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor
-                                    )
-                                },
-                                onClick = {
-                                    themeManager.setQuoteFont(fontKey)
-                                    quoteFontExpanded = false
-                                    onFontChanged()
-                                },
-                                colors = MenuDefaults.itemColors(
-                                    textColor = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor
-                                )
-                            )
-                        }
+                FontDropdown(
+                    label = stringResource(R.string.quote_font),
+                    selectedFontName = availableFonts.find { it.first == currentQuoteFont }?.second ?: "Kotta One",
+                    availableFonts = availableFonts,
+                    onFontSelected = { fontKey ->
+                        themeManager.setQuoteFont(fontKey)
+                        onFontChanged()
                     }
-                }
+                )
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Author Font Section
-                Text(
-                    text = "Author Font",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium,
-                    fontSize = 18.sp,
-                    color = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-
-                var authorFontExpanded by remember { mutableStateOf(false) }
-
-                ExposedDropdownMenuBox(
-                    expanded = authorFontExpanded,
-                    onExpandedChange = { authorFontExpanded = !authorFontExpanded },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    OutlinedTextField(
-                        value = availableFonts.find { it.first == currentAuthorFont }?.second ?: "Playfair Display",
-                        onValueChange = {},
-                        readOnly = true,
-                        textStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium, fontSize = 18.sp),
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = authorFontExpanded)
-                        },
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
-                            unfocusedTextColor = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
-                            focusedBorderColor = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
-                            unfocusedBorderColor = if (isBlackTheme) Color(0xFFB0B0B0) else currentTheme.onSurfaceColor.copy(alpha = 0.5f),
-                            focusedTrailingIconColor = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor,
-                            unfocusedTrailingIconColor = if (isBlackTheme) Color(0xFFB0B0B0) else currentTheme.onSurfaceColor.copy(alpha = 0.7f)
-                        ),
-                        modifier = Modifier
-                            .menuAnchor()
-                            .fillMaxWidth()
-                    )
-
-                    ExposedDropdownMenu(
-                        expanded = authorFontExpanded,
-                        onDismissRequest = { authorFontExpanded = false },
-                        modifier = Modifier.background(if (isBlackTheme) Color(0xFF2A2A2A) else currentTheme.surfaceColor)
-                    ) {
-                        availableFonts.forEach { (fontKey, fontName) ->
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        text = fontName,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Medium,
-                                        fontSize = 18.sp,
-                                        color = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor
-                                    )
-                                },
-                                onClick = {
-                                    themeManager.setAuthorFont(fontKey)
-                                    authorFontExpanded = false
-                                    onFontChanged()
-                                },
-                                colors = MenuDefaults.itemColors(
-                                    textColor = if (isBlackTheme) Color(0xFFE5E5E5) else currentTheme.onSurfaceColor
-                                )
-                            )
-                        }
+                FontDropdown(
+                    label = stringResource(R.string.author_font),
+                    selectedFontName = availableFonts.find { it.first == currentAuthorFont }?.second ?: "Playfair Display",
+                    availableFonts = availableFonts,
+                    onFontSelected = { fontKey ->
+                        themeManager.setAuthorFont(fontKey)
+                        onFontChanged()
                     }
-                }
+                )
             }
         },
         confirmButton = {
             TextButton(
                 onClick = onDismiss
             ) {
-                Text(
-                    "Close",
-                    color = if (isBlackTheme) Color(0xFFE5E5E5) else MaterialTheme.colorScheme.primary
-                )
+                Text(stringResource(R.string.close))
             }
         },
-        containerColor = if (isBlackTheme) Color(0xFF1A1A1A) else MaterialTheme.colorScheme.surface,
         shape = RoundedCornerShape(16.dp)
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SettingsItemCard(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    title: String,
-    description: String,
-    onClick: () -> Unit,
-    theme: com.app.codebuzz.flipquotes.ui.theme.AppTheme,
-    modifier: Modifier = Modifier
+private fun FontDropdown(
+    label: String,
+    selectedFontName: String,
+    availableFonts: List<Pair<String, String>>,
+    onFontSelected: (String) -> Unit
 ) {
-    Card(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = theme.surfaceColor.copy(alpha = 0.9f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                tint = theme.onSurfaceColor,
-                modifier = Modifier.size(24.dp)
-            )
+    var expanded by remember { mutableStateOf(false) }
 
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium,
-                    color = theme.onSurfaceColor
-                )
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = theme.onSurfaceColor.copy(alpha = 0.7f)
+    Text(
+        text = label,
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Medium,
+        fontSize = 18.sp,
+        color = MaterialTheme.colorScheme.onSurface,
+        modifier = Modifier.padding(bottom = 8.dp)
+    )
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        OutlinedTextField(
+            value = selectedFontName,
+            onValueChange = {},
+            readOnly = true,
+            textStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium, fontSize = 18.sp),
+            trailingIcon = {
+                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+            },
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth()
+        )
+
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            availableFonts.forEach { (fontKey, fontName) ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = fontName,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 18.sp
+                        )
+                    },
+                    onClick = {
+                        expanded = false
+                        onFontSelected(fontKey)
+                    }
                 )
             }
         }

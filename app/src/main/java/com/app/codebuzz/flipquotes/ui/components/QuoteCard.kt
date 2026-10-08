@@ -2,90 +2,87 @@
 
 package com.app.codebuzz.flipquotes.ui.components
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ContentTransform
-import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.VerticalPager
-import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import com.app.codebuzz.flipquotes.R
 import com.app.codebuzz.flipquotes.data.Quote
+import com.app.codebuzz.flipquotes.ui.theme.PlayfairDisplayFont
+import com.app.codebuzz.flipquotes.ui.theme.QuoteFont
+import com.app.codebuzz.flipquotes.ui.theme.fontFamilyFor
+import kotlinx.coroutines.launch
 import kotlin.math.absoluteValue
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun QuoteCard(
-    quote: Quote,
+fun QuotePager(
+    quotes: List<Quote>,
+    pagerState: PagerState,
     themeManager: com.app.codebuzz.flipquotes.ui.theme.ThemeManager,
-    isRefreshing: Boolean = false,
-    onNext: () -> Unit = {},
-    onPrevious: () -> Unit = {},
-    onMenuOpen: () -> Unit = {},
-    onThemeNext: () -> Unit = {},
-    onThemePrevious: () -> Unit = {},
-    isOnAllThemes: Boolean = true
+    modifier: Modifier = Modifier
 ) {
-    val pagerState = rememberPagerState(
-        initialPage = Int.MAX_VALUE / 2,
-        pageCount = { Int.MAX_VALUE }
-    )
-
-    var lastPage by remember { mutableIntStateOf(pagerState.currentPage) }
-
-    LaunchedEffect(pagerState) {
-        snapshotFlow { pagerState.currentPage }.collect { currentPage ->
-            if (currentPage > lastPage) {
-                onNext()
-            } else if (currentPage < lastPage) {
-                onPrevious()
-            }
-            lastPage = currentPage
-        }
-    }
+    val coroutineScope = rememberCoroutineScope()
+    val nextQuoteLabel = stringResource(R.string.next_quote)
+    val previousQuoteLabel = stringResource(R.string.previous_quote)
 
     VerticalPager(
         state = pagerState,
-        modifier = Modifier.fillMaxSize(), // Reverted to full height to ensure proper layout rendering across all screen sizes
+        modifier = modifier.fillMaxSize(), // Reverted to full height to ensure proper layout rendering across all screen sizes
         pageSpacing = 8.dp
     ) { page ->
         Box(
@@ -107,6 +104,19 @@ fun QuoteCard(
                         fraction = pageOffset.coerceIn(0f, 1f)
                     )
                 }
+                // Read quote and author as one item, with swipe alternatives for TalkBack
+                .semantics(mergeDescendants = true) {
+                    customActions = listOf(
+                        CustomAccessibilityAction(nextQuoteLabel) {
+                            coroutineScope.launch { pagerState.animateScrollToPage(page + 1) }
+                            true
+                        },
+                        CustomAccessibilityAction(previousQuoteLabel) {
+                            coroutineScope.launch { pagerState.animateScrollToPage(page - 1) }
+                            true
+                        }
+                    )
+                }
         ) {
             Card(
                 shape = RectangleShape,
@@ -122,63 +132,18 @@ fun QuoteCard(
                         modifier = Modifier.fillMaxSize()
                     )
 
-                    // Main content - center the quote content
+                    // Main content - center the quote content, scrolling only when it doesn't fit
                     Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .pointerInput(isOnAllThemes) {
-                                detectHorizontalDragGestures(
-                                    onDragStart = {},
-                                    onDragEnd = {},
-                                    onHorizontalDrag = { _, dragAmount ->
-                                        // Enhanced sensitivity - detect even the slightest swipes (reduced threshold from 20f to 10f)
-                                        // Left to right swipe (positive dragAmount)
-                                        if (dragAmount > 10f) {
-                                            if (isOnAllThemes) {
-                                                // On "All" theme: right swipe opens menu
-                                                onMenuOpen()
-                                            } else {
-                                                // On other themes: navigate to previous theme
-                                                onThemePrevious()
-                                            }
-                                        }
-                                        // Right to left swipe (negative dragAmount) - navigate to next theme
-                                        else if (dragAmount < -10f) {
-                                            if (isOnAllThemes) {
-                                                // On "All" theme: left swipe switches to next theme
-                                                onThemeNext()
-                                            } else {
-                                                // On other themes: continue theme navigation
-                                                onThemeNext()
-                                            }
-                                        }
-                                    }
-                                )
-                            },
+                        modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
-                        if (isRefreshing) {
-                            // Use AnimatedContent only during refresh
-                            AnimatedContent(
-                                targetState = quote,
-                                transitionSpec = {
-                                    ContentTransform(
-                                        targetContentEnter = slideInVertically { height -> height } +
-                                            fadeIn(animationSpec = tween(300)),
-                                        initialContentExit = slideOutVertically { height -> -height } +
-                                            fadeOut(animationSpec = tween(300)),
-                                        sizeTransform = null
-                                    )
-                                },
-                                label = "quote transition"
-                            ) { currentQuote ->
-                                QuoteContent(quote = currentQuote)
-                            }
-                        } else {
-                            // Direct content update during scrolling
+                        quotes.getOrNull(page)?.let { quote ->
                             QuoteContent(
                                 quote = quote,
-                                themeManager = themeManager
+                                themeManager = themeManager,
+                                modifier = Modifier
+                                    .verticalScroll(rememberScrollState())
+                                    .padding(vertical = 64.dp)
                             )
                         }
                     }
@@ -197,35 +162,15 @@ fun QuoteContent(
     val currentQuoteFont by remember { themeManager?.quoteFont ?: mutableStateOf("kotta_one") }
     val currentAuthorFont by remember { themeManager?.authorFont ?: mutableStateOf("playfair_display") }
 
-    // Map font names to font resources (custom fonts and system fonts)
-    val quoteFontFamily = when (currentQuoteFont) {
-        // Custom fonts from res/font
-        "kotta_one" -> FontFamily(Font(R.font.kotta_one))
-        "playfair_display" -> FontFamily(Font(R.font.playfair_display))
-        "droid_sans" -> FontFamily(Font(R.font.droid_sans))
-        // Android system fonts
-        "default" -> FontFamily.Default
-        "sans_serif" -> FontFamily.SansSerif
-        "serif" -> FontFamily.Serif
-        "monospace" -> FontFamily.Monospace
-        "cursive" -> FontFamily.Cursive
-        "fantasy" -> FontFamily.SansSerif // Fantasy maps to SansSerif as fallback
-        else -> FontFamily(Font(R.font.kotta_one))
-    }
+    val quoteFontFamily = fontFamilyFor(currentQuoteFont, fallback = QuoteFont)
+    val authorFontFamily = fontFamilyFor(currentAuthorFont, fallback = PlayfairDisplayFont)
 
-    val authorFontFamily = when (currentAuthorFont) {
-        // Custom fonts from res/font
-        "kotta_one" -> FontFamily(Font(R.font.kotta_one))
-        "playfair_display" -> FontFamily(Font(R.font.playfair_display))
-        "droid_sans" -> FontFamily(Font(R.font.droid_sans))
-        // Android system fonts
-        "default" -> FontFamily.Default
-        "sans_serif" -> FontFamily.SansSerif
-        "serif" -> FontFamily.Serif
-        "monospace" -> FontFamily.Monospace
-        "cursive" -> FontFamily.Cursive
-        "fantasy" -> FontFamily.SansSerif // Fantasy maps to SansSerif as fallback
-        else -> FontFamily(Font(R.font.playfair_display))
+    // Step the size down for long quotes so they stay on one screen
+    val quoteStyle = when {
+        quote.quote.length > 280 -> MaterialTheme.typography.titleLarge
+        quote.quote.length > 180 -> MaterialTheme.typography.headlineSmall
+        quote.quote.length > 100 -> MaterialTheme.typography.headlineMedium
+        else -> MaterialTheme.typography.headlineLarge
     }
 
     Column(
@@ -235,7 +180,7 @@ fun QuoteContent(
     ) {
         Text(
             text = "\"${quote.quote}\"",
-            style = MaterialTheme.typography.headlineLarge.copy(
+            style = quoteStyle.copy(
                 fontFamily = quoteFontFamily
             ),
             color = Color.Black,
@@ -255,3 +200,95 @@ fun QuoteContent(
     }
 }
 
+// Bookmark and share for the quote on screen; drawn over the paper texture, so colors are fixed
+@Composable
+fun QuoteActions(
+    isBookmarked: Boolean,
+    onBookmarkClick: () -> Unit,
+    onShareClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val haptic = LocalHapticFeedback.current
+    val coroutineScope = rememberCoroutineScope()
+    val bookmarkScale = remember { Animatable(1f) }
+    val buttonColors = IconButtonDefaults.filledTonalIconButtonColors(
+        containerColor = Color.Black.copy(alpha = 0.08f),
+        contentColor = Color.Black
+    )
+
+    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        FilledTonalIconButton(
+            onClick = {
+                haptic.performHapticFeedback(
+                    if (isBookmarked) HapticFeedbackType.ToggleOff else HapticFeedbackType.ToggleOn
+                )
+                if (!isBookmarked) {
+                    coroutineScope.launch {
+                        bookmarkScale.animateTo(1.35f, tween(120))
+                        bookmarkScale.animateTo(1f, spring())
+                    }
+                }
+                onBookmarkClick()
+            },
+            colors = buttonColors
+        ) {
+            Icon(
+                imageVector = if (isBookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
+                contentDescription = stringResource(
+                    if (isBookmarked) R.string.remove_bookmark else R.string.add_bookmark
+                ),
+                modifier = Modifier.graphicsLayer {
+                    scaleX = bookmarkScale.value
+                    scaleY = bookmarkScale.value
+                }
+            )
+        }
+        FilledTonalIconButton(onClick = onShareClick, colors = buttonColors) {
+            Icon(
+                imageVector = Icons.Filled.Share,
+                contentDescription = stringResource(R.string.share_quote)
+            )
+        }
+    }
+}
+
+// One-time hint for new users; goes away after the first swipe or a tap
+@Composable
+fun SwipeHint(
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val bounce by rememberInfiniteTransition(label = "swipe-hint").animateFloat(
+        initialValue = 0f,
+        targetValue = -8f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(700, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "swipe-hint-bounce"
+    )
+
+    Surface(
+        onClick = onDismiss,
+        shape = CircleShape,
+        color = Color.Black.copy(alpha = 0.8f),
+        contentColor = Color.White,
+        modifier = modifier.graphicsLayer { translationY = bounce.dp.toPx() }
+    ) {
+        Row(
+            modifier = Modifier.padding(start = 12.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.KeyboardArrowUp,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp)
+            )
+            Text(
+                text = stringResource(R.string.swipe_hint),
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
+    }
+}

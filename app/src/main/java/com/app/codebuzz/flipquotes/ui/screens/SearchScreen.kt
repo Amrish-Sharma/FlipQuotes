@@ -1,13 +1,8 @@
 package com.app.codebuzz.flipquotes.ui.screens
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -17,34 +12,39 @@ import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.app.codebuzz.flipquotes.R
 import com.app.codebuzz.flipquotes.data.Quote
 import com.app.codebuzz.flipquotes.ui.theme.AppTheme
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SearchScreen(
     quotes: List<Quote>,
     onQuoteSelected: (Quote) -> Unit,
-    visible: Boolean,
     theme: AppTheme,
-    bookmarkedQuotes: List<Quote> = emptyList(),
+    modifier: Modifier = Modifier,
     onBookmarkToggle: (Quote) -> Unit = {},
     isQuoteBookmarked: (Quote) -> Boolean = { false }
 ) {
-    var searchQuery by remember { mutableStateOf("") }
-    var showResults by remember { mutableStateOf(false) }
-    var showBookmarks by remember { mutableStateOf(false) }
-    var showSuggestions by remember { mutableStateOf(false) }
+    var searchQuery by rememberSaveable { mutableStateOf("") }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
 
     // Popular search suggestions
     val popularSearchTerms = listOf(
@@ -52,301 +52,124 @@ fun SearchScreen(
         "inspiration", "hope", "friendship", "dreams", "courage", "peace"
     )
 
-    // Filter suggestions based on current query
-    val filteredSuggestions = remember(searchQuery) {
-        if (searchQuery.isBlank()) {
-            popularSearchTerms.take(6)
+    // Results update as the user types; null means there is no query yet
+    val results by produceState<List<Quote>?>(initialValue = null, searchQuery, quotes) {
+        val query = searchQuery.trim()
+        if (query.isEmpty()) {
+            value = null
         } else {
-            popularSearchTerms.filter {
-                it.contains(searchQuery, ignoreCase = true)
-            }.take(6)
+            delay(250)
+            value = withContext(Dispatchers.Default) {
+                quotes.filter {
+                    it.quote.contains(query, ignoreCase = true) ||
+                    it.author.contains(query, ignoreCase = true) ||
+                    it.theme.contains(query, ignoreCase = true)
+                }
+            }
         }
     }
 
-    // Define the search action function
-    val performSearch = {
-        if (searchQuery.isNotBlank()) {
-            showResults = true
-            showSuggestions = false
-            showBookmarks = false
-            keyboardController?.hide()
-        }
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
 
-    val filteredQuotes = remember(searchQuery, quotes) {
-        if (searchQuery.isBlank()) emptyList() else quotes.filter {
-            it.quote.contains(searchQuery, ignoreCase = true) ||
-            it.author.contains(searchQuery, ignoreCase = true) ||
-            it.theme.contains(searchQuery, ignoreCase = true)
-        }
-    }
-    AnimatedVisibility(
-        visible = visible,
-        enter = slideInHorizontally(
-            initialOffsetX = { -it },
-            animationSpec = tween(durationMillis = 350)
-        )
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 16.dp)
     ) {
-        Surface(
-            color = theme.backgroundColor.copy(alpha = 0.98f),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Box(modifier = Modifier.fillMaxSize()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp)
-                        .windowInsetsPadding(WindowInsets.statusBars) // Add padding for status bar
-                        .windowInsetsPadding(WindowInsets.navigationBars) // Add padding for system navigation
-                ) {
-                    // Enhanced Search Bar with Clear button and Bookmark button
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        OutlinedTextField(
-                            value = searchQuery,
-                            onValueChange = {
-                                searchQuery = it
-                                showResults = false
-                                showBookmarks = false
-                                showSuggestions = it.isNotBlank()
-                            },
-                            placeholder = {
-                                Text(
-                                    "Search quotes...",
-                                    color = theme.onSurfaceColor.copy(alpha = 0.6f),
-                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Light, fontSize = 16.sp)
+        Spacer(modifier = Modifier.height(16.dp))
 
-                                )
-                            },
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(56.dp),
-                            singleLine = true,
-                            colors = TextFieldDefaults.colors(
-                                focusedTextColor = theme.onSurfaceColor,
-                                unfocusedTextColor = theme.onSurfaceColor,
-                                focusedContainerColor = theme.surfaceColor.copy(alpha = 0.8f),
-                                unfocusedContainerColor = theme.surfaceColor.copy(alpha = 0.8f),
-                                focusedIndicatorColor = Color.Yellow,
-                                unfocusedIndicatorColor = theme.onSurfaceColor.copy(alpha = 0.5f),
-                                cursorColor = theme.onSurfaceColor,
-                                focusedPlaceholderColor = theme.onSurfaceColor.copy(alpha = 0.6f),
-                                unfocusedPlaceholderColor = theme.onSurfaceColor.copy(alpha = 0.6f)
-                            ),
-                            textStyle = MaterialTheme.typography.bodyMedium.copy(color = theme.onSurfaceColor),
-                            keyboardOptions = KeyboardOptions.Default.copy(
-                                imeAction = ImeAction.Search
-                            ),
-                            keyboardActions = KeyboardActions(
-                                onSearch = { performSearch() }
-                            ),
-                            trailingIcon = {
-                                // Cancel button - always visible, clears search and resets state
-                                IconButton(
-                                    onClick = {
-                                        searchQuery = ""
-                                        showResults = false
-                                        showSuggestions = false
-                                        showBookmarks = false
-                                    }
-                                ) {
-                                    Icon(
-                                        Icons.Default.Clear,
-                                        contentDescription = "Clear search",
-                                        tint = theme.onSurfaceColor,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                }
-                            }
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            placeholder = {
+                Text(
+                    stringResource(R.string.search_hint),
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Light, fontSize = 16.sp)
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
+            singleLine = true,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = theme.accentColor,
+                cursorColor = theme.accentColor
+            ),
+            textStyle = MaterialTheme.typography.bodyMedium,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                imeAction = ImeAction.Search
+            ),
+            keyboardActions = KeyboardActions(
+                onSearch = { keyboardController?.hide() }
+            ),
+            leadingIcon = {
+                Icon(Icons.Default.Search, contentDescription = null)
+            },
+            trailingIcon = {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(onClick = { searchQuery = "" }) {
+                        Icon(
+                            Icons.Default.Clear,
+                            contentDescription = stringResource(R.string.clear_search)
                         )
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        // Search button
-                        IconButton(onClick = { performSearch() }) {
-                            Icon(
-                                Icons.Default.Search,
-                                contentDescription = "Search",
-                                tint = theme.onSurfaceColor
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.width(8.dp))
-
-                        // Bookmark button - moved from floating position to search bar row
-                        IconButton(
-                            onClick = {
-                                showBookmarks = !showBookmarks
-                                showResults = false
-                                showSuggestions = false
-                                if (showBookmarks) {
-                                    searchQuery = ""
-                                }
-                            }
-                        ) {
-                            Icon(
-                                imageVector = if (showBookmarks) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                                contentDescription = "Show bookmarked quotes",
-                                tint = if (showBookmarks) Color.Yellow else theme.onSurfaceColor
-                            )
-                        }
                     }
+                }
+            }
+        )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-                    // Auto-suggestions dropdown
-                    if (showSuggestions && filteredSuggestions.isNotEmpty()) {
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(8.dp)),
-                            colors = CardDefaults.cardColors(
-                                containerColor = theme.surfaceColor.copy(alpha = 0.9f)
-                            ),
-                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-                        ) {
-                            Column {
-                                Text(
-                                    text = "Popular search terms:",
-                                    color = Color.Yellow,
-                                    style = MaterialTheme.typography.labelMedium,
-                                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                                )
-                                filteredSuggestions.forEach { suggestion ->
-                                    Text(
-                                        text = suggestion,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .clickable {
-                                                searchQuery = suggestion
-                                                performSearch()
-                                            }
-                                            .padding(horizontal = 16.dp, vertical = 12.dp),
-                                        color = theme.onSurfaceColor,
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                }
-                            }
-                        }
-                        Spacer(modifier = Modifier.height(16.dp))
+        // Content Area
+        val currentResults = results
+        when {
+            currentResults == null -> {
+                Text(
+                    text = stringResource(R.string.popular_searches),
+                    color = theme.accentColor,
+                    style = MaterialTheme.typography.labelLarge
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    popularSearchTerms.forEach { suggestion ->
+                        SuggestionChip(
+                            onClick = { searchQuery = suggestion },
+                            label = { Text(suggestion, style = MaterialTheme.typography.labelLarge) }
+                        )
                     }
-
-                    // Content Area
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(bottom = 80.dp) // Add bottom padding to account for footer height
-                    ) {
-                        when {
-                            showResults -> {
-                                if (filteredQuotes.isNotEmpty()) {
-                                    LazyColumn(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentPadding = PaddingValues(bottom = 16.dp) // Extra padding for last item
-                                    ) {
-                                        items(filteredQuotes) { quote ->
-                                            QuoteCard(
-                                                quote = quote,
-                                                isBookmarked = isQuoteBookmarked(quote),
-                                                onQuoteClick = { onQuoteSelected(quote) },
-                                                onBookmarkClick = { onBookmarkToggle(quote) },
-                                                theme = theme
-                                            )
-                                        }
-                                    }
-                                } else {
-                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                            Text(
-                                                "No results found",
-                                                color = theme.onSurfaceColor,
-                                                style = MaterialTheme.typography.headlineSmall,
-                                                fontWeight = FontWeight.Medium
-                                            )
-                                            Spacer(modifier = Modifier.height(8.dp))
-                                            Text(
-                                                "Try different keywords or check spelling",
-                                                color = theme.onSurfaceColor.copy(alpha = 0.7f),
-                                                style = MaterialTheme.typography.bodyMedium
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                            showBookmarks -> {
-                                if (bookmarkedQuotes.isNotEmpty()) {
-                                    LazyColumn(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentPadding = PaddingValues(bottom = 16.dp) // Extra padding for last item
-                                    ) {
-                                        items(bookmarkedQuotes) { quote ->
-                                            QuoteCard(
-                                                quote = quote,
-                                                isBookmarked = true,
-                                                onQuoteClick = { onQuoteSelected(quote) },
-                                                onBookmarkClick = { onBookmarkToggle(quote) },
-                                                theme = theme
-                                            )
-                                        }
-                                    }
-                                } else {
-                                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                            Icon(
-                                                Icons.Outlined.BookmarkBorder,
-                                                contentDescription = "No bookmarks",
-                                                tint = theme.onSurfaceColor.copy(alpha = 0.6f),
-                                                modifier = Modifier.size(64.dp)
-                                            )
-                                            Spacer(modifier = Modifier.height(16.dp))
-                                            Text(
-                                                "No bookmarked quotes yet",
-                                                color = theme.onSurfaceColor,
-                                                style = MaterialTheme.typography.headlineSmall,
-                                                fontWeight = FontWeight.Medium
-                                            )
-                                            Spacer(modifier = Modifier.height(8.dp))
-                                            Text(
-                                                "Bookmark quotes to save them here",
-                                                color = theme.onSurfaceColor.copy(alpha = 0.7f),
-                                                style = MaterialTheme.typography.bodyMedium,
-                                                textAlign = TextAlign.Center
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                            else -> {
-                                // Welcome placeholder message
-                                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Icon(
-                                            Icons.Default.Search,
-                                            contentDescription = "Search",
-                                            tint = theme.onSurfaceColor.copy(alpha = 0.6f),
-                                            modifier = Modifier.size(64.dp)
-                                        )
-                                        Spacer(modifier = Modifier.height(16.dp))
-                                        Text(
-                                            "Start typing to find inspiring quotes",
-                                            color = theme.onSurfaceColor,
-                                            style = MaterialTheme.typography.headlineSmall,
-                                            fontWeight = FontWeight.Medium,
-                                            textAlign = TextAlign.Center
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Text(
-                                            "Search by quote, author, or theme",
-                                            color = theme.onSurfaceColor.copy(alpha = 0.7f),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            textAlign = TextAlign.Center
-                                        )
-                                    }
-                                }
-                            }
-                        }
+                }
+                EmptyState(
+                    icon = Icons.Default.Search,
+                    title = stringResource(R.string.search_prompt),
+                    message = stringResource(R.string.search_prompt_hint),
+                    theme = theme
+                )
+            }
+            currentResults.isEmpty() -> {
+                EmptyState(
+                    icon = null,
+                    title = stringResource(R.string.no_results),
+                    message = stringResource(R.string.no_results_hint),
+                    theme = theme
+                )
+            }
+            else -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(bottom = 16.dp) // Extra padding for last item
+                ) {
+                    items(currentResults) { quote ->
+                        QuoteListItem(
+                            quote = quote,
+                            isBookmarked = isQuoteBookmarked(quote),
+                            onQuoteClick = {
+                                keyboardController?.hide()
+                                onQuoteSelected(quote)
+                            },
+                            onBookmarkClick = { onBookmarkToggle(quote) },
+                            theme = theme
+                        )
                     }
                 }
             }
@@ -354,8 +177,47 @@ fun SearchScreen(
     }
 }
 
+// Centered placeholder used by the search and saved lists
 @Composable
-private fun QuoteCard(
+internal fun EmptyState(
+    icon: ImageVector?,
+    title: String,
+    message: String,
+    theme: AppTheme,
+    modifier: Modifier = Modifier
+) {
+    Box(modifier = modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            if (icon != null) {
+                Icon(
+                    icon,
+                    contentDescription = null,
+                    tint = theme.onSurfaceColor.copy(alpha = 0.6f),
+                    modifier = Modifier.size(64.dp)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+            Text(
+                title,
+                color = theme.onSurfaceColor,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                message,
+                color = theme.onSurfaceColor.copy(alpha = 0.7f),
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+}
+
+// Quote row shared by search results and the saved list
+@Composable
+internal fun QuoteListItem(
     quote: Quote,
     isBookmarked: Boolean,
     onQuoteClick: () -> Unit,
@@ -364,19 +226,18 @@ private fun QuoteCard(
     modifier: Modifier = Modifier
 ) {
     Card(
+        onClick = onQuoteClick,
         modifier = modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .clickable { onQuoteClick() },
+            .padding(vertical = 4.dp),
         colors = CardDefaults.cardColors(
-            containerColor = theme.surfaceColor.copy(alpha = 0.9f)
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(start = 16.dp, top = 16.dp, bottom = 16.dp, end = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
@@ -392,7 +253,7 @@ private fun QuoteCard(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = "— ${quote.author}",
-                    color = Color.Yellow,
+                    color = theme.accentColor,
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Medium
                 )
@@ -405,18 +266,14 @@ private fun QuoteCard(
                 )
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
-
             // Bookmark button
-            IconButton(
-                onClick = onBookmarkClick,
-                modifier = Modifier.size(32.dp)
-            ) {
+            IconButton(onClick = onBookmarkClick) {
                 Icon(
                     imageVector = if (isBookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                    contentDescription = if (isBookmarked) "Remove bookmark" else "Add bookmark",
-                    tint = if (isBookmarked) theme.onSurfaceColor else theme.onSurfaceColor,
-                    modifier = Modifier.size(20.dp)
+                    contentDescription = stringResource(
+                        if (isBookmarked) R.string.remove_bookmark else R.string.add_bookmark
+                    ),
+                    tint = if (isBookmarked) theme.accentColor else theme.onSurfaceColor
                 )
             }
         }

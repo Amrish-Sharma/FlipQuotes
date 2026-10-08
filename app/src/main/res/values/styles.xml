@@ -8,14 +8,9 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <!-- Splash Screen Theme -->
-    <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:windowBackground">@color/splash_background</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowActionBar">false</item>
-        <item name="android:windowFullscreen">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowDisablePreview">true</item>
+    <!-- Main activity theme: the system splash screen uses the app's black background -->
+    <style name="MainTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:windowSplashScreenBackground">@color/splash_background</item>
     </style>
 
     <style name="layoutText">

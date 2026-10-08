@@ -16,4 +16,77 @@
     <string name="refresh">refresh</string>
     <string name="widget_description">Today\'s quote on your home screen</string>
 
+    <!-- Common -->
+    <string name="back">Back</string>
+    <string name="close">Close</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="retry">Retry</string>
+
+    <!-- Navigation -->
+    <string name="home">Home</string>
+    <string name="search">Search</string>
+    <string name="saved">Saved</string>
+
+    <!-- Quotes -->
+    <string name="refresh_quotes">Refresh quotes</string>
+    <string name="quotes_updated">Quotes updated</string>
+    <string name="refresh_failed">Couldn\'t refresh. Check your connection.</string>
+    <string name="no_quotes_for_theme">No quotes available for this theme</string>
+    <string name="load_error_title">Couldn\'t load quotes</string>
+    <string name="load_error_message">Check your connection and try again</string>
+    <string name="quote_position">%1$d / %2$d</string>
+    <string name="swipe_hint">Swipe up for the next quote</string>
+    <string name="next_quote">Next quote</string>
+    <string name="previous_quote">Previous quote</string>
+    <string name="add_bookmark">Add bookmark</string>
+    <string name="remove_bookmark">Remove bookmark</string>
+    <string name="share_quote">Share quote</string>
+
+    <!-- Search and saved -->
+    <string name="search_hint">Search quotes...</string>
+    <string name="clear_search">Clear search</string>
+    <string name="popular_searches">Popular searches</string>
+    <string name="search_prompt">Start typing to find inspiring quotes</string>
+    <string name="search_prompt_hint">Search by quote, author, or theme</string>
+    <string name="no_results">No results found</string>
+    <string name="no_results_hint">Try different keywords or check spelling</string>
+    <string name="no_saved_quotes">No bookmarked quotes yet</string>
+    <string name="no_saved_quotes_hint">Bookmark quotes to save them here</string>
+
+    <!-- Menu -->
+    <string name="quote_of_the_day">Quote of the Day</string>
+    <string name="quote_of_the_day_description">Today\'s handpicked quote</string>
+    <string name="settings">Settings</string>
+    <string name="settings_description">App preferences and configuration</string>
+    <string name="rate_app">Rate App</string>
+    <string name="rate_app_description">Rate FlipQuotes on Play Store</string>
+    <string name="share_app">Share App</string>
+    <string name="share_app_description">Share FlipQuotes with friends</string>
+    <string name="share_app_chooser">Share FlipQuotes</string>
+    <string name="about">About</string>
+    <string name="about_description">App version and information</string>
+    <string name="about_title">About FlipQuotes</string>
+    <string name="about_body">FlipQuotes is your daily source of inspiration, providing thousands of carefully curated quotes to motivate and uplift you.</string>
+    <string name="about_developer">Developer: Code Ovanta</string>
+    <string name="play_store_error">Unable to open the Play Store. Please check your browser or internet connection.</string>
+
+    <!-- Settings -->
+    <string name="settings_saved">Settings saved</string>
+    <string name="appearance">Appearance</string>
+    <string name="appearance_description">Choose your preferred theme</string>
+    <string name="theme_system">System default</string>
+    <string name="theme_white">White theme</string>
+    <string name="theme_black">Black theme</string>
+    <string name="font">Font</string>
+    <string name="font_description">Customize your quote and author fonts</string>
+    <string name="select_fonts">Select Fonts</string>
+    <string name="quote_font">Quote Font</string>
+    <string name="author_font">Author Font</string>
+    <string name="daily_reminder">Daily Reminder</string>
+    <string name="daily_reminder_description">Get the Quote of the Day as a notification</string>
+    <string name="daily_reminder_on">On · %1$s</string>
+    <string name="remind_me_daily">Remind me daily</string>
+    <string name="notification_permission_needed">Allow notifications to receive daily reminders</string>
+
 </resources>

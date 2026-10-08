@@ -12,19 +12,20 @@
         android:supportsRtl="true"
         android:enableOnBackInvokedCallback="true"
         android:theme="@style/Theme.AppCompat.NoActionBar">
-        <activity android:name="com.app.codebuzz.flipquotes.ui.screens.SplashScreen"
+        <activity android:name="com.app.codebuzz.flipquotes.MainActivity"
             android:exported="true"
-            android:theme="@style/SplashTheme">
+            android:launchMode="singleTop"
+            android:theme="@style/MainTheme">
+        </activity>
+        <!-- Keeps the old launcher component name so existing home-screen icons survive the update -->
+        <activity-alias android:name="com.app.codebuzz.flipquotes.ui.screens.SplashScreen"
+            android:exported="true"
+            android:targetActivity="com.app.codebuzz.flipquotes.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-        <activity android:name="com.app.codebuzz.flipquotes.MainActivity"
-            android:exported="true"
-            android:launchMode="singleTop"
-            android:theme="@style/Theme.AppCompat.NoActionBar">
-        </activity>
+        </activity-alias>
 
         <receiver
             android:name="com.app.codebuzz.flipquotes.widget.DailyQuoteWidgetReceiver"

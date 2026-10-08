@@ -1,39 +1,54 @@
 package com.app.codebuzz.flipquotes.ui.viewmodel
 
-import android.content.Context
-import androidx.lifecycle.ViewModel
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.codebuzz.flipquotes.data.BookmarksRepository
 import com.app.codebuzz.flipquotes.data.DailyQuoteProvider
 import com.app.codebuzz.flipquotes.data.Quote
 import com.app.codebuzz.flipquotes.data.QuotesRepository
 import com.app.codebuzz.flipquotes.data.key
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class QuotesViewModel(context: Context) : ViewModel() {
-    private val repository = QuotesRepository(context)
+enum class QuotesUiState { Loading, Ready, Error }
+
+class QuotesViewModel(application: Application) : AndroidViewModel(application) {
+
+    companion object {
+        const val ALL_THEME = "All"
+    }
+
+    private val repository = QuotesRepository(application)
 
     private val _allQuotes = MutableStateFlow<List<Quote>>(emptyList())
     val allQuotes: StateFlow<List<Quote>>  get()= _allQuotes
-    private val _filteredQuotes = MutableStateFlow<List<Quote>>(emptyList())
-    val filteredQuotes: StateFlow<List<Quote>> = _filteredQuotes
 
     private val _themesList = MutableStateFlow<List<String>>(emptyList())
     val themesList: StateFlow<List<String>> = _themesList
 
-    private val _selectedTheme = MutableStateFlow<String?>(null)
-    val selectedTheme: StateFlow<String?> = _selectedTheme
+    // Quotes per theme tab, shuffled once per load so the order survives tab switches and rotation
+    private val _quotesByTheme = MutableStateFlow<Map<String, List<Quote>>>(emptyMap())
+    val quotesByTheme: StateFlow<Map<String, List<Quote>>> = _quotesByTheme
 
-    private val _isLoading = MutableStateFlow(false)
+    private val _uiState = MutableStateFlow(QuotesUiState.Loading)
+    val uiState: StateFlow<QuotesUiState> = _uiState
 
-    private val bookmarksRepository = BookmarksRepository(context)
+    private val _isRefreshing = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing
+
+    // Emits true when a manual refresh brought new data, false when it failed
+    private val _refreshResults = MutableSharedFlow<Boolean>(extraBufferCapacity = 1)
+    val refreshResults: SharedFlow<Boolean> = _refreshResults
+
+    private val bookmarksRepository = BookmarksRepository(application)
     private val _bookmarkedKeys = MutableStateFlow(bookmarksRepository.getAll())
     val bookmarkedKeys: StateFlow<Set<String>> = _bookmarkedKeys
 
-    private val appContext = context.applicationContext
+    private val appContext = application.applicationContext
     private val _dailyQuote = MutableStateFlow<Quote?>(null)
     val dailyQuote: StateFlow<Quote?> = _dailyQuote
 
@@ -54,12 +69,7 @@ class QuotesViewModel(context: Context) : ViewModel() {
     // True the first time the app is opened on a given day
     fun shouldAutoShowDailyQuote(): Boolean = DailyQuoteProvider.shouldAutoShowToday(appContext)
 
-    fun setSelectedTheme(theme: String?) {
-        _selectedTheme.value = theme
-        filterQuotesByTheme()
-    }
-
-    private fun processThemes(quotes: List<Quote>) {
+    private fun publishQuotes(quotes: List<Quote>) {
         val themeFrequency = quotes
             .groupBy { it.theme }
             .mapValues { it.value.size }
@@ -67,63 +77,57 @@ class QuotesViewModel(context: Context) : ViewModel() {
             .sortedByDescending { it.value }
             .take(10) // Changed from 5 to 10
             .map { it.key }
+        val themes = listOf(ALL_THEME) + themeFrequency // Removed "General"
 
-        _themesList.value = listOf("All") + themeFrequency // Removed "General"
-    }
-
-    private fun filterQuotesByTheme() {
-        val theme = _selectedTheme.value
-        _filteredQuotes.update { currentQuotes ->
-            when {
-                theme == null || theme == "All" -> _allQuotes.value.shuffled()
-                else -> _allQuotes.value
-                    .filter { quote -> quote.theme == theme }
-                    .shuffled()
+        _allQuotes.value = quotes
+        _quotesByTheme.value = themes.associateWith { theme ->
+            when (theme) {
+                ALL_THEME -> quotes.shuffled()
+                else -> quotes.filter { quote -> quote.theme == theme }.shuffled()
             }
         }
+        _themesList.value = themes
     }
 
     fun fetchQuotes() {
         viewModelScope.launch {
-            try {
-                _isLoading.value = true
-
+            _uiState.value = QuotesUiState.Loading
+            val quotes = try {
                 // Use the repository with caching - much faster!
-                val quotes = repository.getQuotes()
-
-                if (quotes.isNotEmpty()) {
-                    _allQuotes.value = quotes
-                    processThemes(quotes)
-                    filterQuotesByTheme()
-                }
+                repository.getQuotes()
             } catch (e: Exception) {
                 e.printStackTrace()
-                // Handle error state if needed
-            } finally {
-                _isLoading.value = false
+                emptyList()
+            }
+
+            if (quotes.isNotEmpty()) {
+                publishQuotes(quotes)
+                _uiState.value = QuotesUiState.Ready
+            } else {
+                _uiState.value = QuotesUiState.Error
             }
         }
     }
 
     // Force refresh for refresh button - bypasses cache
     fun forceRefresh() {
+        if (_isRefreshing.value) return
         viewModelScope.launch {
-            try {
-                _isLoading.value = true
-
+            _isRefreshing.value = true
+            val quotes = try {
                 // Force network refresh
-                val quotes = repository.forceRefresh()
-
-                if (quotes.isNotEmpty()) {
-                    _allQuotes.value = quotes
-                    processThemes(quotes)
-                    filterQuotesByTheme()
-                }
+                repository.forceRefresh()
             } catch (e: Exception) {
                 e.printStackTrace()
-            } finally {
-                _isLoading.value = false
+                emptyList()
             }
+
+            if (quotes.isNotEmpty()) {
+                publishQuotes(quotes)
+                _uiState.value = QuotesUiState.Ready
+            }
+            _isRefreshing.value = false
+            _refreshResults.emit(quotes.isNotEmpty())
         }
     }
 }

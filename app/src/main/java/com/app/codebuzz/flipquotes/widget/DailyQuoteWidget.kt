@@ -26,6 +26,7 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextAlign
 import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
+import android.content.res.Configuration
 import com.app.codebuzz.flipquotes.MainActivity
 import com.app.codebuzz.flipquotes.data.DailyQuoteProvider
 
@@ -33,9 +34,15 @@ class DailyQuoteWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val quote = DailyQuoteProvider.getToday(context)
-        // Follow the app's saved theme (black is the app default)
-        val isDark = context.getSharedPreferences("theme_preferences", Context.MODE_PRIVATE)
-            .getString("selected_theme", "black") == "black"
+        // Follow the app's saved theme (system setting is the app default)
+        val savedTheme = context.getSharedPreferences("theme_preferences", Context.MODE_PRIVATE)
+            .getString("selected_theme", "system")
+        val isDark = when (savedTheme) {
+            "black" -> true
+            "white" -> false
+            else -> (context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+                Configuration.UI_MODE_NIGHT_YES
+        }
 
         val background = if (isDark) Color.Black else Color.White
         val textColor = if (isDark) Color.White else Color.Black

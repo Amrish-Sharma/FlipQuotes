@@ -133,13 +133,13 @@ class QuotesRepository(private val context: Context) {
         }
     }
 
-    // Force refresh from network (for refresh button)
+    // Force refresh from network (for refresh button); empty when the network is unavailable
     suspend fun forceRefresh(): List<Quote> = withContext(Dispatchers.IO) {
         val networkQuotes = fetchFromNetwork()
         if (networkQuotes.isNotEmpty()) {
             saveToCache(networkQuotes)
         }
-        networkQuotes.ifEmpty { loadFromCache() }
+        networkQuotes
     }
 
 }
