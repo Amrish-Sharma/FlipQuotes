@@ -19,3 +19,6 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Gson reads and writes Quote by field name (network JSON, cache file, daily quote prefs)
+-keep class com.app.codebuzz.flipquotes.data.Quote { *; }
