@@ -22,3 +22,6 @@
 
 # Gson reads and writes Quote by field name (network JSON, cache file, daily quote prefs)
 -keep class com.app.codebuzz.flipquotes.data.Quote { *; }
+
+# Room creates generated databases (WorkManager's WorkDatabase_Impl) reflectively via the no-arg constructor
+-keep class * extends androidx.room.RoomDatabase { <init>(); }
